@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "mode": "plan",
+  "task_slug": "pbmc3k-seurat-v5",
+  "run_id": "pbmc3k-canonical",
+  "project_root": ".",
+  "question": "Reproduce the official Seurat PBMC3K single-cell workflow and publication-ready UMAP, violin, and marker dot plots as a descriptive teaching case.",
+  "analysis_type": "single-library descriptive scRNA-seq workflow",
+  "analysis_scope": "descriptive-only",
+  "inferential": false,
+  "modality": [
+    "single-cell",
+    "visualization"
+  ],
+  "platform": "10x Genomics 3-prime gene expression filtered MEX",
+  "organism": "Homo sapiens",
+  "tissue": "peripheral blood mononuclear cells",
+  "reference_build": "hg19",
+  "gene_namespace": "HGNC gene symbols",
+  "statistical_unit": "cell for descriptive visualization only; one library is not a biological replicate series",
+  "inputs": [
+    "input_manifest.json#pbmc3k_filtered_gene_bc_matrices"
+  ],
+  "data_scale": "raw-counts",
+  "method": [
+    "Seurat 5.5.0",
+    "LogNormalize",
+    "FindVariableFeatures vst",
+    "PCA",
+    "Louvain clustering",
+    "UMAP",
+    "descriptive cluster markers"
+  ],
+  "requested_outputs": [
+    "QC summary and violin plot",
+    "PCA diagnostics",
+    "cluster UMAP",
+    "conservative teaching annotation UMAP",
+    "marker dot plot",
+    "cluster marker table",
+    "annotated Seurat object",
+    "native visual review records",
+    "RESULTS.md",
+    "QA_REPORT.md",
+    "ARTIFACT_INDEX.md"
+  ],
+  "notes": "Single-library descriptive tutorial. No donor-level inference, differential abundance, CellChat, GSEA, mechanism, or causal claims."
+}

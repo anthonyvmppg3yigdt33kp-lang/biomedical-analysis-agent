@@ -1,0 +1,403 @@
+name: Real-data release gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: Full 40-character commit SHA selected for release
+        required: true
+        type: string
+      confirmation:
+        description: Type RUN_REAL_DATA_V1_0_0 to authorize downloads and execution
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: real-data-release-gate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Bind the gate to one reviewed commit
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the selected revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify authorization and commit identity
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          CHECKED_OUT_COMMIT: ${{ github.sha }}
+        run: |
+          if ($env:CONFIRMATION -ne 'RUN_REAL_DATA_V1_0_0') {
+            throw 'Explicit real-data execution confirmation is missing.'
+          }
+          if ($env:EXPECTED_COMMIT -notmatch '^[0-9a-f]{40}$') {
+            throw 'expected_commit must be a full lowercase Git SHA.'
+          }
+          if ($env:EXPECTED_COMMIT -ne $env:CHECKED_OUT_COMMIT) {
+            throw "Commit mismatch: expected $env:EXPECTED_COMMIT, checked out $env:CHECKED_OUT_COMMIT"
+          }
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install test dependencies and rerun release-static gates
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install --requirement requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/validate_distribution.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $destination = Join-Path $env:RUNNER_TEMP 'release-gate-task-skills'
+          python bootstrap_skills.py --destination $destination
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python bootstrap_skills.py --destination $destination --verify-only
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  tutorials:
+    name: ${{ matrix.case }} real-data execution
+    needs: preflight
+    runs-on: windows-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [pbmc3k, visium-mouse-brain]
+    steps:
+      - name: Check out the exact gated revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.expected_commit }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Set up exact R 4.5.3
+        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          r-version: "4.5.3"
+          use-public-rspm: false
+
+      - name: Bootstrap and verify pinned task-local skills in this matrix job
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+        run: |
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          $destination = Join-Path $env:RUNNER_TEMP "task-skills-$env:CASE_ID"
+          New-Item -ItemType Directory -Force $evidence | Out-Null
+          python bootstrap_skills.py --destination $destination |
+            Tee-Object -FilePath (Join-Path $evidence 'bootstrap-install.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python bootstrap_skills.py --destination $destination --verify-only |
+            Tee-Object -FilePath (Join-Path $evidence 'bootstrap-verify.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $head = (git rev-parse HEAD).Trim()
+          if ($head -ne '${{ inputs.expected_commit }}') {
+            throw "Tutorial checkout mismatch: $head"
+          }
+
+      - name: Confirm the unauthorized path is blocked before writes
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $blockedRoot = Join-Path $env:RUNNER_TEMP "unauthorized-$env:CASE_ID"
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          New-Item -ItemType Directory -Force $evidence | Out-Null
+          python tutorial_cli.py run --case $env:CASE_ID --run-root $blockedRoot
+          $observed = $LASTEXITCODE
+          if ($observed -eq 0) { throw 'Unauthorized tutorial execution unexpectedly succeeded.' }
+          if (Test-Path -LiteralPath $blockedRoot) { throw 'Unauthorized execution created a run root.' }
+          [ordered]@{
+            schema_version = '1.0.0'
+            case = $env:CASE_ID
+            check = 'unauthorized_run_blocked_before_writes'
+            observed_returncode = $observed
+            run_root_created = $false
+            ok = $true
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'authorization-negative.json')
+          exit 0
+
+      - name: Compile the frozen plan
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+        run: |
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          New-Item -ItemType Directory -Force $evidence | Out-Null
+          python tutorial_cli.py plan --case $env:CASE_ID --output (Join-Path $evidence 'compiled-plan.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run, checkpoint-resume, and report the real tutorial
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+        run: |
+          $rscript = (Get-Command Rscript).Source
+          $runRoot = Join-Path $env:RUNNER_TEMP "run-$env:CASE_ID"
+          $cacheRoot = Join-Path $env:RUNNER_TEMP "cache-$env:CASE_ID"
+          $inputCacheRoot = Join-Path $cacheRoot "inputs/$env:CASE_ID"
+          python tutorial_cli.py run --case $env:CASE_ID --authorize-run --rscript $rscript --run-root $runRoot --cache-root $cacheRoot --input-cache-root $inputCacheRoot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          $compiledPlan = Join-Path $evidence 'compiled-plan.json'
+          $boundPlan = Join-Path $runRoot '01_plan/root-compiled-plan.json'
+          if (-not (Test-Path -LiteralPath $boundPlan)) { throw 'Fresh run did not bind the root-compiled plan.' }
+          $compiledPlanSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $compiledPlan).Hash.ToLowerInvariant()
+          $boundPlanSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $boundPlan).Hash.ToLowerInvariant()
+          if ($compiledPlanSha -ne $boundPlanSha) { throw 'Executed plan differs from the independently compiled plan.' }
+          $lockPath = Join-Path $runRoot '02_environment/renv.lock'
+          if (-not (Test-Path -LiteralPath $lockPath)) { throw 'Fresh run did not freeze renv.lock.' }
+          $freshLockSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $lockPath).Hash.ToLowerInvariant()
+
+          $checkpointFiles = @(
+            Get-ChildItem -LiteralPath (Join-Path $runRoot '04_intermediate') -Recurse -File |
+              Where-Object { $_.Name -in @('stage.complete.json', '_checkpoint.json') } |
+              Sort-Object FullName
+          )
+          $analysisFiles = @(
+            Get-ChildItem -LiteralPath (Join-Path $runRoot '05_results') -Recurse -File |
+              Sort-Object FullName
+          )
+          if ($checkpointFiles.Count -eq 0 -or $analysisFiles.Count -eq 0) {
+            throw 'Fresh run lacks checkpoint or analysis artifacts required for resume proof.'
+          }
+          $snapshotFiles = @($checkpointFiles + $analysisFiles)
+          $before = @{}
+          foreach ($file in $snapshotFiles) {
+            $relative = [IO.Path]::GetRelativePath($runRoot, $file.FullName).Replace('\', '/')
+            $before[$relative] = [ordered]@{
+              sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash.ToLowerInvariant()
+              last_write_utc_ticks = $file.LastWriteTimeUtc.Ticks
+            }
+          }
+          python tutorial_cli.py resume --case $env:CASE_ID --authorize-run --rscript $rscript --run-root $runRoot --cache-root $cacheRoot --input-cache-root $inputCacheRoot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $resumeLockSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $lockPath).Hash.ToLowerInvariant()
+          if ($freshLockSha -ne $resumeLockSha) { throw 'Resume changed the frozen environment lock.' }
+
+          foreach ($relative in $before.Keys) {
+            $path = Join-Path $runRoot $relative
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Resume removed a frozen checkpoint/analysis artifact: $relative"
+            }
+            $afterHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant()
+            $afterTicks = (Get-Item -LiteralPath $path).LastWriteTimeUtc.Ticks
+            if ($afterHash -ne $before[$relative].sha256 -or $afterTicks -ne $before[$relative].last_write_utc_ticks) {
+              throw "Resume rewrote a frozen checkpoint/analysis artifact: $relative"
+            }
+          }
+          $reuseEvidencePath = Join-Path $runRoot 'logs/environment-cache-reuse.json'
+          if (-not (Test-Path -LiteralPath $reuseEvidencePath)) {
+            throw 'Resume did not emit explicit environment cache-reuse evidence.'
+          }
+          $reuseEvidence = Get-Content -LiteralPath $reuseEvidencePath -Raw | ConvertFrom-Json
+          if ($reuseEvidence.reuse -ne $true -or $reuseEvidence.host_package_required -ne $false) {
+            throw 'Environment cache-reuse evidence is not terminal or task-local.'
+          }
+          $inputCacheReuse = $null
+          if ($env:CASE_ID -eq 'visium-mouse-brain') {
+            $inputReusePath = Join-Path $runRoot 'logs/input-cache-reuse.json'
+            if (-not (Test-Path -LiteralPath $inputReusePath)) {
+              throw 'Visium resume did not emit explicit input cache-reuse evidence.'
+            }
+            $inputCacheReuse = Get-Content -LiteralPath $inputReusePath -Raw | ConvertFrom-Json
+            if ($inputCacheReuse.status -ne 'passed' -or
+                $inputCacheReuse.reuse -ne $true -or
+                $inputCacheReuse.materialization -ne 'direct_read_no_copy' -or
+                $inputCacheReuse.cache_scope -ne 'task_local_external_to_run_root' -or
+                $inputCacheReuse.canonical_inputs_modified -ne $false) {
+              throw 'Visium input cache reuse is not external, direct-read, and immutable.'
+            }
+          }
+          if ($env:CASE_ID -eq 'pbmc3k') {
+            $resumeLog = Join-Path $runRoot 'logs/r-pipeline.stderr.log'
+            $reuseLines = @(Select-String -LiteralPath $resumeLog -SimpleMatch 'checkpoint reuse:')
+          } else {
+            $resumeLog = Join-Path $runRoot 'logs/pipeline-resume.log'
+            $reuseLines = @(Select-String -LiteralPath $resumeLog -SimpleMatch "resume_reuse`t")
+          }
+          if ($reuseLines.Count -lt $checkpointFiles.Count) {
+            throw "Resume log proves only $($reuseLines.Count) checkpoint reuses for $($checkpointFiles.Count) checkpoints."
+          }
+          [ordered]@{
+            schema_version = '1.0.0'
+            case = $env:CASE_ID
+            check = 'plan_bound_fresh_resume_shared_cache_and_immutable_artifacts'
+            fresh_returncode = 0
+            resume_returncode = 0
+            shared_cache_root = $true
+            explicit_environment_cache_reuse = $true
+            explicit_input_cache_reuse = ($env:CASE_ID -eq 'visium-mouse-brain')
+            input_cache_direct_read_no_copy = ($env:CASE_ID -eq 'visium-mouse-brain')
+            input_cache_external_to_run_root = ($env:CASE_ID -eq 'visium-mouse-brain')
+            canonical_inputs_modified = $false
+            task_local_bootstrap = $true
+            host_package_required = $false
+            compiled_plan_sha256 = $compiledPlanSha
+            executed_plan_sha256 = $boundPlanSha
+            fresh_renv_lock_sha256 = $freshLockSha
+            resume_renv_lock_sha256 = $resumeLockSha
+            immutable_lock = $true
+            immutable_checkpoint_and_analysis_artifacts = $true
+            checkpoint_records = $checkpointFiles.Count
+            analysis_artifacts = $analysisFiles.Count
+            checkpoint_reuse_log_records = $reuseLines.Count
+            before_resume = $before
+            ok = $true
+          } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $evidence 'resume-cache-evidence.json')
+          if ($env:CASE_ID -eq 'pbmc3k') {
+            python tutorial_cli.py report --case $env:CASE_ID --run-root $runRoot
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } else {
+            Write-Output 'The Visium run already emitted RESULTS/QA artifacts; report finalization remains blocked until native review.'
+          }
+          python scripts/validate_tutorial_ci_output.py --case $env:CASE_ID --run-root $runRoot --output (Join-Path $runRoot 'manifest/ci-validation-summary.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Prove checksum mismatch rejection against downloaded inputs
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+        run: |
+          $runRoot = Join-Path $env:RUNNER_TEMP "run-$env:CASE_ID"
+          $cacheRoot = Join-Path $env:RUNNER_TEMP "cache-$env:CASE_ID"
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          python scripts/inject_tutorial_checksum_failure.py --case $env:CASE_ID --run-root $runRoot --cache-root $cacheRoot --output (Join-Path $evidence 'checksum-negative.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $record = Get-Content -LiteralPath (Join-Path $evidence 'checksum-negative.json') -Raw | ConvertFrom-Json
+          if ($record.ok -ne $true -or
+              $record.failure_closed -ne $true -or
+              $record.failure_code -ne 'INPUT_CHECKSUM_MISMATCH_REJECTED' -or
+              $record.observed_returncode -ne 2) {
+            throw 'Checksum negative-control evidence is incomplete.'
+          }
+
+      - name: Prove an environment subprocess failure cannot create a completion marker
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $rscript = (Get-Command Rscript).Source
+          $failureRoot = Join-Path $env:RUNNER_TEMP "nonzero-$env:CASE_ID"
+          $sharedCache = Join-Path $env:RUNNER_TEMP "cache-$env:CASE_ID"
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          if ($env:CASE_ID -eq 'pbmc3k') {
+            # PBMC3K injects at the full provision boundary, so it uses a new
+            # cache to ensure that the control reaches that boundary.
+            $failureCache = Join-Path $env:RUNNER_TEMP "nonzero-cache-$env:CASE_ID"
+            python examples/pbmc3k/prepare_environment.py --run-root $failureRoot --cache-root $failureCache --rscript $rscript --authorized --inject-error-before-exit
+            $observed = $LASTEXITCODE
+            if ($observed -eq 0) { throw 'Injected environment failure unexpectedly returned zero.' }
+            $record = Get-Content (Join-Path $failureRoot 'logs/environment-negative-test.json') -Raw | ConvertFrom-Json
+            if ($record.status -ne 'pass' -or $record.completion_marker_exists -or -not $record.sentinel_observed) {
+              throw 'PBMC3K non-zero negative-control evidence is incomplete.'
+            }
+          } else {
+            # The Visium control reuses the exact validated input/environment
+            # caches and injects inside the native R cache validator, after all
+            # positive cache checks but before completion-marker promotion.
+            $sourceRun = Join-Path $env:RUNNER_TEMP "run-$env:CASE_ID"
+            $inputCache = Join-Path $sharedCache "inputs/$env:CASE_ID"
+            $faultEvidence = Join-Path $failureRoot 'fault-injection-evidence.json'
+            python examples/visium-mouse-brain/inject_environment_fault.py `
+              --canonical-run-root $sourceRun `
+              --failure-run-root $failureRoot `
+              --cache-root $sharedCache `
+              --input-cache-root $inputCache `
+              --rscript $rscript `
+              --output $faultEvidence
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $record = Get-Content -LiteralPath $faultEvidence -Raw | ConvertFrom-Json
+            if ($record.status -ne 'passed' -or
+                $record.observed_native_returncode -eq 0 -or
+                $record.observed_wrapper_returncode -eq 0 -or
+                $record.completion_marker_absent -ne $true -or
+                $record.dedicated_fault_sentinel_observed -ne $true -or
+                $record.canonical_run_modified -ne $false) {
+              throw 'Visium native R non-zero negative-control evidence is incomplete.'
+            }
+            $observed = $record.observed_wrapper_returncode
+          }
+          [ordered]@{
+            schema_version = '1.0.0'
+            case = $env:CASE_ID
+            check = 'nonzero_environment_exit_blocked'
+            observed_returncode = $observed
+            completion_marker_created = $false
+            dedicated_fault_sentinel_observed = $true
+            canonical_run_modified = $false
+            ok = $true
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'nonzero-negative.json')
+          exit 0
+
+      - name: Build and independently verify a minimal commit-bound evidence bundle
+        shell: pwsh
+        env:
+          CASE_ID: ${{ matrix.case }}
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          $runRoot = Join-Path $env:RUNNER_TEMP "run-$env:CASE_ID"
+          $evidence = Join-Path $env:RUNNER_TEMP "evidence-$env:CASE_ID"
+          $bundle = Join-Path $env:RUNNER_TEMP "tutorial-evidence-$env:CASE_ID"
+          python .github/scripts/tutorial_ci_artifact.py build `
+            --case $env:CASE_ID `
+            --commit $env:EXPECTED_COMMIT `
+            --run-root $runRoot `
+            --evidence-root $evidence `
+            --skills-lock skills.lock.json `
+            --output $bundle
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python (Join-Path $bundle 'verify_tutorial_ci_artifact.py') verify `
+            --bundle-root $bundle `
+            --expected-case $env:CASE_ID `
+            --expected-commit $env:EXPECTED_COMMIT
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload only the self-verifying minimal evidence bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tutorial-${{ matrix.case }}-${{ github.sha }}
+          path: ${{ runner.temp }}/tutorial-evidence-${{ matrix.case }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  gate-summary:
+    name: Computational real-data gate complete
+    needs: tutorials
+    if: always()
+    runs-on: windows-latest
+    steps:
+      - name: Require both matrix jobs to pass
+        shell: pwsh
+        env:
+          TUTORIAL_RESULT: ${{ needs.tutorials.result }}
+        run: |
+          if ($env:TUTORIAL_RESULT -ne 'success') {
+            throw "At least one real-data tutorial failed: $env:TUTORIAL_RESULT"
+          }
+          Write-Output 'Both computational tutorials passed. Native visual review and anonymous-clone validation remain separate release gates.'

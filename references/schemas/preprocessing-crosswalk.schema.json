@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "preprocessing-crosswalk.schema.json",
+  "title": "PreprocessingCrosswalk",
+  "$ref": "knowledge-objects.schema.json#/$defs/PreprocessingCrosswalk"
+}

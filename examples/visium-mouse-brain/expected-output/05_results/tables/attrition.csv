@@ -1,0 +1,5 @@
+"step","count","rule"
+"matrix_barcodes",2695,"filtered H5"
+"matrix_and_vendor_in_tissue",2695,"vendor in_tissue intersection"
+"loaded_spots",2695,"Load10X_Spatial(filter.matrix=TRUE)"
+"post_load_retained_spots",2695,"no additional post-load filtering"

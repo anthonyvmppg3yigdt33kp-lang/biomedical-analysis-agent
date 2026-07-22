@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "dependencies": {
+    "visualization-2026718-v1": {
+      "repository": "https://github.com/anthonyvmppg3yigdt33kp-lang/visualization-2026718-v1.git",
+      "commit": "f695d31a59a9afe54e539227ec20ac9933acd20f",
+      "subdirectory": "skill/visualization-2026718-v1",
+      "distribution_profile_file": "public-install-profile.json",
+      "excluded_paths": [
+        "assets/previews-curated",
+        "assets/scheme-candidates",
+        "assets/source_archive",
+        "references/catalog.jsonl"
+      ],
+      "content_sha256": "74fb9457112f04fe3338cd52784e596e207e1493455c4b344ded91671f84fad4",
+      "original_code_license": "MIT",
+      "license_file": "LICENSE",
+      "third_party_notice_file": "NOTICE.md",
+      "rights_status": "mixed-original-and-third-party-not-relicensed"
+    }
+  }
+}

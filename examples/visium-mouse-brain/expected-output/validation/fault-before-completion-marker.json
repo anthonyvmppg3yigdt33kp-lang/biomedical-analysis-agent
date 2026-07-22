@@ -1,0 +1,17 @@
+{
+  "absolute_paths_included": false,
+  "canonical_run_fingerprint_after": "d0eb6686292da894120daec008b6971b2fe9f329084e6a8a260921a6ec4e00cf",
+  "canonical_run_fingerprint_before": "d0eb6686292da894120daec008b6971b2fe9f329084e6a8a260921a6ec4e00cf",
+  "canonical_run_modified": false,
+  "case": "visium-mouse-brain",
+  "completion_marker_absent": true,
+  "dedicated_fault_sentinel_observed": true,
+  "failure_log_sha256": "f9f0e6ffe60a0b010a8385410215b2b6fc8283fcdc97d156333c33dea20bfeba",
+  "failure_process_evidence_sha256": "321a05f89c56f3568500d547f58ffd77464863549a081623452e3a35e3d5c54c",
+  "failure_run_root_basename": "fault-before-completion-marker-v9",
+  "injection": "native_r_failure_after_cache_validation_before_completion_marker",
+  "observed_native_returncode": 1,
+  "observed_wrapper_returncode": 2,
+  "schema_version": "1.0",
+  "status": "passed"
+}

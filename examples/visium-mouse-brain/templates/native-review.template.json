@@ -1,0 +1,60 @@
+{
+  "schema_version": "2.0",
+  "case": "visium-mouse-brain",
+  "round": 1,
+  "reviewer_method": "native_local_image_view",
+  "reviewer_tool": "REQUIRED_ACTUAL_TOOL_NAME",
+  "opened_original_and_final": false,
+  "evidence_level": "image_code_data",
+  "figure_reviews": [
+    {
+      "figure_id": "spatial_qc",
+      "original_sha256": "POPULATED_AFTER_RENDER",
+      "final_sha256": "POPULATED_AFTER_RENDER",
+      "visible": [],
+      "interpretable": [],
+      "confirmed": [],
+      "cannot_assert": [
+        "donor or group effect",
+        "cell type",
+        "mechanism or causality"
+      ],
+      "findings": [],
+      "decision": "REQUIRED_keep_revise_or_reselect"
+    },
+    {
+      "figure_id": "spatial_clusters",
+      "original_sha256": "POPULATED_AFTER_RENDER",
+      "final_sha256": "POPULATED_AFTER_RENDER",
+      "visible": [],
+      "interpretable": [],
+      "confirmed": [],
+      "cannot_assert": [
+        "spot cluster is a cell type",
+        "cluster is a spatially regularized domain",
+        "population generalization"
+      ],
+      "findings": [],
+      "decision": "REQUIRED_keep_revise_or_reselect"
+    },
+    {
+      "figure_id": "spatial_features_hpca_ttr",
+      "original_sha256": "POPULATED_AFTER_RENDER",
+      "final_sha256": "POPULATED_AFTER_RENDER",
+      "visible": [],
+      "interpretable": [],
+      "confirmed": [],
+      "cannot_assert": [
+        "direct cell contact",
+        "molecular interaction",
+        "mechanism or causality"
+      ],
+      "findings": [],
+      "decision": "REQUIRED_keep_revise_or_reselect"
+    }
+  ],
+  "overall_findings": [],
+  "overall_decision": "REQUIRED_keep_revise_reselect_or_blocked",
+  "notes": "A keep decision is invalid while a blocker or major finding remains unresolved. A revise decision may change only registered visual-only parameters and may not start a fourth round."
+}
+

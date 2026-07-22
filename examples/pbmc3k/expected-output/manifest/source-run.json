@@ -1,0 +1,19 @@
+{
+  "analysis_signature": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "canonical_metrics": {
+    "clusters": 9,
+    "input_cells": 2700,
+    "qc_retained_cells": 2638
+  },
+  "case_id": "pbmc3k",
+  "excluded_from_export": [
+    "raw input archive and extracted matrix",
+    "RDS objects and stage checkpoints",
+    "task-local R libraries, cache and process logs",
+    "cell-level metadata and QC audit tables"
+  ],
+  "raw_data_distributed": false,
+  "schema_version": "1.0.0",
+  "source_run_id": "pbmc3k-native-v1-20260722-v5",
+  "source_verification_status": "pass"
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "dataset": {
+    "logical_locator": "official-mofaflex-test-data://cll.h5mu",
+    "sha256": "1da99d3967f8616adcee2bcea0157c30acf34c46884902343518e9634ec2f7ee",
+    "size_bytes": 11162849
+  },
+  "pretrained_model": {
+    "logical_locator": "official-mofaflex-test-data://cll_model.h5",
+    "sha256": "8effa89420f7e4c3cc0c2f4f5423d3f6901ba9be1c0f5f04f3b4deb2437db562",
+    "size_bytes": 2801545,
+    "factors": 15
+  },
+  "software_source": {
+    "repository": "https://github.com/bioFAM/mofaflex",
+    "commit": "bd2c8f066008174fc6be68eaf85d9534a10a6b0c",
+    "license": "BSD-3-Clause"
+  },
+  "primary_provenance": [
+    {"role": "underlying CLL dataset", "url": "https://pubmed.ncbi.nlm.nih.gov/29227286/"},
+    {"role": "original MOFA method and CLL analysis", "url": "https://pubmed.ncbi.nlm.nih.gov/29925568/"},
+    {"role": "official Bioconductor dataset documentation", "url": "https://www.bioconductor.org/packages/devel/data/experiment/manuals/MOFAdata/man/MOFAdata.pdf"}
+  ],
+  "redistribution_boundary": "Binary data and model are excluded; verify the underlying data license before redistribution."
+}
+

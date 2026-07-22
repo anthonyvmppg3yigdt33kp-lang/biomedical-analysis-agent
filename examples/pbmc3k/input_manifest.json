@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "pbmc3k",
+  "redistribute_binary_input": false,
+  "inputs": [
+    {
+      "id": "pbmc3k_filtered_gene_bc_matrices",
+      "provider": "10x Genomics",
+      "title": "PBMC 3k filtered gene/barcode matrices",
+      "url": "https://cf.10xgenomics.com/samples/cell/pbmc3k/pbmc3k_filtered_gene_bc_matrices.tar.gz",
+      "archive_name": "pbmc3k_filtered_gene_bc_matrices.tar.gz",
+      "content_length_bytes": 7621991,
+      "sha256": "847d6ebd9a1ec9a768f2be7e40ca42cbfe75ebeb6d76a4c24167041699dc28b5",
+      "media_type": "application/gzip",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "attribution": "10x Genomics, PBMC 3k single-cell gene expression dataset",
+      "expected_member_root": "filtered_gene_bc_matrices/hg19",
+      "official_tutorial": "https://satijalab.org/seurat/articles/pbmc3k_tutorial.html"
+    }
+  ],
+  "canonical_checks": {
+    "matrix_features": 32738,
+    "matrix_barcodes": 2700,
+    "seurat_features_after_min_cells": 13714,
+    "input_cells": 2700,
+    "qc_retained_cells": 2638,
+    "clusters": 9
+  },
+  "claim_boundary": "The data represent one public library. Outputs are descriptive and cannot estimate donor- or population-level effects."
+}

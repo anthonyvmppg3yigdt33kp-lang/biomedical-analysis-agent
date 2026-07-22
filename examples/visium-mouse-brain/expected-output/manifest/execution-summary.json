@@ -1,0 +1,90 @@
+{
+  "cache_reuse": {
+    "environment": {
+      "current_cache_key": "166efc610ed4b0d8d5004f1b",
+      "current_root_basename": "visium-mouse-brain-r453-seurat550-166efc610ed4b0d8d5004f1b",
+      "current_root_native_r_revalidation": "passed",
+      "evidence_sha256": "0ca007891b02a2d7168ca76894769d424deaaa2eb96cf0601e1be2986a7c8ba1",
+      "historical_build_root_basename": "visium-mouse-brain-r453-seurat550-5324b3ca515435690ada4e70",
+      "historical_build_root_role": "build_time_origin_only",
+      "migration_status": "exact_lock_hash_bound_cache_key_adoption",
+      "native_revalidation_process_sha256": "7969f92f8a3cad8c422fa438755afb0b40cb6d6facddc2b7a92320283e909087",
+      "native_validated": true,
+      "status": "passed"
+    },
+    "input": {
+      "direct_read_no_copy": true,
+      "evidence_sha256": "ab13e549d3e298a0ebccdfc6b84c9c0fe2371bcaa84bbafbaa0d616958474aa5",
+      "status": "passed"
+    }
+  },
+  "case": "visium-mouse-brain",
+  "claim_scope": "single-section spot-level descriptive-only",
+  "dataset_id": "10x-V1-Mouse-Brain-Sagittal-Anterior",
+  "environment": {
+    "bioconductor_archive_manifest_sha256": "81945d54001b5b756549793aa61c807cd900a4a38edec8c72bf60ff4797638c7",
+    "bioconductor_pins_sha256": "696aead7c1ecbec8ef30eb8a714bc360b8f85ebd40de3417efde4edefe77d41a",
+    "bioconductor_release": "3.21",
+    "bioconductor_version": "3.21.1",
+    "bootstrap_renv_binary_sha256": "bcba2170563c65c6d6ed9328e4a624033ad9c5ee4e5bf9132cff7bcc7327cce5",
+    "bootstrap_renv_version": "1.2.2",
+    "complete_same_release_closure": true,
+    "host_renv_required": false,
+    "package_type": "binary",
+    "probe_sha256": "966186f1fb91649aa88ae90da5839639ad2bf9c60906e94ec5d6db742f99ad9d",
+    "renv_lock_sha256": "b8450521054cd750e93a27fab0b44757519361bd8b694ffbae35636de508cf5b",
+    "repository_snapshot": "https://packagemanager.posit.co/cran/2026-04-23",
+    "shutdown_mode": "native_exit",
+    "source_compilation_allowed": false,
+    "task_local_renv_version": "1.2.2"
+  },
+  "observed": {
+    "assay_cells": 2695,
+    "coordinate_barcodes": 2695,
+    "directed_assay_image_coordinate_differences": {
+      "assay_cells_not_coordinates": 0,
+      "assay_cells_not_image_cells": 0,
+      "coordinates_not_assay_cells": 0,
+      "coordinates_not_image_cells": 0,
+      "image_cells_not_assay_cells": 0,
+      "image_cells_not_coordinates": 0
+    },
+    "expression_spot_clusters": 11,
+    "image_cells": 2695,
+    "loaded_spots": 2695,
+    "matrix_barcodes": 2695,
+    "plotted_features": [
+      "Hpca",
+      "Ttr"
+    ],
+    "preprocessing": {
+      "BiocVersion": "3.21.1",
+      "SparseArray_version": "1.8.1",
+      "glmGamPoi_check": true,
+      "glmGamPoi_version": "1.20.0",
+      "method": "glmGamPoi_offset",
+      "pca_dimensions": 30,
+      "pca_non_finite_values": 0,
+      "sct_non_finite_values": 0,
+      "sct_variable_features": 3000,
+      "vst_flavor": "v2"
+    },
+    "retained_spots": 2695,
+    "vendor_all_positions": 4992,
+    "vendor_in_tissue_barcodes": 2695
+  },
+  "render_round": 1,
+  "schema_version": "1.0",
+  "sensitive_paths_included": false,
+  "status": "DELIVERED",
+  "validation": {
+    "analysis": "passed",
+    "barcode_coordinate_image_structural_qc": "passed",
+    "environment_cache_reuse": "passed",
+    "input_cache_reuse": "passed",
+    "inputs": "passed",
+    "native_visual_review": "passed",
+    "reports": "passed",
+    "runtime_warnings": "passed"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "backend": "r",
+  "case_id": "pbmc3k",
+  "data_sha256": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "figure_id": "pca_clusters",
+  "max_rounds": 3,
+  "rounds": [
+    {
+      "cannot_assert": [
+        "donor-level abundance or expression effects",
+        "population prevalence",
+        "mechanism or causality"
+      ],
+      "confirmed": [
+        "The final PCA panel is clear, uncropped, and uses a readable cluster legend.",
+        "The original and final panels contain the same cell embedding and cluster assignments."
+      ],
+      "decision": "keep",
+      "evidence_level": "image_code_data",
+      "final": {
+        "height_px": 1560,
+        "path": "figures/final/pca_clusters.png",
+        "sha256": "62b57d8147897d431865c6d11e738d9a83748d7a0f42147941bba623cbb1d662",
+        "width_px": 2160
+      },
+      "findings": [],
+      "interpretable": [
+        "The PCA provides a descriptive view of cell-level structure in this single PBMC3K library."
+      ],
+      "native_view": {
+        "method": "native_local_image_view",
+        "opened_final": true,
+        "opened_final_sha256": "62b57d8147897d431865c6d11e738d9a83748d7a0f42147941bba623cbb1d662",
+        "opened_original": true,
+        "opened_original_sha256": "066dfce2948b8a8b68c3bfa34804741715ab47e4939a370e7513fd113101c4ad",
+        "tool": "Codex view_image (detail=original)"
+      },
+      "original": {
+        "height_px": 2100,
+        "path": "figures/original/pca_clusters.png",
+        "sha256": "066dfce2948b8a8b68c3bfa34804741715ab47e4939a370e7513fd113101c4ad",
+        "width_px": 3000
+      },
+      "reviewer": "Codex view_image(detail=original)",
+      "round": 1,
+      "visible": [
+        "Point cloud, axes, title, and all nine legend entries are fully visible."
+      ],
+      "visual_parameter_diff": {
+        "changed": [
+          "theme",
+          "cluster palette",
+          "point size",
+          "title and legend labels"
+        ],
+        "scientific_parameters_changed": false
+      }
+    }
+  ],
+  "schema_version": "2.0.0",
+  "status": "native-reviewed"
+}

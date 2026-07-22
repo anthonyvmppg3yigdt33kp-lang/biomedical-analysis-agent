@@ -1,0 +1,4 @@
+interface:
+  display_name: "生物医学分析智能体"
+  short_description: "规划、执行、复现并审核临床科研多组学生物信息分析流程"
+  default_prompt: "Use $biomedical-analysis-agent to design and validate a reproducible analysis for my biomedical research question and local data."

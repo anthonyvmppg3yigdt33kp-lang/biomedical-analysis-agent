@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "10x-V1-Mouse-Brain-Sagittal-Anterior",
+  "dataset_title": "Mouse Brain Serial Section 1 (Sagittal-Anterior)",
+  "platform": "visium",
+  "assay_class": "capture",
+  "assay_unit": "spot",
+  "species": "Mus musculus",
+  "coordinate_unit": "pixel",
+  "sample_id": "V1_Mouse_Brain_Sagittal_Anterior",
+  "subject_id": "vendor_demo_specimen_1",
+  "section_id": "sagittal_anterior_1",
+  "license": {
+    "name": "Creative Commons Attribution 4.0 International",
+    "spdx": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "10x Genomics, Mouse Brain Serial Section 1 (Sagittal-Anterior), Visium Spatial Gene Expression dataset."
+  },
+  "source_pages": [
+    "https://www.10xgenomics.com/datasets/mouse-brain-serial-section-1-sagittal-anterior-1-standard-1-1-0",
+    "https://satijalab.org/seurat/articles/spatial_vignette.html"
+  ],
+  "files": [
+    {
+      "file_id": "filtered_h5",
+      "role": "filtered_feature_barcode_matrix",
+      "url": "https://cf.10xgenomics.com/samples/spatial-exp/1.1.0/V1_Mouse_Brain_Sagittal_Anterior/V1_Mouse_Brain_Sagittal_Anterior_filtered_feature_bc_matrix.h5",
+      "filename": "V1_Mouse_Brain_Sagittal_Anterior_filtered_feature_bc_matrix.h5",
+      "expected_size_bytes": 20554697,
+      "expected_sha256": "56078d8d6fe6c13de248fdb1c518b691cdef78fb00021b659786b4a47c6656d5",
+      "freeze_policy": "exact_required"
+    },
+    {
+      "file_id": "spatial_archive",
+      "role": "spatial_images_coordinates_and_scale_factors",
+      "url": "https://cf.10xgenomics.com/samples/spatial-exp/1.1.0/V1_Mouse_Brain_Sagittal_Anterior/V1_Mouse_Brain_Sagittal_Anterior_spatial.tar.gz",
+      "filename": "V1_Mouse_Brain_Sagittal_Anterior_spatial.tar.gz",
+      "expected_size_bytes": 9233573,
+      "expected_sha256": "5f41a803e2bd69fa4dfca6abc8fa2d4e0d76aeb6c72d7038a5fdcf9cc50a36f8",
+      "freeze_policy": "exact_required"
+    }
+  ],
+  "required_extracted_assets": [
+    "spatial/scalefactors_json.json",
+    "spatial/tissue_hires_image.png",
+    "spatial/tissue_lowres_image.png"
+  ],
+  "distribution_policy": "Do not redistribute downloaded binary inputs. Distribute only URLs, attribution, license metadata, checksums, code, and compliant derived artifacts.",
+  "count_policy": "Do not hard-code the actual matrix or in-tissue spot count before a successful data reconciliation; freeze observed counts in execution-summary.json."
+}

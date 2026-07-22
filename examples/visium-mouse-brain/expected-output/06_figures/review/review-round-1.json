@@ -1,0 +1,101 @@
+{
+  "schema_version": "2.0",
+  "case": "visium-mouse-brain",
+  "round": 1,
+  "data_hash": "df70f131aaebecca52a42c1cd363f606e5efac7782ea6090f333ee2957236900",
+  "reviewer_method": "native_local_image_view",
+  "reviewer_tool": "Codex view_image",
+  "viewer_detail": "original",
+  "opened_original": true,
+  "opened_final": true,
+  "opened_original_and_final": true,
+  "evidence_level": "image_code_data",
+  "figure_reviews": [
+    {
+      "figure_id": "spatial_qc",
+      "original_path": "06_figures/original/round-1/spatial_qc.png",
+      "original_sha256": "7c9e9f3147feb10f2d00fdd88f9cd127b6190a92c9d8e4a5bd1c20fb80be7827",
+      "final_path": "06_figures/final/round-1/spatial_qc.png",
+      "final_sha256": "24cd8d19d8986521a209ceb50e36c69f56c439e7cde8cb064a8e35a42bf1ddd3",
+      "visible": [
+        "Both nCount_Spatial and nFeature_Spatial spot layers follow the same tissue image geometry without a visible systematic offset.",
+        "The title, panel labels, color bars, ticks, tissue image, and spot overlays are visible in both the original and final-size exports.",
+        "The final-size export is more compact while retaining the spatial gradients visible in the original export."
+      ],
+      "interpretable": [
+        "Within-section technical variation in detected counts and features can be inspected at Visium spot resolution."
+      ],
+      "confirmed": [
+        "No clipping, blocking overlap, or coordinate-image misalignment was visible in the opened original/final pair."
+      ],
+      "cannot_assert": [
+        "donor or group effect",
+        "cell identity",
+        "biological mechanism or causality"
+      ],
+      "findings": [],
+      "decision": "keep"
+    },
+    {
+      "figure_id": "spatial_clusters",
+      "original_path": "06_figures/original/round-1/spatial_clusters.png",
+      "original_sha256": "40fedb1478ce097380dc4587a24a6afa4aaf7e14deef08f0bf2a92460e3412c8",
+      "final_path": "06_figures/final/round-1/spatial_clusters.png",
+      "final_sha256": "deb35a78ca334186a107489d98bd5046cfa0e9433f7ea9384dd592a2598348ce",
+      "visible": [
+        "Eleven spot clusters labeled 0 through 10 are shown with distinct colors over the tissue image.",
+        "Cluster labels, leader lines, legend entries, tissue background, and spot positions remain readable in both exports.",
+        "The final-size export enlarges the text and legend relative to the plotting area without clipping labels or tissue."
+      ],
+      "interpretable": [
+        "The figure supports descriptive comparison of expression-derived spot-cluster locations within this one section."
+      ],
+      "confirmed": [
+        "The title explicitly identifies expression-derived spot clusters rather than cell types or spatially regularized domains.",
+        "No blocking label overlap or visible coordinate offset was present in the opened original/final pair."
+      ],
+      "cannot_assert": [
+        "cluster equals cell type",
+        "spatially regularized anatomical domain",
+        "donor or population effect",
+        "mechanism or causality"
+      ],
+      "findings": [],
+      "decision": "keep"
+    },
+    {
+      "figure_id": "spatial_features_hpca_ttr",
+      "original_path": "06_figures/original/round-1/spatial_features_hpca_ttr.png",
+      "original_sha256": "bb131935e71224188651b32c4bcaa79e877a93073a63448d1dc278593390cd12",
+      "final_path": "06_figures/final/round-1/spatial_features_hpca_ttr.png",
+      "final_sha256": "29b42645f2c2fcc5f01fc20a21689342defd05f8bd4c50c970fc7eabd6c67b85",
+      "visible": [
+        "Hpca shows a broader central-to-lower spatial signal, whereas the strongest Ttr signal is localized toward the right upper portion of the section.",
+        "Both feature overlays follow the tissue and spot geometry consistently in the original and final-size exports.",
+        "Feature names, color bars, tick labels, tissue background, and spot signals are visible without clipping."
+      ],
+      "interpretable": [
+        "The pair supports a descriptive visual comparison of SCT-normalized Hpca and Ttr spot-level patterns in this section."
+      ],
+      "confirmed": [
+        "The final-size export preserves the same visible spatial patterns while improving label and color-scale readability.",
+        "No blocking overlap or visible coordinate-image misalignment was present in the opened original/final pair."
+      ],
+      "cannot_assert": [
+        "cell identity or purity",
+        "marker enrichment tested by an inferential model",
+        "direct cell-cell interaction",
+        "mechanism or causality",
+        "generalization beyond this section"
+      ],
+      "findings": [],
+      "decision": "keep"
+    }
+  ],
+  "authorized_visual_keys": [],
+  "overall_findings": [
+    "All three v9 original/final pairs were opened at original detail and retained their coordinate alignment, labels, legends, and descriptive meaning.",
+    "No visual change to filtering, normalization, clustering, thresholds, or statistical meaning was required."
+  ],
+  "overall_decision": "keep"
+}

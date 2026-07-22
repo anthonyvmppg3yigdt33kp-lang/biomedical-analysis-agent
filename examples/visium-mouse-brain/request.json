@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "request_id": "tutorial-visium-mouse-brain-v1",
+  "task_slug": "visium-mouse-brain",
+  "run_id": "canonical",
+  "mode": "run",
+  "question": "Reproduce the official Seurat 10x Visium mouse-brain sagittal-anterior workflow and publication-ready spatial QC, cluster, and Hpca/Ttr plots as a descriptive single-section teaching case.",
+  "research_question": "Reproduce the official Seurat 10x Visium mouse-brain sagittal-anterior workflow and publication-ready spatial QC, cluster, and Hpca/Ttr plots as a descriptive single-section teaching case.",
+  "modality": "spatial transcriptomics",
+  "platform": "10x Visium",
+  "assay_class": "capture",
+  "assay_unit": "spot",
+  "spatial_unit": "spot",
+  "sampling_unit": "one sagittal-anterior tissue section",
+  "inference_unit": "not_applicable_descriptive_single_section",
+  "species": "Mus musculus",
+  "analysis_scope": "descriptive-only",
+  "inferential": false,
+  "inputs": [
+    {
+      "role": "filtered_feature_barcode_matrix",
+      "path": "inputs/V1_Mouse_Brain_Sagittal_Anterior_filtered_feature_bc_matrix.h5",
+      "read_only": true
+    },
+    {
+      "role": "spatial_bundle",
+      "path": "inputs/V1_Mouse_Brain_Sagittal_Anterior_spatial.tar.gz",
+      "read_only": true
+    }
+  ],
+  "requested_outputs": [
+    "barcode_coordinate_image_qc",
+    "sctransform_pca_expression_clustering",
+    "spatial_cluster_overlay",
+    "Hpca_Ttr_spatial_feature_overlay",
+    "visualization_and_native_visual_review",
+    "checkpointed_auditable_report"
+  ],
+  "authorization": {
+    "required_for_execution": true,
+    "provided_only_at_runtime": true
+  },
+  "claim_limits": [
+    "single-section descriptive teaching case",
+    "spots are mixtures and are not cells",
+    "expression-derived spot clusters are not cell types or spatially regularized domains",
+    "no donor-level or group-level inference",
+    "no mechanistic, interaction, or causal claims"
+  ]
+}

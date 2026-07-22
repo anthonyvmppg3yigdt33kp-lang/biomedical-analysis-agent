@@ -1,0 +1,7 @@
+interface:
+  display_name: "Single-cell RNA-seq Workflow"
+  short_description: "Design and audit donor-aware single-cell workflows"
+  default_prompt: "Use $bio-workflows-scrnaseq-pipeline to validate my single-cell design and compile a reproducible, donor-aware workflow."
+
+policy:
+  allow_implicit_invocation: true

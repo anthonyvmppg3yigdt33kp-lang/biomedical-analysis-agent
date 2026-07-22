@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/biomedical-analysis-agent/p0-methodology-audit.schema.json",
+  "title": "P0MethodologyAuditRegistry",
+  "type": "object",
+  "required": ["schema_version", "registry_id", "distribution", "source_mode", "public_candidate_registry_ref", "audits"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "registry_id": {"const": "biomedical-analysis-agent-p0-methodology-audits"},
+    "distribution": {"const": "private-local-only"},
+    "source_mode": {"const": "read-only-evidence"},
+    "public_candidate_registry_ref": {"const": "references/p0-teaching-cases.json"},
+    "audits": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/Audit"},
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "RelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:[\\\\/])(?![\\\\/])(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "HashedFile": {
+      "type": "object",
+      "required": ["relative_path", "sha256", "size_bytes"],
+      "properties": {
+        "relative_path": {"$ref": "#/$defs/RelativePath"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "ExternalHashedFile": {
+      "type": "object",
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "InputEvidence": {
+      "type": "object",
+      "required": ["locator_ref", "sha256", "size_bytes", "access_mode"],
+      "properties": {
+        "locator_ref": {"type": "string", "pattern": "^local:p0\\.literature\\."},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "access_mode": {"const": "read-only"}
+      },
+      "additionalProperties": false
+    },
+    "SourceFigure": {
+      "type": "object",
+      "required": ["path", "sha256", "size_bytes", "source_figure_id", "dimensions_xy", "access_mode", "copied_into_run"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "source_figure_id": {"const": "figure-a93491cc59892f9df17b"},
+        "dimensions_xy": {
+          "type": "array",
+          "prefixItems": [{"const": 998}, {"const": 958}],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "access_mode": {"const": "read-only"},
+        "copied_into_run": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "Authorization": {
+      "type": "object",
+      "required": ["mode", "source_access", "source_code_execution", "package_installation", "global_changes", "source_redistribution"],
+      "properties": {
+        "mode": {"const": "explain"},
+        "source_access": {"const": "read-only"},
+        "source_code_execution": {"const": false},
+        "package_installation": {"const": false},
+        "global_changes": {"const": false},
+        "source_redistribution": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "Inputs": {
+      "type": "object",
+      "required": ["bundle_id", "preprocessing_record_id", "total_size_bytes", "artifacts", "source_figure"],
+      "properties": {
+        "bundle_id": {"const": "flow-5bc6b8a1bc6fbcd4de4a"},
+        "preprocessing_record_id": {"const": "prep-33ab37463fd8b7289e0ebea4"},
+        "total_size_bytes": {"const": 24463},
+        "artifacts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/InputEvidence"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "source_figure": {"$ref": "#/$defs/SourceFigure"}
+      },
+      "additionalProperties": false
+    },
+    "AuditRun": {
+      "type": "object",
+      "required": ["run_root", "run_id", "mode", "state", "source_code_executed", "package_installation_performed", "stage_ids", "checkpoint_count", "artifact_count", "ledger_entry_count", "latest_valid_checkpoint", "decision"],
+      "properties": {
+        "run_root": {"$ref": "#/$defs/RelativePath"},
+        "run_id": {"pattern": "^run-p0-literature-rogue-explain-[0-9]{8}-v[0-9]+$"},
+        "mode": {"const": "explain"},
+        "state": {"const": "DELIVERED"},
+        "source_code_executed": {"const": false},
+        "package_installation_performed": {"const": false},
+        "stage_ids": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "R00_SOURCE_AUDIT"},
+            {"const": "R10_METHOD_REVIEW"},
+            {"const": "R20_FIGURE_CLAIM_REVIEW"},
+            {"const": "R90_DELIVERY"}
+          ],
+          "items": false,
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "checkpoint_count": {"const": 4},
+        "artifact_count": {"const": 19},
+        "ledger_entry_count": {"const": 19},
+        "latest_valid_checkpoint": {"const": "R90_DELIVERY"},
+        "decision": {"const": "quarantine_as_negative_test_retain_plot_only"}
+      },
+      "additionalProperties": false
+    },
+    "EvidenceSet": {
+      "type": "object",
+      "required": ["run_manifest", "artifact_index", "artifact_ledger", "sourceflow_audit", "risk_ledger", "method_card", "package_card", "figure_card", "native_review", "qa_report", "figure_notes"],
+      "properties": {
+        "run_manifest": {"$ref": "#/$defs/HashedFile"},
+        "artifact_index": {"$ref": "#/$defs/HashedFile"},
+        "artifact_ledger": {"$ref": "#/$defs/HashedFile"},
+        "sourceflow_audit": {"$ref": "#/$defs/HashedFile"},
+        "risk_ledger": {"$ref": "#/$defs/HashedFile"},
+        "method_card": {"$ref": "#/$defs/HashedFile"},
+        "package_card": {"$ref": "#/$defs/HashedFile"},
+        "figure_card": {"$ref": "#/$defs/HashedFile"},
+        "native_review": {"$ref": "#/$defs/HashedFile"},
+        "qa_report": {"$ref": "#/$defs/HashedFile"},
+        "figure_notes": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "NativeReview": {
+      "type": "object",
+      "required": ["state", "decision", "reviewed_native_pixels", "source_image_copied", "blocking_scientific_findings", "source_figure_sha256", "dimensions_xy"],
+      "properties": {
+        "state": {"const": "native-reviewed"},
+        "decision": {"const": "PASS_FOR_STYLE_ONLY_BLOCK_FOR_SCIENTIFIC_RESULT"},
+        "reviewed_native_pixels": {"const": true},
+        "source_image_copied": {"const": false},
+        "blocking_scientific_findings": {"type": "integer", "minimum": 1},
+        "source_figure_sha256": {"$ref": "#/$defs/Sha256"},
+        "dimensions_xy": {
+          "type": "array",
+          "prefixItems": [{"const": 998}, {"const": 958}],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "Delivery": {
+      "type": "object",
+      "required": ["output_root", "artifact_index", "file_count", "source_bytes_redistributed"],
+      "properties": {
+        "output_root": {"type": "string", "minLength": 1},
+        "artifact_index": {"$ref": "#/$defs/ExternalHashedFile"},
+        "file_count": {"const": 16},
+        "source_bytes_redistributed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "Audit": {
+      "type": "object",
+      "required": ["schema_version", "audit_id", "case_id", "domain", "distribution", "recorded_on", "task_root", "public_candidate_registry_immutable", "authorization", "inputs", "audit_run", "evidence", "native_review", "delivery", "maturity", "maturity_scope", "scientific_claim_ceiling", "known_limitations"],
+      "properties": {
+        "schema_version": {"const": "candidate-literature-methodology-audit-1.0"},
+        "audit_id": {"type": "string", "pattern": "^audit-p0-literature-rogue-[a-z0-9-]+-[0-9]{8}$"},
+        "case_id": {"const": "p0-literature-rogue-negative-control"},
+        "domain": {"const": "literature-methodology"},
+        "distribution": {"const": "private-local-only"},
+        "recorded_on": {"type": "string", "format": "date"},
+        "task_root": {"type": "string", "minLength": 1},
+        "public_candidate_registry_immutable": {"const": true},
+        "authorization": {"$ref": "#/$defs/Authorization"},
+        "inputs": {"$ref": "#/$defs/Inputs"},
+        "audit_run": {"$ref": "#/$defs/AuditRun"},
+        "evidence": {"$ref": "#/$defs/EvidenceSet"},
+        "native_review": {"$ref": "#/$defs/NativeReview"},
+        "delivery": {"$ref": "#/$defs/Delivery"},
+        "maturity": {"const": "native-reviewed"},
+        "maturity_scope": {"type": "string", "minLength": 1},
+        "scientific_claim_ceiling": {"type": "string", "minLength": 1},
+        "known_limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

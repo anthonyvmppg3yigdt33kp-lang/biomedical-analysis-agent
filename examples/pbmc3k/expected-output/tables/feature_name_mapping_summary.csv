@@ -1,0 +1,7 @@
+"metric","value","status"
+"input_features",32738,"pass"
+"renamed_features",21,"pass"
+"duplicates_after_rename",0,"pass"
+"matrix_rows_unchanged",1,"pass"
+"matrix_columns_unchanged",1,"pass"
+"count_values_unchanged",1,"pass"

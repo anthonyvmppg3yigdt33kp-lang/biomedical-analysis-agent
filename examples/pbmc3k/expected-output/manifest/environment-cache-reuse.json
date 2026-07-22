@@ -1,0 +1,21 @@
+{
+  "bootstrap_description_sha256": "608735a6c11c033b9580f4072e8150175149dbb75874b19aad9cd822b20e0434",
+  "cache_key": "0cc77c9b3e1ea5170afb5f790ffae45f6ab15b0c5bdd4563f9545d1469b8f2b2",
+  "completion_sha256": "6cac82e0a516c1ebad1c3363017db2861977d8c1ca6acbd7af29747debbff2c8",
+  "host_package_required": false,
+  "library_description_sha256": {
+    "Seurat": "b8c3a63bfcf10566e458d4ca7fac82d93e488637594c1efdde64fa1de3169d0c",
+    "SeuratObject": "8608868a5492a9b46a7e35164dd95d25a893468acd4540d9c7c29fc2bdbc98bc",
+    "ggplot2": "84cb54d37940b2068339c0c01c1d5340e5511fa8e411298df8608fd581e6046b",
+    "jsonlite": "dc6fe625bfb619edad16152a6a9594937d68a92743919ba7bb3b64e4871207e4",
+    "patchwork": "9568a9bd376370f0799e96174b640af32e8204d20a9260e4f6806a4f5d1b9d76",
+    "renv": "608735a6c11c033b9580f4072e8150175149dbb75874b19aad9cd822b20e0434"
+  },
+  "lock_sha256": "f36e3c092f1fda0cb3b2106402ffd95cf1351d7902b4dd6b3cd2381c49a953bf",
+  "probe_sha256": "cee5879cbf0f7638078e80626753346a74d0f9e26ec19d88114dc9b3a78d4876",
+  "process_command_sha256": "71d6f56902ab9f306e45bf23d4bbbeabacd5bd28f3cecc31dfa2353b2145945c",
+  "process_evidence_sha256": "f8d8cc1adeaaaa72dfcbbfb1e4920af033562f8c312737f2a00f5436d29f9dbc",
+  "reuse": true,
+  "schema_version": "1.0.0",
+  "shutdown_mode": "native_exit"
+}

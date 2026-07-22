@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/biomedical-analysis-agent/p0-teaching-case.schema.json",
+  "title": "P0TeachingCaseRegistry",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "registry_id",
+    "distribution",
+    "audit_date",
+    "maturity_policy",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "registry_id": {"const": "biomedical-analysis-agent-p0-teaching-cases"},
+    "distribution": {"const": "public-core-metadata-only"},
+    "audit_date": {"type": "string", "format": "date"},
+    "maturity_policy": {
+      "const": "candidate-only; execution is required before fixture-verified or data-verified promotion"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {"$ref": "#/$defs/TeachingCase"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "LocatorRef": {
+      "type": "string",
+      "pattern": "^local:[a-z0-9][a-z0-9._-]*$"
+    },
+    "IntegrityEvidence": {
+      "type": "object",
+      "required": ["locator_ref", "role", "sha256", "size_bytes"],
+      "properties": {
+        "locator_ref": {"$ref": "#/$defs/LocatorRef"},
+        "role": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "PublicMetadataBinding": {
+      "type": "object",
+      "required": ["metadata_id", "path", "sha256"],
+      "properties": {
+        "metadata_id": {"type": "string", "pattern": "^p0-[a-z0-9][a-z0-9-]*-public-metadata$"},
+        "path": {"type": "string", "pattern": "^p0-[a-z0-9][a-z0-9-]*-metadata\\.json$"},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      },
+      "additionalProperties": false
+    },
+    "Availability": {
+      "type": "object",
+      "required": [
+        "status",
+        "audited_on",
+        "local_locator_refs",
+        "integrity_evidence",
+        "evidence_scope"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["available-local", "not-cached", "private-sourceflow-available"]
+        },
+        "audited_on": {"type": "string", "format": "date"},
+        "local_locator_refs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/LocatorRef"},
+          "uniqueItems": true
+        },
+        "integrity_evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/IntegrityEvidence"}
+        },
+        "total_size_bytes": {"type": ["integer", "null"], "minimum": 1},
+        "evidence_scope": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "not-cached"}}},
+          "then": {
+            "properties": {
+              "local_locator_refs": {"maxItems": 0},
+              "integrity_evidence": {"maxItems": 0},
+              "total_size_bytes": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "local_locator_refs": {"minItems": 1},
+              "integrity_evidence": {"minItems": 1},
+              "total_size_bytes": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "InputArtifact": {
+      "type": "object",
+      "required": [
+        "artifact_id",
+        "role",
+        "formats",
+        "availability",
+        "locator_refs",
+        "observation_unit",
+        "feature_unit",
+        "expected_shape",
+        "required_metadata"
+      ],
+      "properties": {
+        "artifact_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "role": {"type": "string", "minLength": 1},
+        "formats": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "availability": {"type": "string", "enum": ["available-local", "not-cached", "sourceflow-only"]},
+        "locator_refs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/LocatorRef"},
+          "uniqueItems": true
+        },
+        "observation_unit": {"type": "string", "minLength": 1},
+        "feature_unit": {"type": ["string", "null"]},
+        "expected_shape": {"type": "string", "minLength": 1},
+        "required_metadata": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "StatisticalContract": {
+      "type": "object",
+      "required": [
+        "measurement_unit",
+        "biological_replicate",
+        "inference_unit",
+        "estimand",
+        "pseudoreplication_guard",
+        "missingness_policy"
+      ],
+      "properties": {
+        "measurement_unit": {"type": "string", "minLength": 1},
+        "biological_replicate": {"type": "string", "minLength": 1},
+        "inference_unit": {"type": "string", "minLength": 1},
+        "estimand": {"type": ["string", "null"]},
+        "pseudoreplication_guard": {"type": "string", "minLength": 1},
+        "missingness_policy": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "WorkflowStage": {
+      "type": "object",
+      "required": ["stage_id", "purpose", "depends_on", "inputs", "outputs", "checkpoint_id"],
+      "properties": {
+        "stage_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "purpose": {"type": "string", "minLength": 1},
+        "depends_on": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+          "uniqueItems": true
+        },
+        "inputs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "outputs": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true},
+        "checkpoint_id": {"type": "string", "pattern": "^cp-[a-z0-9][a-z0-9._-]*$"}
+      },
+      "additionalProperties": false
+    },
+    "Dependency": {
+      "type": "object",
+      "required": ["name", "manager", "version_policy", "probe_status", "probed_version"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "manager": {"type": "string", "enum": ["cran", "bioconductor", "pypi", "conda", "github", "local-source", "system"]},
+        "version_policy": {"type": "string", "minLength": 1},
+        "probe_status": {"type": "string", "enum": ["installed", "unavailable", "not-probed", "local-source-only"]},
+        "probed_version": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "EnvironmentContract": {
+      "type": "object",
+      "required": ["backends", "isolation", "install_authorized", "dependencies", "freeze_required_before_run"],
+      "properties": {
+        "backends": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["r", "python"]},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "isolation": {"const": "task-scoped-new-lock"},
+        "install_authorized": {"const": false},
+        "dependencies": {"type": "array", "items": {"$ref": "#/$defs/Dependency"}, "minItems": 1},
+        "freeze_required_before_run": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "Checkpoint": {
+      "type": "object",
+      "required": ["checkpoint_id", "after_stage", "artifacts", "validation"],
+      "properties": {
+        "checkpoint_id": {"type": "string", "pattern": "^cp-[a-z0-9][a-z0-9._-]*$"},
+        "after_stage": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "artifacts": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true},
+        "validation": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1}
+      },
+      "additionalProperties": false
+    },
+    "Governance": {
+      "type": "object",
+      "required": [
+        "data_classification",
+        "human_data",
+        "deidentification_status",
+        "source_identifiers",
+        "license_status",
+        "redistribution_status",
+        "citation_status",
+        "required_action"
+      ],
+      "properties": {
+        "data_classification": {"type": "string", "enum": ["public-research-candidate", "private-local-corpus", "package-dataset-candidate"]},
+        "human_data": {"type": "boolean"},
+        "deidentification_status": {"type": "string", "enum": ["public-deidentified", "not-human", "not-applicable", "unverified"]},
+        "source_identifiers": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "uniqueItems": true},
+        "license_status": {"type": "string", "enum": ["verified", "pending", "mixed-code-known-data-pending"]},
+        "redistribution_status": {"type": "string", "enum": ["allowed", "forbidden", "pending"]},
+        "citation_status": {"type": "string", "enum": ["verified", "pending"]},
+        "required_action": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "Blocker": {
+      "type": "object",
+      "required": ["code", "severity", "description", "resolution"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "severity": {"type": "string", "enum": ["info", "warning", "blocking"]},
+        "description": {"type": "string", "minLength": 1},
+        "resolution": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "TeachingCase": {
+      "type": "object",
+      "required": [
+        "case_id",
+        "domain",
+        "title",
+        "purpose",
+        "current_status",
+        "execution_status",
+        "maturity",
+        "availability",
+        "data_contract",
+        "statistical_contract",
+        "workflow_plan",
+        "environment",
+        "checkpoints",
+        "acceptance_criteria",
+        "governance",
+        "blockers",
+        "claim_ceiling",
+        "next_allowed_action"
+      ],
+      "properties": {
+        "case_id": {"type": "string", "pattern": "^p0-[a-z0-9][a-z0-9-]*$"},
+        "domain": {
+          "type": "string",
+          "enum": [
+            "visualization",
+            "single-cell",
+            "spatial-transcriptomics",
+            "bulk-rna",
+            "quantitative-proteomics",
+            "multi-omics",
+            "literature-methodology"
+          ]
+        },
+        "title": {"type": "string", "minLength": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "current_status": {
+          "type": "string",
+          "enum": ["candidate-local-audited", "candidate-not-cached", "methodology-negative-control"]
+        },
+        "execution_status": {"const": "not-executed"},
+        "maturity": {"type": "string", "enum": ["raw-extracted", "normalized"]},
+        "public_metadata": {"$ref": "#/$defs/PublicMetadataBinding"},
+        "availability": {"$ref": "#/$defs/Availability"},
+        "data_contract": {"type": "array", "items": {"$ref": "#/$defs/InputArtifact"}, "minItems": 1},
+        "statistical_contract": {"$ref": "#/$defs/StatisticalContract"},
+        "workflow_plan": {
+          "type": "object",
+          "required": ["allowed_mode", "stages", "optional_branches"],
+          "properties": {
+            "allowed_mode": {"type": "string", "enum": ["plan", "explain", "reproduce-figure"]},
+            "stages": {"type": "array", "items": {"$ref": "#/$defs/WorkflowStage"}, "minItems": 2},
+            "optional_branches": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+          },
+          "additionalProperties": false
+        },
+        "environment": {"$ref": "#/$defs/EnvironmentContract"},
+        "checkpoints": {"type": "array", "items": {"$ref": "#/$defs/Checkpoint"}, "minItems": 2},
+        "acceptance_criteria": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 3},
+        "governance": {"$ref": "#/$defs/Governance"},
+        "blockers": {"type": "array", "items": {"$ref": "#/$defs/Blocker"}, "minItems": 1},
+        "claim_ceiling": {"type": "string", "minLength": 1},
+        "next_allowed_action": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"case_id": {"const": "p0-single-cell-gse185948"}},
+            "required": ["case_id"]
+          },
+          "then": {
+            "required": ["public_metadata"],
+            "properties": {
+              "public_metadata": {
+                "properties": {
+                  "metadata_id": {"const": "p0-single-cell-gse185948-public-metadata"},
+                  "path": {"const": "p0-single-cell-gse185948-metadata.json"}
+                }
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}

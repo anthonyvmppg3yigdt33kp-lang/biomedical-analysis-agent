@@ -1,0 +1,62 @@
+{
+  "analysis_signature": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "canonical_metrics": {
+    "clusters": 9,
+    "input_cells": 2700,
+    "qc_retained_cells": 2638
+  },
+  "canonical_metrics_pass": true,
+  "case_id": "pbmc3k",
+  "claim_boundary": "single-library descriptive teaching result; no donor-level inference",
+  "execution_evidence": {
+    "completion_marker_sha256": "f8b8bbba911bc9f4e2d02d8eb9a9f1b787d12b09e1168612695b0e5ea9f1c963",
+    "delivery_checkpoint_sha256": "4aa5cfc7b1cc4bf006a1a2f04d9788e3b3251b28a17e702dd86330255f2cde18",
+    "environment_completion_marker_sha256": "6cac82e0a516c1ebad1c3363017db2861977d8c1ca6acbd7af29747debbff2c8",
+    "environment_probe_sha256": "cee5879cbf0f7638078e80626753346a74d0f9e26ec19d88114dc9b3a78d4876",
+    "environment_process_command_sha256": "71d6f56902ab9f306e45bf23d4bbbeabacd5bd28f3cecc31dfa2353b2145945c",
+    "environment_process_evidence_sha256": "f8d8cc1adeaaaa72dfcbbfb1e4920af033562f8c312737f2a00f5436d29f9dbc",
+    "environment_shutdown_mode": "native_exit",
+    "execution_metrics_sha256": "69e7e6ceb02537a08447a374a4ca6084414006c0915bc927361b1252f160bebd",
+    "pipeline_process_command_sha256": "e5c01150a30c2eb917d9013150adc35583d2cfa084e7630aefda3081978cf6b3",
+    "pipeline_process_evidence_sha256": "f3e2fec89c9ceb3caf9767e04485efe049fa055654de9fbe5e2a3ea7549deb55",
+    "pipeline_shutdown_mode": "native_exit",
+    "renv_bootstrap_archive_sha256": "bcba2170563c65c6d6ed9328e4a624033ad9c5ee4e5bf9132cff7bcc7327cce5",
+    "renv_bootstrap_description_sha256": "608735a6c11c033b9580f4072e8150175149dbb75874b19aad9cd822b20e0434",
+    "renv_bootstrap_version": "1.2.2",
+    "renv_lock_sha256": "f36e3c092f1fda0cb3b2106402ffd95cf1351d7902b4dd6b3cd2381c49a953bf",
+    "umap_runtime_contract_sha256": "64d8628c48a85fdfe975f830d0501bd48c13a685959b57c5d54f77559958d67f"
+  },
+  "feature_name_mapping": {
+    "count_values_unchanged": 1,
+    "duplicates_after_rename": 0,
+    "input_features": 32738,
+    "matrix_columns_unchanged": 1,
+    "matrix_rows_unchanged": 1,
+    "renamed_features": 21
+  },
+  "maturity": "native-reviewed",
+  "native_visual_review_pass": true,
+  "remote_upload": false,
+  "review_findings": [],
+  "schema_version": "1.0.0",
+  "state": "DELIVERED",
+  "umap_runtime_contract": {
+    "algorithm_changed": false,
+    "dims_used": 10,
+    "handler_muffling_used": false,
+    "metric": "cosine",
+    "option_name": "Seurat.warn.umap.uwot",
+    "option_previous_state": "TRUE",
+    "option_restored": true,
+    "option_value_during_call": false,
+    "purpose": "use Seurat's official transition option in the smallest scope to disable only its one-time migration notice for an explicitly configured uwot/cosine call, then restore the prior option state",
+    "r_warn_option": 1,
+    "schema_version": "1.0.0",
+    "seed_use": 42,
+    "suppress_warnings_used": false,
+    "transition_notice_option_applied": true,
+    "umap_method": "uwot",
+    "warning_allowlist_used": false,
+    "warning_delivery": "immediate-stderr-via-options(warn=1)"
+  }
+}

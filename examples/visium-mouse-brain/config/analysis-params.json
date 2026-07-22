@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "seed": 20260722,
+  "assay": "Spatial",
+  "sct_assay": "SCT",
+  "sct_variable_features_n": 3000,
+  "sct_vst_flavor": "v2",
+  "sct_method": "glmGamPoi_offset",
+  "pca_npcs": 30,
+  "neighbor_dims": [1, 30],
+  "neighbor_k": 20,
+  "cluster_algorithm": 1,
+  "cluster_resolution": 0.5,
+  "features": ["Hpca", "Ttr"],
+  "filtering": {
+    "post_load_filter": "none",
+    "load_in_tissue_only": true
+  },
+  "analysis_semantics": {
+    "cluster_type": "expression-derived spot cluster",
+    "normalization": "SCTransform",
+    "inference": "descriptive-only"
+  }
+}

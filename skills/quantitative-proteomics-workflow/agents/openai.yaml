@@ -1,0 +1,4 @@
+interface:
+  display_name: "定量蛋白组工作流"
+  short_description: "蛋白定量表的缺失感知预处理、差异分析、结果可视化与科学审核"
+  default_prompt: "Use $quantitative-proteomics-workflow to analyze a post-search quantitative proteomics table reproducibly."

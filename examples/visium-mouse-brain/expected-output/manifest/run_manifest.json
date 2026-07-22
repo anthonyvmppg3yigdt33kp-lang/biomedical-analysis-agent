@@ -1,0 +1,27 @@
+{
+  "artifact_ledger": "manifest/artifact_ledger.jsonl",
+  "case": "visium-mouse-brain",
+  "checkpoints": [
+    "S10_INGEST",
+    "S20_COORD_IMAGE_QC",
+    "S30_UNIT_QC",
+    "S40_PREPROCESS",
+    "S60_CORE_DISCOVERY",
+    "S80_ADVANCED",
+    "S90_INFERENCE_QA",
+    "S95_VISUALIZE_INTERPRET"
+  ],
+  "execution_summary": "manifest/execution-summary.json",
+  "fingerprints": {
+    "analysis_config": "e3bcc2939cc8be7bc4f3f71cfd47799a7a85b618bf402c3a9d23561e58144f99",
+    "code": "66953f6db565ec7ccdd56c1924e1fcb326a42843fa0bfb8abeb38d5584e1ebe2",
+    "environment_lock": "b8450521054cd750e93a27fab0b44757519361bd8b694ffbae35636de508cf5b",
+    "inputs": "5b9fc55f9e241f55f38f8097ab011ba3af7c589c86c21c361d5050b47edc145e",
+    "visual_config": "da4dad04cb6bcbfed2b4e9f6d2df75531f80afbf9c76ae9cadbec9a49a9ee475"
+  },
+  "mode": "resume",
+  "native_visual_review": "keep",
+  "render_round": 1,
+  "schema_version": "1.0",
+  "state": "DELIVERED"
+}

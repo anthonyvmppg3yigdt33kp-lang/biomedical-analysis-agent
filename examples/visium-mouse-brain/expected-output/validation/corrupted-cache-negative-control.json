@@ -1,0 +1,15 @@
+{
+  "canonical_inputs_modified": false,
+  "canonical_sha256": "56078d8d6fe6c13de248fdb1c518b691cdef78fb00021b659786b4a47c6656d5",
+  "case": "visium-mouse-brain",
+  "failure_closed": true,
+  "injection": "flip_first_byte_in_task_local_copy_of_filtered_h5",
+  "input_cache_materialization": "direct_read_no_copy",
+  "null_or_first_learning_freeze_available": false,
+  "observed_error": "SHA-256 mismatch for filtered_h5",
+  "observed_returncode": 2,
+  "post_injection_sha256": "cfa5afa15fc26335f88103948170bfe3865f2537efe3274001123506848c9290",
+  "pre_injection_sha256": "56078d8d6fe6c13de248fdb1c518b691cdef78fb00021b659786b4a47c6656d5",
+  "schema_version": "1.0",
+  "status": "passed"
+}

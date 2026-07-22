@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/biomedical-analysis-agent/native-review/figure-context-review.schema.json",
+  "title": "FigureContextReview",
+  "description": "Per-FigureCard semantic and code-binding review linked to a unique PixelArtifactReview.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "figure_context_review_id",
+    "figure_id",
+    "source_bundle_id",
+    "pixel_review_id",
+    "pixel_sha256",
+    "markdown_image_reference",
+    "code_reference_kind",
+    "code_candidates",
+    "code_binding_status",
+    "generator_code_sha256",
+    "code_binding_not_applicable_reason",
+    "native_review_status",
+    "native_review_not_applicable_reason",
+    "reviewer",
+    "reviewed_at",
+    "native_review_evidence",
+    "reproduction_applicability",
+    "reproduction_not_applicable_reason",
+    "semantic_review_status",
+    "directly_visible",
+    "supported_claims",
+    "unsupported_claims",
+    "legacy_declaration",
+    "claim_boundary"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "figure_context_review_id": {"type": "string", "pattern": "^figure-context-review-[0-9a-f]{20}$"},
+    "figure_id": {"type": "string", "pattern": "^figure-[0-9a-f]{20}$"},
+    "source_bundle_id": {"type": "string", "pattern": "^flow-[0-9a-f]{20}$"},
+    "pixel_review_id": {"type": "string", "pattern": "^pixel-review-[0-9a-f]{20}$"},
+    "pixel_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "markdown_image_reference": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "properties": {
+            "alt": {"type": "string"},
+            "ordinal": {"type": "integer", "minimum": 1},
+            "source_line": {"type": "integer", "minimum": 1},
+            "target": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "code_reference_kind": {"type": "string", "enum": ["markdown_image_reference", "none", "unknown"]},
+    "code_candidates": {
+      "type": "object",
+      "required": ["ordered_code_files", "fenced_code_blocks", "total"],
+      "properties": {
+        "ordered_code_files": {"type": "integer", "minimum": 0},
+        "fenced_code_blocks": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "code_binding_status": {
+      "type": "string",
+      "enum": ["pending", "declared_unverified", "confirmed", "inferred", "unresolved", "not_applicable"]
+    },
+    "generator_code_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "code_binding_not_applicable_reason": {"type": ["string", "null"], "minLength": 1},
+    "native_review_status": {"type": "string", "enum": ["pending", "viewed_unresolved", "native_reviewed", "not_applicable"]},
+    "native_review_not_applicable_reason": {"type": ["string", "null"], "minLength": 1},
+    "reviewer": {"type": ["string", "null"], "minLength": 1},
+    "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+    "native_review_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_type", "detail"],
+        "properties": {
+          "evidence_type": {"type": "string", "enum": ["native_view_image", "pixel_review", "code_context", "other"]},
+          "detail": {"type": "string", "minLength": 1},
+          "artifact_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "reproduction_applicability": {"type": "string", "enum": ["pending", "applicable", "not_applicable", "unresolved"]},
+    "reproduction_not_applicable_reason": {"type": ["string", "null"], "minLength": 1},
+    "semantic_review_status": {"type": "string", "enum": ["pending", "reviewed", "not_applicable"]},
+    "directly_visible": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "supported_claims": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "unsupported_claims": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "legacy_declaration": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["source_review_file", "source_review_bundle_id", "declared_status", "declared_code_block_sha256", "trust_level"],
+          "properties": {
+            "source_review_file": {"type": "string", "minLength": 1},
+            "source_review_bundle_id": {"type": "string", "pattern": "^flow-[0-9a-f]{20}$"},
+            "declared_status": {"type": "string", "minLength": 1},
+            "declared_code_block_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+            "trust_level": {"const": "declaration_only"}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "claim_boundary": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"code_binding_status": {"const": "confirmed"}}, "required": ["code_binding_status"]},
+      "then": {"properties": {"generator_code_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}
+    },
+    {
+      "if": {"properties": {"code_binding_status": {"const": "not_applicable"}}, "required": ["code_binding_status"]},
+      "then": {"properties": {"code_binding_not_applicable_reason": {"type": "string", "minLength": 1}}}
+    },
+    {
+      "if": {"properties": {"native_review_status": {"const": "native_reviewed"}}, "required": ["native_review_status"]},
+      "then": {
+        "properties": {
+          "reviewer": {"type": "string", "minLength": 1},
+          "reviewed_at": {"type": "string", "format": "date-time"},
+          "native_review_evidence": {"minItems": 1},
+          "directly_visible": {"minItems": 1},
+          "unsupported_claims": {"minItems": 1},
+          "native_review_not_applicable_reason": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"native_review_status": {"const": "pending"}}, "required": ["native_review_status"]},
+      "then": {
+        "properties": {
+          "reviewer": {"type": "null"},
+          "reviewed_at": {"type": "null"},
+          "native_review_evidence": {"maxItems": 0},
+          "directly_visible": {"maxItems": 0},
+          "supported_claims": {"maxItems": 0},
+          "unsupported_claims": {"maxItems": 0},
+          "semantic_review_status": {"const": "pending"},
+          "native_review_not_applicable_reason": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"native_review_status": {"const": "not_applicable"}}, "required": ["native_review_status"]},
+      "then": {"properties": {"native_review_not_applicable_reason": {"type": "string", "minLength": 1}}}
+    },
+    {
+      "if": {"properties": {"reproduction_applicability": {"const": "not_applicable"}}, "required": ["reproduction_applicability"]},
+      "then": {"properties": {"reproduction_not_applicable_reason": {"type": "string", "minLength": 1}}}
+    }
+  ],
+  "additionalProperties": false
+}

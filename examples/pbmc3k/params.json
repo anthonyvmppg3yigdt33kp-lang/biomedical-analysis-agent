@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "pbmc3k",
+  "project_name": "PBMC3K",
+  "random_seed": 42,
+  "r_warning_policy": {
+    "warn": 1,
+    "delivery": "immediate-stderr",
+    "forbidden_scan": "fail-closed"
+  },
+  "create_object": {
+    "min_cells": 3,
+    "min_features": 200
+  },
+  "qc": {
+    "min_features_exclusive": 200,
+    "max_features_exclusive": 2500,
+    "max_percent_mt_exclusive": 5
+  },
+  "normalization": {
+    "method": "LogNormalize",
+    "scale_factor": 10000
+  },
+  "variable_features": {
+    "method": "vst",
+    "nfeatures": 2000
+  },
+  "pca": {
+    "npcs": 50,
+    "dims_used": 10
+  },
+  "clustering": {
+    "algorithm": 1,
+    "resolution": 0.5,
+    "random_seed": 0
+  },
+  "umap": {
+    "dims_used": 10,
+    "method": "uwot",
+    "metric": "cosine",
+    "seed_use": 42,
+    "transition_warning_option": {
+      "name": "Seurat.warn.umap.uwot",
+      "value_during_call": false,
+      "restore_after_call": true
+    }
+  },
+  "markers": {
+    "only_pos": true,
+    "min_pct": 0.25,
+    "logfc_threshold": 0.25
+  },
+  "visual": {
+    "round": 2,
+    "max_rounds": 3,
+    "original_width_in": 10,
+    "original_height_in": 7,
+    "final_width_in": 7.2,
+    "final_height_in": 5.2,
+    "dpi": 300,
+    "base_size_pt": 9,
+    "umap_point_size": 0.6,
+    "label_size": 3.2,
+    "legend_position": "right",
+    "qc_legend_position": "none",
+    "annotation_direct_labels": false
+  }
+}

@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-static:
+    name: Python, routing, distribution, and bootstrap
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install test dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install --requirement requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Compile Python sources
+        shell: pwsh
+        run: python -m compileall -q bootstrap_skills.py tutorial_cli.py .github/scripts scripts tests examples skills
+
+      - name: Run all Python and companion-skill tests
+        shell: pwsh
+        run: python -m pytest -q
+
+      - name: Compile both tutorial plans
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force validation/runtime | Out-Null
+          python tutorial_cli.py plan --case pbmc3k --output validation/runtime/pbmc3k-plan.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tutorial_cli.py plan --case visium-mouse-brain --output validation/runtime/visium-plan.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run the unchanged 180-case routing benchmark
+        shell: pwsh
+        run: >-
+          python scripts/evaluate_retrieval_benchmark.py
+          --output validation/runtime/benchmark-180.json
+
+      - name: Run the cross-domain routing regression set
+        shell: pwsh
+        run: >-
+          python scripts/evaluate_retrieval_benchmark.py
+          --benchmark references/router-confusion-regressions.jsonl
+          --output validation/runtime/router-confusion.json
+
+      - name: Enforce the public not-executed registry boundary
+        shell: pwsh
+        run: python scripts/validate_p0_teaching_cases.py --no-local-locators
+
+      - name: Validate the pending release-evidence template shape
+        shell: pwsh
+        run: >-
+          python scripts/validate_release_evidence.py
+          --evidence validation/release-evidence.template.json
+          --allow-pending
+
+      - name: Validate distribution, licensing, and locator boundaries
+        shell: pwsh
+        run: >-
+          python scripts/validate_distribution.py
+          --output validation/runtime/distribution.json
+
+      - name: Bootstrap and verify all task-local skills
+        shell: pwsh
+        run: |
+          $destination = Join-Path $env:RUNNER_TEMP 'biomedical-task-skills'
+          python bootstrap_skills.py --destination $destination
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python bootstrap_skills.py --destination $destination --verify-only
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Dry-run the release asset preflight
+        shell: pwsh
+        run: >-
+          python scripts/build_release_assets.py
+          --version v1.0.0
+          --dry-run
+
+      - name: Upload static validation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: static-validation-${{ github.sha }}
+          path: validation/runtime/
+          if-no-files-found: warn
+          retention-days: 14
+
+  r-smoke:
+    name: R 4.5.3 syntax and binary-snapshot smoke
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up exact R 4.5.3
+        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          r-version: "4.5.3"
+          use-public-rspm: false
+
+      - name: Parse every tracked R source and check reviewed binary pins
+        shell: pwsh
+        run: Rscript --vanilla scripts/ci_r_smoke.R . --check-snapshot

@@ -1,0 +1,45 @@
+# Task-local environments, caches, and run artifacts
+.task-skills/
+.cache/
+.renv/
+/renv.lock
+renv/library/
+renv/staging/
+runs/
+validation/runtime/
+/work/
+release-assets/
+
+# Local-only corpus configuration and execution-review overlays
+/references/corpus-sources.json
+/assets/private-corpus-index/
+
+# Downloaded third-party data and generated objects
+data/
+*.h5
+*.h5ad
+*.rds
+*.RData
+*.tar.gz
+*.dll
+*.dylib
+*.exe
+*.so
+
+# Python/R/editor noise
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.Rhistory
+.Rproj.user/
+.vscode/
+.idea/
+
+# Generated local reports
+work-benchmark-*.json
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

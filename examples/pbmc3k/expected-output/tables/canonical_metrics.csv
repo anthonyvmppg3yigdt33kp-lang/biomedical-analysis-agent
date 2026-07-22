@@ -1,0 +1,4 @@
+"metric","value","expected","status"
+"input_cells",2700,2700,"pass"
+"qc_retained_cells",2638,2638,"pass"
+"clusters",9,9,"pass"

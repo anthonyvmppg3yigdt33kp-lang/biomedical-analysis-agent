@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://local.codex/biomedical-analysis-agent/variant-set.schema.json","title":"VariantSet","$ref":"knowledge-objects.schema.json#/$defs/VariantSet"}

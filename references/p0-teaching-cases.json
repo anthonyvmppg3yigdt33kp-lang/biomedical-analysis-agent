@@ -1,0 +1,649 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "biomedical-analysis-agent-p0-teaching-cases",
+  "distribution": "public-core-metadata-only",
+  "audit_date": "2026-07-19",
+  "maturity_policy": "candidate-only; execution is required before fixture-verified or data-verified promotion",
+  "cases": [
+    {
+      "case_id": "p0-visualization-kinneyh-composition",
+      "domain": "visualization",
+      "title": "KinneyH cell annotation composition negative-control figure",
+      "purpose": "Use a real 56,179-cell annotation table to detect percentage, axis-label and label-collision failures, then plan scientifically bounded sample-level composition figures; donor-aware inference requires a separately verified donor-sample mapping.",
+      "current_status": "candidate-local-audited",
+      "execution_status": "not-executed",
+      "maturity": "normalized",
+      "availability": {
+        "status": "available-local",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": ["local:p0.visualization.kinneyh.annotation-summary"],
+        "integrity_evidence": [
+          {
+            "locator_ref": "local:p0.visualization.kinneyh.annotation-summary",
+            "role": "cell-level annotation and QC table",
+            "sha256": "a23d8b5fd5c6faa85a2a852a9cbeebe449acab2576092f03ecc8f1cb4358e27e",
+            "size_bytes": 5862162
+          }
+        ],
+        "total_size_bytes": 5862162,
+        "evidence_scope": "One CSV was opened read-only; header and 56,179 data rows across five sample IDs were confirmed. Existing plots were not accepted as reference truth."
+      },
+      "data_contract": [
+        {
+          "artifact_id": "kinneyh-cell-annotation-summary",
+          "role": "cell-level annotations, sample IDs and QC covariates",
+          "formats": ["csv"],
+          "availability": "available-local",
+          "locator_refs": ["local:p0.visualization.kinneyh.annotation-summary"],
+          "observation_unit": "cell",
+          "feature_unit": "annotation and QC fields",
+          "expected_shape": "56,179 rows x 18 columns; five sample IDs",
+          "required_metadata": ["sample_id", "cell_type", "batch"]
+        }
+      ],
+      "statistical_contract": {
+        "measurement_unit": "cell",
+        "biological_replicate": "not established; sample_id is a descriptive grouping variable and cannot be assumed to equal donor_id",
+        "inference_unit": "unresolved until donor-sample mapping and independence are verified; no cell-level or sample-level inferential test",
+        "estimand": "per-sample cell-type composition; descriptive only because no case-control contrast is registered",
+        "pseudoreplication_guard": "Aggregate counts and proportions by sample before any uncertainty or group comparison; never treat 56,179 cells as independent donors.",
+        "missingness_policy": "Report missing sample_id/cell_type values and exclude only with an explicit count ledger."
+      },
+      "workflow_plan": {
+        "allowed_mode": "reproduce-figure",
+        "stages": [
+          {
+            "stage_id": "profile-input",
+            "purpose": "Validate columns, row count, sample count, missingness and category levels.",
+            "depends_on": [],
+            "inputs": ["kinneyh-cell-annotation-summary"],
+            "outputs": ["input-profile.json", "category-ledger.tsv"],
+            "checkpoint_id": "cp-input-profile"
+          },
+          {
+            "stage_id": "derive-composition",
+            "purpose": "Build sample-by-cell-type counts and within-sample proportions with exact denominator checks.",
+            "depends_on": ["profile-input"],
+            "inputs": ["category-ledger.tsv"],
+            "outputs": ["composition-counts.tsv", "composition-proportions.tsv"],
+            "checkpoint_id": "cp-composition-table"
+          },
+          {
+            "stage_id": "render-variants",
+            "purpose": "Plan stacked bars and sample-level distribution alternatives without changing the descriptive estimand.",
+            "depends_on": ["derive-composition"],
+            "inputs": ["composition-proportions.tsv"],
+            "outputs": ["figure-variants", "figure-semantics.json"],
+            "checkpoint_id": "cp-figure-variants"
+          },
+          {
+            "stage_id": "native-review",
+            "purpose": "Review percent sums, axis semantics, color discrimination, labels and unsupported claims.",
+            "depends_on": ["render-variants"],
+            "inputs": ["figure-variants", "figure-semantics.json"],
+            "outputs": ["FIGURE_NOTES.md", "visual-qa.json"],
+            "checkpoint_id": "cp-native-review"
+          }
+        ],
+        "optional_branches": ["donor-level dot or interval plot only after donor-sample mapping, donor independence and a valid grouping variable are verified"]
+      },
+      "environment": {
+        "backends": ["python"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "pandas", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "2.3.3"},
+          {"name": "matplotlib", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "3.10.8"},
+          {"name": "seaborn", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "0.13.2"}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-input-profile", "after_stage": "profile-input", "artifacts": ["input-profile.json", "category-ledger.tsv"], "validation": ["CSV hash matches registry", "required columns exist", "row and sample counts are recorded"]},
+        {"checkpoint_id": "cp-composition-table", "after_stage": "derive-composition", "artifacts": ["composition-counts.tsv", "composition-proportions.tsv"], "validation": ["each sample proportion sums to 1 within tolerance", "counts reconcile to retained cells"]},
+        {"checkpoint_id": "cp-figure-variants", "after_stage": "render-variants", "artifacts": ["figure-variants", "figure-semantics.json"], "validation": ["axis units match mapped data", "variants preserve the same descriptive estimand"]},
+        {"checkpoint_id": "cp-native-review", "after_stage": "native-review", "artifacts": ["FIGURE_NOTES.md", "visual-qa.json"], "validation": ["native images reviewed", "supported and unsupported claims recorded"]}
+      ],
+      "acceptance_criteria": [
+        "Every sample's stacked composition sums to 100% within numerical tolerance.",
+        "Axes and legends identify percent, sample and cell type without contradictory labels.",
+        "No inferential or condition-effect claim is made from cell-level counts.",
+        "Figure notes explicitly document the known over-100%, wrong-axis and label-overlap negative controls."
+      ],
+      "governance": {
+        "data_classification": "public-research-candidate",
+        "human_data": true,
+        "deidentification_status": "public-deidentified",
+        "source_identifiers": ["GSE185948", "GSM5627690-GSM5627694"],
+        "license_status": "pending",
+        "redistribution_status": "pending",
+        "citation_status": "verified",
+        "required_action": "Resolve dataset redistribution and reuse terms before packaging any data; retain the verified GSE185948/PMID 36310237 citation."
+      },
+      "blockers": [
+        {"code": "no-valid-group-contrast", "severity": "warning", "description": "The registered table has five samples but no validated inferential contrast.", "resolution": "Use descriptive composition only or register condition metadata and an estimand in a new WorkflowInstance."},
+        {"code": "reference-plot-invalid", "severity": "blocking", "description": "Prior plots include stacks above 100%, an incorrect axis label and overlapping pie labels.", "resolution": "Treat them as negative controls, recompute denominators and complete native visual review."}
+      ],
+      "claim_ceiling": "Supports teaching and auditing descriptive sample-level composition visualization; it cannot establish disease-associated composition changes.",
+      "next_allowed_action": "Compile a reproduce-figure plan; execution still requires explicit run authorization and a frozen task environment."
+    },
+    {
+      "case_id": "p0-single-cell-gse185948",
+      "domain": "single-cell",
+      "title": "GSE185948 five-donor healthy kidney 10x snRNA-seq",
+      "purpose": "Exercise nuclear-count import, donor-preserving nucleus-aware QC, integration choice, clustering and annotation while preventing nucleus-level pseudoreplication and forced labels.",
+      "current_status": "candidate-local-audited",
+      "execution_status": "not-executed",
+      "maturity": "normalized",
+      "public_metadata": {
+        "metadata_id": "p0-single-cell-gse185948-public-metadata",
+        "path": "p0-single-cell-gse185948-metadata.json",
+        "sha256": "32794f6119df63e811accb41a823788e4d5b98b3d8ec94a4313818ae19925a93"
+      },
+      "availability": {
+        "status": "available-local",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": [
+          "local:p0.snrna.gse185948.gsm5627690",
+          "local:p0.snrna.gse185948.gsm5627691",
+          "local:p0.snrna.gse185948.gsm5627692",
+          "local:p0.snrna.gse185948.gsm5627693",
+          "local:p0.snrna.gse185948.gsm5627694"
+        ],
+        "integrity_evidence": [
+          {"locator_ref": "local:p0.snrna.gse185948.gsm5627690", "role": "10x filtered nucleus feature-barcode matrix; Healthy1/cont1", "sha256": "bc4f985540176f7acc49b01bc99b8c32b75d6efc424943dd239155433ce9fc99", "size_bytes": 26385307},
+          {"locator_ref": "local:p0.snrna.gse185948.gsm5627691", "role": "10x filtered nucleus feature-barcode matrix; Healthy2/cont2", "sha256": "e7f61e0e281b7a4427d16352989e2478c74fec6154e4976ed328b958369e3936", "size_bytes": 60596538},
+          {"locator_ref": "local:p0.snrna.gse185948.gsm5627692", "role": "10x filtered nucleus feature-barcode matrix; Healthy3/cont3", "sha256": "6c1ee9e2748cf1d04addf3e361b256b3d2a5d509a7780a4598e538d6e730072c", "size_bytes": 26000386},
+          {"locator_ref": "local:p0.snrna.gse185948.gsm5627693", "role": "10x filtered nucleus feature-barcode matrix; Healthy4/cont4", "sha256": "2ee83d0750324c404ab0ec630f4c2320f2d1bed768beca7c32aad685808a1ff9", "size_bytes": 54076325},
+          {"locator_ref": "local:p0.snrna.gse185948.gsm5627694", "role": "10x filtered nucleus feature-barcode matrix; Healthy5/cont5", "sha256": "e2b6625ba206e0619ae498b14b7613f585e20ff9cbd1a0ebdef31ed2a5084b4c", "size_bytes": 22425529}
+        ],
+        "total_size_bytes": 189484085,
+        "evidence_scope": "Five readable 10x snRNA-seq HDF5 matrices were hashed read-only; 36,601 features and 56,728 total filtered nucleus barcodes were confirmed. GSE185948 metadata were frozen separately; no biological analysis was run."
+      },
+      "data_contract": [
+        {
+          "artifact_id": "gse185948-five-10x-snrna-h5",
+          "role": "raw candidate input: five filtered 10x single-nucleus feature-barcode matrices",
+          "formats": ["10x-hdf5"],
+          "availability": "available-local",
+          "locator_refs": ["local:p0.snrna.gse185948.gsm5627690", "local:p0.snrna.gse185948.gsm5627691", "local:p0.snrna.gse185948.gsm5627692", "local:p0.snrna.gse185948.gsm5627693", "local:p0.snrna.gse185948.gsm5627694"],
+          "observation_unit": "nucleus barcode nested within donor",
+          "feature_unit": "gene/feature",
+          "expected_shape": "five matrices, each 36,601 features; 8,951/15,493/9,349/13,243/9,692 barcodes",
+          "required_metadata": ["donor_id", "library_id", "condition", "tissue", "assay", "chemistry", "processing", "genome_build", "age", "sex", "eGFR"]
+        }
+      ],
+      "statistical_contract": {
+        "measurement_unit": "nucleus",
+        "biological_replicate": "donor/library (five donors)",
+        "inference_unit": "donor; nuclei remain nested measurements",
+        "estimand": "descriptive healthy-kidney nuclear atlas and per-donor QC; all five donors are controls, so no condition contrast is available",
+        "pseudoreplication_guard": "Use pseudobulk or donor-level models for any later differential analysis and preserve donor IDs through integration.",
+        "missingness_policy": "Record feature/nucleus filtering and missing metadata by donor; never drop a donor silently."
+      },
+      "workflow_plan": {
+        "allowed_mode": "plan",
+        "stages": [
+          {"stage_id": "import-profile", "purpose": "Read five matrices separately and validate features, nucleus barcodes, donor mapping, public metadata and integer counts.", "depends_on": [], "inputs": ["gse185948-five-10x-snrna-h5"], "outputs": ["raw-nuclei-object", "input-qc.tsv"], "checkpoint_id": "cp-snrna-import"},
+          {"stage_id": "platform-aware-qc", "purpose": "Plan per-donor nucleus-aware thresholds from observed UMI, feature and complexity distributions; record mitochondrial, ribosomal and intronic fractions diagnostically without imposing canned whole-cell mitochondrial cutoffs; plan doublet and ambient-RNA checks with a retained-nucleus ledger.", "depends_on": ["import-profile"], "inputs": ["raw-nuclei-object", "input-qc.tsv"], "outputs": ["qc-nuclei-object", "qc-ledger.tsv"], "checkpoint_id": "cp-snrna-qc"},
+          {"stage_id": "normalize-integrate", "purpose": "Select normalization and integration only after quantifying donor/batch structure; do not substitute ComBat for Harmony.", "depends_on": ["platform-aware-qc"], "inputs": ["qc-nuclei-object"], "outputs": ["integrated-nuclei-object", "integration-diagnostics"], "checkpoint_id": "cp-snrna-integration"},
+          {"stage_id": "cluster-annotate", "purpose": "Cluster nuclei across resolutions, annotate with marker and reference evidence, and preserve unknown/ambiguous labels.", "depends_on": ["normalize-integrate"], "inputs": ["integrated-nuclei-object"], "outputs": ["annotated-nuclei-object", "annotation-evidence.tsv"], "checkpoint_id": "cp-snrna-annotation"},
+          {"stage_id": "donor-aware-qa", "purpose": "Review per-donor nuclear composition, mixing, label confidence and claim boundaries.", "depends_on": ["cluster-annotate"], "inputs": ["annotated-nuclei-object", "annotation-evidence.tsv"], "outputs": ["QA_REPORT.md", "FIGURE_NOTES.md"], "checkpoint_id": "cp-snrna-qa"}
+        ],
+        "optional_branches": ["doublet method after environment resolution", "ambient RNA correction when contamination is demonstrated", "donor-aware differential testing only after a valid contrast is added"]
+      },
+      "environment": {
+        "backends": ["python"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "scanpy", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "1.12.1"},
+          {"name": "anndata", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "0.12.10"},
+          {"name": "scrublet", "manager": "pypi", "version_policy": "resolve only after run authorization", "probe_status": "unavailable", "probed_version": null},
+          {"name": "harmonypy", "manager": "pypi", "version_policy": "optional; install only if Harmony is methodologically selected", "probe_status": "unavailable", "probed_version": null}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-snrna-import", "after_stage": "import-profile", "artifacts": ["raw-nuclei-object", "input-qc.tsv"], "validation": ["all five hashes match", "public metadata sidecar hash matches", "integer count matrix retained", "donor IDs are unique and nonmissing"]},
+        {"checkpoint_id": "cp-snrna-qc", "after_stage": "platform-aware-qc", "artifacts": ["qc-nuclei-object", "qc-ledger.tsv"], "validation": ["thresholds are distribution-derived and reported per donor", "no canned whole-cell mitochondrial threshold is imposed", "doublet and ambient decisions are justified", "retained-nucleus counts reconcile"]},
+        {"checkpoint_id": "cp-snrna-integration", "after_stage": "normalize-integrate", "artifacts": ["integrated-nuclei-object", "integration-diagnostics"], "validation": ["method name matches actual implementation", "biological signal and donor mixing diagnostics reviewed"]},
+        {"checkpoint_id": "cp-snrna-annotation", "after_stage": "cluster-annotate", "artifacts": ["annotated-nuclei-object", "annotation-evidence.tsv"], "validation": ["unknown labels allowed", "marker conflicts reported", "no 100% forced annotation"]},
+        {"checkpoint_id": "cp-snrna-qa", "after_stage": "donor-aware-qa", "artifacts": ["QA_REPORT.md", "FIGURE_NOTES.md"], "validation": ["donor-level summaries present", "claim ceiling enforced"]}
+      ],
+      "acceptance_criteria": [
+        "All five input hashes, matrix dimensions and donor mappings reconcile.",
+        "QC thresholds are nucleus-aware, donor-specific and distribution-derived; no canned whole-cell mitochondrial threshold is used.",
+        "Doublet and ambient-RNA decisions are donor-aware and fully logged.",
+        "The reported integration method is the method actually executed and has diagnostic evidence.",
+        "Annotation retains ambiguous/unknown nuclei and reports marker/reference evidence.",
+        "Any inferential test uses donor-level biological replication and FDR control."
+      ],
+      "governance": {
+        "data_classification": "public-research-candidate",
+        "human_data": true,
+        "deidentification_status": "public-deidentified",
+        "source_identifiers": ["GSE185948", "GSM5627690", "GSM5627691", "GSM5627692", "GSM5627693", "GSM5627694", "PMID:36310237", "DOI:10.1038/s41467-022-34255-z"],
+        "license_status": "pending",
+        "redistribution_status": "pending",
+        "citation_status": "verified",
+        "required_action": "Keep the hash-bound GSE185948 metadata and verified citation fixed; resolve dataset redistribution and reuse terms before packaging any input data."
+      },
+      "blockers": [
+        {"code": "redistribution-terms-pending", "severity": "warning", "description": "Public metadata and citation are verified, but dataset redistribution and reuse terms remain pending.", "resolution": "Analyze local read-only inputs only after run authorization; resolve terms before packaging or redistributing data."},
+        {"code": "optional-dependencies-missing", "severity": "warning", "description": "Scrublet and harmonypy are not installed in the probed base environment.", "resolution": "After explicit run authorization, resolve only the selected methods in a new task environment."}
+      ],
+      "claim_ceiling": "Supports metadata-frozen data profiling and workflow planning for a five-donor healthy-kidney nuclear atlas; it does not support case-control inference, clinical associations or validated nucleus labels.",
+      "next_allowed_action": "Compile a deterministic plan from the hash-bound public metadata; do not execute, install dependencies or reuse scientifically problematic legacy outputs as validation truth without explicit run authorization."
+    },
+    {
+      "case_id": "p0-spatial-spotiphy-mouse-brain",
+      "domain": "spatial-transcriptomics",
+      "title": "Spotiphy mouse-brain ST, scRNA reference, histology and Visium HD candidate",
+      "purpose": "Exercise coordinate/image QC, reference harmonization, deconvolution/decomposition and spatial interpretation with explicit spot-versus-section units.",
+      "current_status": "candidate-local-audited",
+      "execution_status": "not-executed",
+      "maturity": "normalized",
+      "availability": {
+        "status": "available-local",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": ["local:p0.spatial.spotiphy.st", "local:p0.spatial.spotiphy.scrna", "local:p0.spatial.spotiphy.image", "local:p0.spatial.spotiphy.visiumhd"],
+        "integrity_evidence": [
+          {"locator_ref": "local:p0.spatial.spotiphy.st", "role": "spatial transcriptomics AnnData", "sha256": "02cda1e5325bed1d0176ca14cb719432dc27dc2fab1a380d7662876aed1a19d7", "size_bytes": 10174860},
+          {"locator_ref": "local:p0.spatial.spotiphy.scrna", "role": "single-cell reference AnnData", "sha256": "f79abd947139a839928808e8e6a98294f1379f38923b57d106d1fcd133990586", "size_bytes": 102353222},
+          {"locator_ref": "local:p0.spatial.spotiphy.image", "role": "histology image", "sha256": "fc299bf8a616d5d7e956ea19c7a236ebb6f241641b2cc42aacc1bf672350da94", "size_bytes": 15981048},
+          {"locator_ref": "local:p0.spatial.spotiphy.visiumhd", "role": "Visium HD tutorial archive", "sha256": "77cd4879f0d3e5e77f5a907692a3fa64ad00401809d0f57f1a06f9761187477c", "size_bytes": 104130222}
+        ],
+        "total_size_bytes": 232639352,
+        "evidence_scope": "All four artifacts were hashed read-only; ST shape 685 x 32,285 and scRNA-reference shape 10,500 x 33,526 were confirmed through HDF5 structure only."
+      },
+      "data_contract": [
+        {"artifact_id": "spotiphy-st-mouse-brain", "role": "spatial count object and coordinates", "formats": ["h5ad"], "availability": "available-local", "locator_refs": ["local:p0.spatial.spotiphy.st"], "observation_unit": "spot/capture area", "feature_unit": "gene", "expected_shape": "685 spots x 32,285 features", "required_metadata": ["spatial_coordinates", "library_or_section_id", "count_layer"]},
+        {"artifact_id": "spotiphy-scrna-reference", "role": "cell-type reference", "formats": ["h5ad"], "availability": "available-local", "locator_refs": ["local:p0.spatial.spotiphy.scrna"], "observation_unit": "cell", "feature_unit": "gene", "expected_shape": "10,500 cells x 33,526 features", "required_metadata": ["cell_type", "reference_sample_id", "count_layer"]},
+        {"artifact_id": "spotiphy-histology-image", "role": "histology image for coordinate overlay", "formats": ["png"], "availability": "available-local", "locator_refs": ["local:p0.spatial.spotiphy.image"], "observation_unit": "pixel", "feature_unit": null, "expected_shape": "native image dimensions to be registered during data profile", "required_metadata": ["scale_factor", "coordinate_transform", "orientation"]},
+        {"artifact_id": "spotiphy-visiumhd-archive", "role": "optional Visium HD segmentation tutorial input", "formats": ["zip"], "availability": "available-local", "locator_refs": ["local:p0.spatial.spotiphy.visiumhd"], "observation_unit": "bin/cell candidate", "feature_unit": "gene", "expected_shape": "archive content requires read-only manifest before extraction", "required_metadata": ["platform", "bin_size", "coordinate_system", "segmentation_provenance"]}
+      ],
+      "statistical_contract": {
+        "measurement_unit": "spot/bin/cell and pixel, depending on branch",
+        "biological_replicate": "independent tissue section/animal",
+        "inference_unit": "section/animal; the candidate appears to contain one ST section and is therefore tutorial-descriptive",
+        "estimand": "spot-level cell-type abundance and spatial reconstruction for one tutorial section",
+        "pseudoreplication_guard": "Do not treat spots or pixels as independent animals and do not perform population inference from one section.",
+        "missingness_policy": "Report missing genes across ST/reference and unmapped/out-of-tissue coordinates; never impute spatial coordinates."
+      },
+      "workflow_plan": {
+        "allowed_mode": "plan",
+        "stages": [
+          {"stage_id": "profile-spatial-inputs", "purpose": "Validate counts, coordinates, image transform, platform and section identity.", "depends_on": [], "inputs": ["spotiphy-st-mouse-brain", "spotiphy-scrna-reference", "spotiphy-histology-image"], "outputs": ["spatial-input-profile.json", "gene-overlap.tsv"], "checkpoint_id": "cp-spatial-profile"},
+          {"stage_id": "harmonize-reference", "purpose": "Align feature identifiers and assess reference labels without leaking spatial outputs into reference training.", "depends_on": ["profile-spatial-inputs"], "inputs": ["gene-overlap.tsv"], "outputs": ["harmonized-st", "harmonized-reference", "reference-qa.tsv"], "checkpoint_id": "cp-spatial-reference"},
+          {"stage_id": "deconvolve-decompose", "purpose": "Plan Spotiphy abundance/decomposition with frozen parameters and uncertainty outputs.", "depends_on": ["harmonize-reference"], "inputs": ["harmonized-st", "harmonized-reference"], "outputs": ["spatial-abundance", "model-diagnostics"], "checkpoint_id": "cp-spatial-model"},
+          {"stage_id": "spatial-visual-qa", "purpose": "Overlay results on histology and review coordinates, normalization, color scales and claim limits.", "depends_on": ["deconvolve-decompose"], "inputs": ["spatial-abundance", "model-diagnostics"], "outputs": ["spatial-figures", "QA_REPORT.md", "FIGURE_NOTES.md"], "checkpoint_id": "cp-spatial-qa"}
+        ],
+        "optional_branches": ["Visium HD archive manifest and segmentation", "spatial neighborhood analysis after section-level replication exists"]
+      },
+      "environment": {
+        "backends": ["python"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "scanpy", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "1.12.1"},
+          {"name": "anndata", "manager": "pypi", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "0.12.10"},
+          {"name": "spotiphy", "manager": "local-source", "version_policy": "pin audited local repository commit after license/citation verification", "probe_status": "local-source-only", "probed_version": null},
+          {"name": "squidpy", "manager": "pypi", "version_policy": "optional spatial QA dependency resolved only after run authorization", "probe_status": "unavailable", "probed_version": null}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-spatial-profile", "after_stage": "profile-spatial-inputs", "artifacts": ["spatial-input-profile.json", "gene-overlap.tsv"], "validation": ["all input hashes match", "coordinate-image transform reviewed", "section and platform recorded"]},
+        {"checkpoint_id": "cp-spatial-reference", "after_stage": "harmonize-reference", "artifacts": ["harmonized-st", "harmonized-reference", "reference-qa.tsv"], "validation": ["gene mapping loss reported", "cell labels and samples nonmissing", "raw versus normalized layers identified"]},
+        {"checkpoint_id": "cp-spatial-model", "after_stage": "deconvolve-decompose", "artifacts": ["spatial-abundance", "model-diagnostics"], "validation": ["abundances satisfy method constraints", "model convergence and uncertainty recorded"]},
+        {"checkpoint_id": "cp-spatial-qa", "after_stage": "spatial-visual-qa", "artifacts": ["spatial-figures", "QA_REPORT.md", "FIGURE_NOTES.md"], "validation": ["native image overlay reviewed", "spot/section claim boundary enforced"]}
+      ],
+      "acceptance_criteria": [
+        "Spatial coordinates and histology transforms are explicitly validated before modeling.",
+        "ST/reference feature overlap, label provenance and count layers are documented.",
+        "Model convergence, uncertainty and abundance constraints are reviewed.",
+        "Figures distinguish spot/bin/cell and do not imply replicated-animal inference.",
+        "Visium HD remains an optional branch until archive contents and segmentation provenance are audited."
+      ],
+      "governance": {
+        "data_classification": "public-research-candidate",
+        "human_data": false,
+        "deidentification_status": "not-human",
+        "source_identifiers": ["Spotiphy tutorial mouse brain", "Spotiphy Nature Methods software", "Spotiphy code license Apache-2.0"],
+        "license_status": "mixed-code-known-data-pending",
+        "redistribution_status": "pending",
+        "citation_status": "pending",
+        "required_action": "Record the exact repository commit, primary paper citation, Zenodo dataset record and data-specific reuse terms."
+      },
+      "blockers": [
+        {"code": "data-license-citation-pending", "severity": "blocking", "description": "Apache-2.0 was verified for the code repository, but the tutorial data license and exact citation are not frozen.", "resolution": "Audit the referenced Zenodo record and primary paper before execution or packaging."},
+        {"code": "spatial-environment-unresolved", "severity": "blocking", "description": "Spotiphy is only present as local source and squidpy is absent from the probed environment.", "resolution": "After run authorization, create a new compatible lock; do not reuse the incompatible base environment."}
+      ],
+      "claim_ceiling": "Supports planning and a single-section tutorial of spatial decomposition; it cannot establish population-level spatial differences or biological causality.",
+      "next_allowed_action": "Complete license/citation and environment compatibility audits, then compile a plan without installing packages."
+    },
+    {
+      "case_id": "p0-bulk-rna-airway",
+      "domain": "bulk-rna",
+      "title": "Bioconductor airway paired dexamethasone bulk RNA-seq candidate",
+      "purpose": "Provide a compact paired-design teaching case for count QC, DESeq2 modeling, effect sizes and FDR with cell line as the biological block.",
+      "current_status": "candidate-not-cached",
+      "execution_status": "not-executed",
+      "maturity": "raw-extracted",
+      "availability": {
+        "status": "not-cached",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": [],
+        "integrity_evidence": [],
+        "total_size_bytes": null,
+        "evidence_scope": "No airway dataset file was found in the audited Documents, Desktop or MultiOmics_Code_Collection roots; the airway package is not installed in R 4.5.3."
+      },
+      "data_contract": [
+        {"artifact_id": "airway-summarized-experiment", "role": "raw gene-by-sample counts and sample metadata", "formats": ["R-data-package", "SummarizedExperiment"], "availability": "not-cached", "locator_refs": [], "observation_unit": "RNA-seq library/sample", "feature_unit": "gene", "expected_shape": "8 samples from 4 cell lines, paired untreated versus dexamethasone", "required_metadata": ["cell_line", "dex", "sample_id", "count_assay", "gene_id"]}
+      ],
+      "statistical_contract": {
+        "measurement_unit": "RNA-seq library",
+        "biological_replicate": "cell line (four paired lines)",
+        "inference_unit": "cell line",
+        "estimand": "average dexamethasone-associated log2 fold change adjusted for cell line",
+        "pseudoreplication_guard": "Use a paired design such as ~ cell_line + dex; do not treat the eight libraries as unpaired independent donors.",
+        "missingness_policy": "Reject missing pair or treatment labels; report filtered low-count genes rather than treating zeros as missing values."
+      },
+      "workflow_plan": {
+        "allowed_mode": "plan",
+        "stages": [
+          {"stage_id": "acquire-audit-airway", "purpose": "After authorization, restore the pinned package dataset and freeze its hash, metadata and citation.", "depends_on": [], "inputs": ["airway-summarized-experiment"], "outputs": ["airway-input-manifest.json", "airway-sample-sheet.tsv"], "checkpoint_id": "cp-airway-input"},
+          {"stage_id": "bulk-count-qc", "purpose": "Validate integer counts, paired design, library sizes, sample similarity and outliers.", "depends_on": ["acquire-audit-airway"], "inputs": ["airway-sample-sheet.tsv"], "outputs": ["bulk-qc", "design-matrix.tsv"], "checkpoint_id": "cp-airway-qc"},
+          {"stage_id": "paired-de", "purpose": "Fit paired DESeq2 model, report effect sizes, uncertainty and BH FDR.", "depends_on": ["bulk-count-qc"], "inputs": ["design-matrix.tsv"], "outputs": ["de-results.tsv", "model-diagnostics"], "checkpoint_id": "cp-airway-de"},
+          {"stage_id": "bulk-report", "purpose": "Create diagnostic/result figures and state what the paired experiment can and cannot establish.", "depends_on": ["paired-de"], "inputs": ["de-results.tsv", "model-diagnostics"], "outputs": ["QA_REPORT.md", "FIGURE_NOTES.md"], "checkpoint_id": "cp-airway-report"}
+        ],
+        "optional_branches": ["limma-voom or edgeR comparison using the same paired estimand", "pathway enrichment with universe and FDR registered"]
+      },
+      "environment": {
+        "backends": ["r"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "airway", "manager": "bioconductor", "version_policy": "pin to Bioconductor release compatible with R 4.5.3", "probe_status": "unavailable", "probed_version": null},
+          {"name": "SummarizedExperiment", "manager": "bioconductor", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "1.40.0"},
+          {"name": "DESeq2", "manager": "bioconductor", "version_policy": "resolve after run authorization", "probe_status": "unavailable", "probed_version": null},
+          {"name": "edgeR", "manager": "bioconductor", "version_policy": "optional comparison; freeze only if selected", "probe_status": "installed", "probed_version": "4.8.2"},
+          {"name": "limma", "manager": "bioconductor", "version_policy": "optional comparison; freeze only if selected", "probe_status": "installed", "probed_version": "3.66.0"}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-airway-input", "after_stage": "acquire-audit-airway", "artifacts": ["airway-input-manifest.json", "airway-sample-sheet.tsv"], "validation": ["package and dataset versions pinned", "8 samples and four pairs confirmed", "license and citation recorded"]},
+        {"checkpoint_id": "cp-airway-qc", "after_stage": "bulk-count-qc", "artifacts": ["bulk-qc", "design-matrix.tsv"], "validation": ["integer counts confirmed", "design has full rank", "pairing preserved"]},
+        {"checkpoint_id": "cp-airway-de", "after_stage": "paired-de", "artifacts": ["de-results.tsv", "model-diagnostics"], "validation": ["contrast direction explicit", "effect size and uncertainty present", "BH FDR reported"]},
+        {"checkpoint_id": "cp-airway-report", "after_stage": "bulk-report", "artifacts": ["QA_REPORT.md", "FIGURE_NOTES.md"], "validation": ["diagnostics reviewed", "claim boundary documented"]}
+      ],
+      "acceptance_criteria": [
+        "The cached input has verified package, dataset, citation and hash provenance.",
+        "The paired cell-line design is full rank and matches the declared estimand.",
+        "Count-scale assumptions, filtering and size-factor normalization are documented.",
+        "Results include log2 fold change, uncertainty and BH-adjusted P values.",
+        "Alternative engines are compared only under the same input and paired design."
+      ],
+      "governance": {
+        "data_classification": "package-dataset-candidate",
+        "human_data": true,
+        "deidentification_status": "public-deidentified",
+        "source_identifiers": ["Bioconductor airway", "8 samples", "4 paired cell lines", "dexamethasone treatment"],
+        "license_status": "pending",
+        "redistribution_status": "pending",
+        "citation_status": "pending",
+        "required_action": "Resolve the exact Bioconductor release, package license, source experiment citation and dataset hashes."
+      },
+      "blockers": [
+        {"code": "input-not-cached", "severity": "blocking", "description": "The airway package dataset is not present locally.", "resolution": "After explicit run authorization, restore a pinned Bioconductor environment and record immutable input hashes."},
+        {"code": "deseq2-unavailable", "severity": "blocking", "description": "DESeq2 is not installed in the probed R environment.", "resolution": "Provision it only in a new task-scoped renv environment after authorization."}
+      ],
+      "claim_ceiling": "Currently supports a paired bulk-RNA method plan only; no input has been cached and no differential result exists.",
+      "next_allowed_action": "Keep at plan status until the user authorizes a task-local restore and data acquisition."
+    },
+    {
+      "case_id": "p0-proteomics-dep-ubilength",
+      "domain": "quantitative-proteomics",
+      "title": "DEP UbiLength 12-sample LFQ proteomics candidate",
+      "purpose": "Exercise protein-level filtering, normalization, missingness-mechanism review, differential abundance and sensitivity analysis without hiding imputation assumptions.",
+      "current_status": "candidate-not-cached",
+      "execution_status": "not-executed",
+      "maturity": "raw-extracted",
+      "availability": {
+        "status": "not-cached",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": [],
+        "integrity_evidence": [],
+        "total_size_bytes": null,
+        "evidence_scope": "No UbiLength data file was found in the audited Documents, Desktop or MultiOmics_Code_Collection roots; DEP, QFeatures and MSstats are not installed in R 4.5.3."
+      },
+      "data_contract": [
+        {"artifact_id": "dep-ubilength-lfq", "role": "protein-by-sample LFQ matrix plus experimental design", "formats": ["R-data-package", "SummarizedExperiment", "tabular-LFQ"], "availability": "not-cached", "locator_refs": [], "observation_unit": "quantitative proteomics sample", "feature_unit": "protein group", "expected_shape": "3,006 proteins x 12 LFQ samples; four conditions with three replicates each according to the official DEP manual, still to be verified from the materialized colData", "required_metadata": ["sample_id", "condition", "replicate", "protein_id", "contaminant_flag", "reverse_flag", "lfq_intensity"]}
+      ],
+      "statistical_contract": {
+        "measurement_unit": "LFQ proteomics sample",
+        "biological_replicate": "independent sample; three replicates within each of four conditions according to the official DEP manual",
+        "inference_unit": "sample",
+        "estimand": "condition-associated log2 protein abundance difference for a predeclared contrast",
+        "pseudoreplication_guard": "Do not count peptides, proteins or technical channels as independent biological replicates.",
+        "missingness_policy": "Diagnose MCAR/MAR/MNAR plausibility by condition and abundance; compare no-imputation and justified imputation strategies, never silently replace missing LFQ values."
+      },
+      "workflow_plan": {
+        "allowed_mode": "plan",
+        "stages": [
+          {"stage_id": "acquire-audit-ubilength", "purpose": "After authorization, pin DEP dataset version, design, license, citation and input hashes.", "depends_on": [], "inputs": ["dep-ubilength-lfq"], "outputs": ["proteomics-input-manifest.json", "proteomics-design.tsv"], "checkpoint_id": "cp-proteomics-input"},
+          {"stage_id": "protein-qc", "purpose": "Filter contaminants/reverse hits, verify log scale, replicate structure and missingness patterns.", "depends_on": ["acquire-audit-ubilength"], "inputs": ["proteomics-design.tsv"], "outputs": ["protein-qc-object", "missingness-report.tsv"], "checkpoint_id": "cp-proteomics-qc"},
+          {"stage_id": "normalize-model", "purpose": "Evaluate normalization, missingness strategy and differential model with explicit contrast and FDR.", "depends_on": ["protein-qc"], "inputs": ["protein-qc-object", "missingness-report.tsv"], "outputs": ["protein-de-results.tsv", "sensitivity-results.tsv"], "checkpoint_id": "cp-proteomics-de"},
+          {"stage_id": "proteomics-report", "purpose": "Review diagnostics, effect-size figures and claims under missingness sensitivity.", "depends_on": ["normalize-model"], "inputs": ["protein-de-results.tsv", "sensitivity-results.tsv"], "outputs": ["QA_REPORT.md", "FIGURE_NOTES.md"], "checkpoint_id": "cp-proteomics-report"}
+        ],
+        "optional_branches": ["QFeatures aggregation when peptide/PSM inputs are available", "DEP versus limma or MSstats comparison only when inputs and estimands are compatible"]
+      },
+      "environment": {
+        "backends": ["r"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "DEP", "manager": "bioconductor", "version_policy": "pin to Bioconductor release compatible with R 4.5.3", "probe_status": "unavailable", "probed_version": null},
+          {"name": "QFeatures", "manager": "bioconductor", "version_policy": "optional aggregation layer resolved only if required", "probe_status": "unavailable", "probed_version": null},
+          {"name": "limma", "manager": "bioconductor", "version_policy": "freeze probed compatible version", "probe_status": "installed", "probed_version": "3.66.0"},
+          {"name": "MSstats", "manager": "bioconductor", "version_policy": "alternative method only; never automatic fallback", "probe_status": "unavailable", "probed_version": null}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-proteomics-input", "after_stage": "acquire-audit-ubilength", "artifacts": ["proteomics-input-manifest.json", "proteomics-design.tsv"], "validation": ["3,006 x 12 dimensions confirmed", "replicate structure and contrast frozen", "license/citation/hash recorded"]},
+        {"checkpoint_id": "cp-proteomics-qc", "after_stage": "protein-qc", "artifacts": ["protein-qc-object", "missingness-report.tsv"], "validation": ["contaminant/reverse rules logged", "intensity scale verified", "missingness by condition quantified"]},
+        {"checkpoint_id": "cp-proteomics-de", "after_stage": "normalize-model", "artifacts": ["protein-de-results.tsv", "sensitivity-results.tsv"], "validation": ["normalization justified", "imputation mechanism declared", "effect size and FDR present", "sensitivity conclusions compared"]},
+        {"checkpoint_id": "cp-proteomics-report", "after_stage": "proteomics-report", "artifacts": ["QA_REPORT.md", "FIGURE_NOTES.md"], "validation": ["diagnostics and figure semantics reviewed", "unstable findings demoted"]}
+      ],
+      "acceptance_criteria": [
+        "The exact UbiLength version, 3,006 x 12 dimensions and experimental design are independently confirmed.",
+        "Contaminant, reverse-hit, filtering and scale decisions are traceable.",
+        "Missingness mechanism and imputation are explicit and sensitivity-tested.",
+        "Differential results report contrast, effect size, uncertainty and FDR.",
+        "DEP, QFeatures and MSstats are not treated as interchangeable methods."
+      ],
+      "governance": {
+        "data_classification": "package-dataset-candidate",
+        "human_data": true,
+        "deidentification_status": "not-applicable",
+        "source_identifiers": ["Bioconductor DEP UbiLength", "3,006 proteins", "12 LFQ samples", "4 conditions x 3 replicates", "PMID 28190767", "DOI 10.1016/j.molcel.2017.01.004", "ProteomeXchange PXD004185"],
+        "license_status": "pending",
+        "redistribution_status": "pending",
+        "citation_status": "verified",
+        "required_action": "Verify the exact DEP/UbiLength package version, human cell-line condition labels, package/data license and materialized hashes before acquisition."
+      },
+      "blockers": [
+        {"code": "input-not-cached", "severity": "blocking", "description": "The UbiLength dataset is not available locally.", "resolution": "After explicit run authorization, restore the pinned package dataset and hash its materialized inputs."},
+        {"code": "proteomics-dependencies-unavailable", "severity": "blocking", "description": "DEP, QFeatures and MSstats are absent from the probed R environment.", "resolution": "Provision only the selected stack in a new task-scoped renv environment."},
+        {"code": "replicate-design-not-materialized", "severity": "blocking", "description": "The official manual documents four conditions with three replicates, but the 12-row experimental design has not been materialized and hash-verified locally.", "resolution": "Freeze colData and the contrast before fitting any model."}
+      ],
+      "claim_ceiling": "Currently supports proteomics workflow planning and negative tests for missingness misuse; no protein-level result has been generated.",
+      "next_allowed_action": "Remain in plan mode until dataset acquisition and environment provisioning are explicitly authorized."
+    },
+    {
+      "case_id": "p0-multiomics-cll-mofa",
+      "domain": "multi-omics",
+      "title": "CLL four-view incomplete multi-omics MOFA candidate",
+      "purpose": "Exercise patient alignment, view-specific missingness, scale audit, latent-factor modeling and stability review without silent complete-case selection.",
+      "current_status": "candidate-local-audited",
+      "execution_status": "not-executed",
+      "maturity": "normalized",
+      "availability": {
+        "status": "available-local",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": ["local:p0.multiomics.cll.h5mu"],
+        "integrity_evidence": [
+          {"locator_ref": "local:p0.multiomics.cll.h5mu", "role": "four-view MuData/HDF5 test dataset", "sha256": "1da99d3967f8616adcee2bcea0157c30acf34c46884902343518e9634ec2f7ee", "size_bytes": 11162849}
+        ],
+        "total_size_bytes": 11162849,
+        "evidence_scope": "HDF5 structure was inspected read-only: 200 union patients; mRNA 136 x 5,000, Methylation 196 x 4,248, Mutations 200 x 69 and Drugs 184 x 310."
+      },
+      "data_contract": [
+        {"artifact_id": "cll-four-view-h5mu", "role": "multi-view patient matrix with nonuniform view coverage", "formats": ["h5mu", "HDF5"], "availability": "available-local", "locator_refs": ["local:p0.multiomics.cll.h5mu"], "observation_unit": "patient", "feature_unit": "view-specific molecular or drug feature", "expected_shape": "200 union patients; views: mRNA 136x5000, Methylation 196x4248, Mutations 200x69, Drugs 184x310", "required_metadata": ["patient_id", "view_name", "view-specific sample map", "feature_id", "assay scale"]}
+      ],
+      "statistical_contract": {
+        "measurement_unit": "view-specific measurement per patient",
+        "biological_replicate": "patient",
+        "inference_unit": "patient",
+        "estimand": "latent multi-view factors and their stable associations with registered patient-level covariates",
+        "pseudoreplication_guard": "Join views by patient identifiers and never count four views as four independent subjects.",
+        "missingness_policy": "Preserve view-specific missingness, quantify coverage and avoid silent complete-case restriction; any filtering or likelihood assumption requires sensitivity analysis."
+      },
+      "workflow_plan": {
+        "allowed_mode": "plan",
+        "stages": [
+          {"stage_id": "profile-multiview", "purpose": "Validate patient maps, view dimensions, feature IDs, scales and missingness patterns.", "depends_on": [], "inputs": ["cll-four-view-h5mu"], "outputs": ["multiview-profile.json", "patient-view-map.tsv"], "checkpoint_id": "cp-multiomics-profile"},
+          {"stage_id": "prepare-mofa-input", "purpose": "Choose view-specific transformations, feature filters and missing-data representation without data leakage.", "depends_on": ["profile-multiview"], "inputs": ["patient-view-map.tsv"], "outputs": ["prepared-multiview-object", "preprocessing-ledger.tsv"], "checkpoint_id": "cp-multiomics-prepare"},
+          {"stage_id": "fit-factor-model", "purpose": "Plan MOFA/MOFA-FLEX factor model with seeds, likelihoods, convergence and held-out or repeated-seed stability checks.", "depends_on": ["prepare-mofa-input"], "inputs": ["prepared-multiview-object"], "outputs": ["factor-model", "factor-diagnostics"], "checkpoint_id": "cp-multiomics-model"},
+          {"stage_id": "interpret-validate-factors", "purpose": "Review view contributions, feature weights, patient scores, stability and association claim limits.", "depends_on": ["fit-factor-model"], "inputs": ["factor-model", "factor-diagnostics"], "outputs": ["factor-tables", "QA_REPORT.md", "FIGURE_NOTES.md"], "checkpoint_id": "cp-multiomics-qa"}
+        ],
+        "optional_branches": ["MOFA2 versus MOFA-FLEX as alternative methods with explicit prior differences", "downstream survival or drug association only after endpoints and leakage-safe validation are registered"]
+      },
+      "environment": {
+        "backends": ["python"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "h5py", "manager": "pypi", "version_policy": "freeze probed compatible version for structural audit", "probe_status": "installed", "probed_version": "3.16.0"},
+          {"name": "mudata", "manager": "pypi", "version_policy": "resolve after run authorization", "probe_status": "unavailable", "probed_version": null},
+          {"name": "mofapy2", "manager": "pypi", "version_policy": "MOFA2 engine candidate; pin exact version after compatibility test", "probe_status": "unavailable", "probed_version": null},
+          {"name": "mofaflex", "manager": "local-source", "version_policy": "alternative method; pin audited repository commit", "probe_status": "local-source-only", "probed_version": null}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-multiomics-profile", "after_stage": "profile-multiview", "artifacts": ["multiview-profile.json", "patient-view-map.tsv"], "validation": ["input hash matches", "all view shapes reconcile", "patient overlap and missingness reported"]},
+        {"checkpoint_id": "cp-multiomics-prepare", "after_stage": "prepare-mofa-input", "artifacts": ["prepared-multiview-object", "preprocessing-ledger.tsv"], "validation": ["view scales and likelihoods compatible", "no silent complete-case filtering", "feature selection leakage reviewed"]},
+        {"checkpoint_id": "cp-multiomics-model", "after_stage": "fit-factor-model", "artifacts": ["factor-model", "factor-diagnostics"], "validation": ["seed and hyperparameters frozen", "convergence reviewed", "factor stability quantified"]},
+        {"checkpoint_id": "cp-multiomics-qa", "after_stage": "interpret-validate-factors", "artifacts": ["factor-tables", "QA_REPORT.md", "FIGURE_NOTES.md"], "validation": ["feature/view contributions traceable", "association claims use patient-level units", "alternative priors not silently substituted"]}
+      ],
+      "acceptance_criteria": [
+        "The 200-patient union and all four view dimensions and patient maps reconcile.",
+        "View-specific scales, likelihoods, filtering and missingness policies are explicit.",
+        "No complete-case restriction or feature selection occurs silently.",
+        "Convergence and repeated-seed or equivalent factor stability are reviewed.",
+        "Factor interpretation distinguishes exploratory association from prediction or causation."
+      ],
+      "governance": {
+        "data_classification": "public-research-candidate",
+        "human_data": true,
+        "deidentification_status": "public-deidentified",
+        "source_identifiers": ["MOFA-FLEX repository test data cll.h5mu", "CLL", "MOFA-family factor analysis", "repository code license BSD-3-Clause"],
+        "license_status": "mixed-code-known-data-pending",
+        "redistribution_status": "pending",
+        "citation_status": "pending",
+        "required_action": "Trace the embedded CLL dataset to its original study, confirm data reuse terms, patient variables and required citations."
+      },
+      "blockers": [
+        {"code": "dataset-provenance-pending", "severity": "blocking", "description": "The repository license is BSD-3-Clause, but the underlying CLL dataset provenance and reuse terms are not frozen.", "resolution": "Trace and record the original dataset citation/license before packaging or analysis."},
+        {"code": "multiomics-engine-unavailable", "severity": "blocking", "description": "mudata and mofapy2 are absent; mofaflex exists only as local source.", "resolution": "After explicit run authorization, choose MOFA2 or MOFA-FLEX methodologically and create a new locked environment."}
+      ],
+      "claim_ceiling": "Supports patient-alignment, missing-view and factor-model planning; no latent factor is currently fitted or biologically validated.",
+      "next_allowed_action": "Complete provenance and method-choice review, then compile a plan without installing the modeling stack."
+    },
+    {
+      "case_id": "p0-literature-rogue-negative-control",
+      "domain": "literature-methodology",
+      "title": "ROGUE tutorial source-flow negative-control methodology audit",
+      "purpose": "Teach method/code review by detecting randomized pseudo-samples, cell-level pseudoreplication, installer contamination and unsupported purity claims in a preserved source flow.",
+      "current_status": "methodology-negative-control",
+      "execution_status": "not-executed",
+      "maturity": "normalized",
+      "availability": {
+        "status": "private-sourceflow-available",
+        "audited_on": "2026-07-19",
+        "local_locator_refs": ["local:p0.literature.rogue.article", "local:p0.literature.rogue.code"],
+        "integrity_evidence": [
+          {"locator_ref": "local:p0.literature.rogue.article", "role": "private local article extraction", "sha256": "85e0eff27eac124e62869952758e47f3e5785434d1c46b873985fbcbe7eac5dc", "size_bytes": 14347},
+          {"locator_ref": "local:p0.literature.rogue.code", "role": "preserved R code", "sha256": "9d2afc974153ad58710be37b790ac4a8cdbd8e8048ada537a133feb46db6c8c4", "size_bytes": 10116}
+        ],
+        "total_size_bytes": 24463,
+        "evidence_scope": "SourceFlowBundle flow-5bc6b8a1bc6fbcd4de4a was reviewed statically; the source randomly assigns cells to A/B/C/D pseudo-samples and includes installer/environment commands."
+      },
+      "data_contract": [
+        {"artifact_id": "rogue-sourceflow", "role": "article, ordered R code and code-figure lineage for methodology review", "formats": ["SourceFlowBundle", "markdown", "R"], "availability": "sourceflow-only", "locator_refs": ["local:p0.literature.rogue.article", "local:p0.literature.rogue.code"], "observation_unit": "code and article claim", "feature_unit": null, "expected_shape": "one article, one 10,116-byte R script and nine referenced images in SourceFlowBundle flow-5bc6b8a1bc6fbcd4de4a", "required_metadata": ["bundle_id", "ordered_code_hash", "article_hash", "source_root_id"]}
+      ],
+      "statistical_contract": {
+        "measurement_unit": "cell for the underlying example; code/claim for this audit",
+        "biological_replicate": "none in the randomized A/B/C/D construction",
+        "inference_unit": "not defined; synthetic cell groups cannot represent biological samples",
+        "estimand": null,
+        "pseudoreplication_guard": "Reject any sample-level comparison derived from randomly assigning individual cells to pseudo-samples; require real donor/sample IDs.",
+        "missingness_policy": "Not applicable to the methodology audit; any future ROGUE analysis must report cells excluded and undefined cell-type/sample combinations."
+      },
+      "workflow_plan": {
+        "allowed_mode": "explain",
+        "stages": [
+          {"stage_id": "validate-sourceflow", "purpose": "Verify article/code hashes, order, packages, installer calls and code-image references.", "depends_on": [], "inputs": ["rogue-sourceflow"], "outputs": ["sourceflow-audit.json", "code-risk-ledger.tsv"], "checkpoint_id": "cp-rogue-source"},
+          {"stage_id": "review-method-logic", "purpose": "Separate ROGUE cluster-purity use from invalid randomized sample comparisons and identify required biological replication.", "depends_on": ["validate-sourceflow"], "inputs": ["code-risk-ledger.tsv"], "outputs": ["MethodCard-draft.json", "method-choice-review.md"], "checkpoint_id": "cp-rogue-method"},
+          {"stage_id": "review-code-figure-claims", "purpose": "Map code to figure semantics and record what a ROGUE boxplot can and cannot establish.", "depends_on": ["review-method-logic"], "inputs": ["MethodCard-draft.json"], "outputs": ["FigureCard-draft.json", "claim-boundary.md"], "checkpoint_id": "cp-rogue-claims"}
+        ],
+        "optional_branches": ["derive a clean AnalysisRecipe only after real sample IDs and a legal fixture are supplied", "native figure review without promoting bundle execution maturity"]
+      },
+      "environment": {
+        "backends": ["r"],
+        "isolation": "task-scoped-new-lock",
+        "install_authorized": false,
+        "dependencies": [
+          {"name": "ROGUE", "manager": "github", "version_policy": "declaration only; official repository and commit must be whitelisted before any run", "probe_status": "unavailable", "probed_version": null},
+          {"name": "SCP", "manager": "github", "version_policy": "source tutorial dependency; not required for static explain mode", "probe_status": "unavailable", "probed_version": null},
+          {"name": "Seurat", "manager": "cran", "version_policy": "static review does not depend on runtime version", "probe_status": "installed", "probed_version": "5.4.0"},
+          {"name": "ggplot2", "manager": "cran", "version_policy": "static review does not depend on runtime version", "probe_status": "installed", "probed_version": "4.0.3"}
+        ],
+        "freeze_required_before_run": true
+      },
+      "checkpoints": [
+        {"checkpoint_id": "cp-rogue-source", "after_stage": "validate-sourceflow", "artifacts": ["sourceflow-audit.json", "code-risk-ledger.tsv"], "validation": ["article and code hashes match", "installer calls and random grouping are recorded", "original code remains immutable"]},
+        {"checkpoint_id": "cp-rogue-method", "after_stage": "review-method-logic", "artifacts": ["MethodCard-draft.json", "method-choice-review.md"], "validation": ["ROGUE purpose and assumptions stated", "no biological sample estimand inferred", "alternatives and required validation listed"]},
+        {"checkpoint_id": "cp-rogue-claims", "after_stage": "review-code-figure-claims", "artifacts": ["FigureCard-draft.json", "claim-boundary.md"], "validation": ["visible values separated from biological claims", "random pseudo-samples flagged", "no execution maturity promotion"]}
+      ],
+      "acceptance_criteria": [
+        "The article and code remain hash-linked to SourceFlowBundle flow-5bc6b8a1bc6fbcd4de4a.",
+        "Random A/B/C/D cell grouping is identified as invalid biological replication.",
+        "Installer commands are excluded from any derived AnalysisRecipe.",
+        "ROGUE is described as a cluster-purity/heterogeneity metric, not proof of cell identity or condition effect.",
+        "Explain-mode review does not claim that the source code or figures were executed or reproduced."
+      ],
+      "governance": {
+        "data_classification": "private-local-corpus",
+        "human_data": false,
+        "deidentification_status": "not-applicable",
+        "source_identifiers": ["SourceFlowBundle flow-5bc6b8a1bc6fbcd4de4a", "preprocessing record prep-33ab37463fd8b7289e0ebea4", "ROGUE tutorial article extraction"],
+        "license_status": "pending",
+        "redistribution_status": "forbidden",
+        "citation_status": "pending",
+        "required_action": "Keep article/code/images private; verify the primary ROGUE paper, package repository and article citation before publishing only a derived method summary."
+      },
+      "blockers": [
+        {"code": "random-pseudo-samples", "severity": "blocking", "description": "Cells are randomly assigned to A/B/C/D and then treated as samples.", "resolution": "Replace with real donor/sample IDs; otherwise restrict use to a negative methodology example."},
+        {"code": "installer-in-analysis-code", "severity": "blocking", "description": "The source script includes pak installation and environment-specific commands.", "resolution": "Keep them in source provenance but remove them from any AnalysisRecipe; EnvironmentManager owns installation."},
+        {"code": "private-copyright-source", "severity": "blocking", "description": "The extracted article and its images are private local corpus material with unresolved redistribution rights.", "resolution": "Do not include raw content in the public core; publish only lawful derived metadata and source identifiers."}
+      ],
+      "claim_ceiling": "Supports static methodology critique and a negative-control MethodCard; it does not support a valid ROGUE biological result or code reproducibility claim.",
+      "next_allowed_action": "Complete explain-mode method and claim review; execution requires a separate legal fixture, real sample IDs and explicit run authorization."
+    }
+  ]
+}

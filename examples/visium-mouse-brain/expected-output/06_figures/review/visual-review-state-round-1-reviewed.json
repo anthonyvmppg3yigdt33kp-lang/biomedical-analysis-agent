@@ -1,0 +1,65 @@
+{
+  "analysis_config_hash": "e3bcc2939cc8be7bc4f3f71cfd47799a7a85b618bf402c3a9d23561e58144f99",
+  "case": "visium-mouse-brain",
+  "code_hash": "66953f6db565ec7ccdd56c1924e1fcb326a42843fa0bfb8abeb38d5584e1ebe2",
+  "current_round": 1,
+  "data_hash": "df70f131aaebecca52a42c1cd363f606e5efac7782ea6090f333ee2957236900",
+  "renders": [
+    {
+      "cannot_assert": [
+        "donor/group effect",
+        "cell type",
+        "mechanism or causality"
+      ],
+      "confirmed": [],
+      "decision": "REQUIRED_keep_revise_or_reselect",
+      "figure_id": "spatial_qc",
+      "final_path": "06_figures/final/round-1/spatial_qc.png",
+      "final_sha256": "24cd8d19d8986521a209ceb50e36c69f56c439e7cde8cb064a8e35a42bf1ddd3",
+      "findings": [],
+      "interpretable": [],
+      "original_path": "06_figures/original/round-1/spatial_qc.png",
+      "original_sha256": "7c9e9f3147feb10f2d00fdd88f9cd127b6190a92c9d8e4a5bd1c20fb80be7827",
+      "visible": []
+    },
+    {
+      "cannot_assert": [
+        "donor/group effect",
+        "cell type",
+        "mechanism or causality"
+      ],
+      "confirmed": [],
+      "decision": "REQUIRED_keep_revise_or_reselect",
+      "figure_id": "spatial_clusters",
+      "final_path": "06_figures/final/round-1/spatial_clusters.png",
+      "final_sha256": "deb35a78ca334186a107489d98bd5046cfa0e9433f7ea9384dd592a2598348ce",
+      "findings": [],
+      "interpretable": [],
+      "original_path": "06_figures/original/round-1/spatial_clusters.png",
+      "original_sha256": "40fedb1478ce097380dc4587a24a6afa4aaf7e14deef08f0bf2a92460e3412c8",
+      "visible": []
+    },
+    {
+      "cannot_assert": [
+        "donor/group effect",
+        "cell type",
+        "mechanism or causality"
+      ],
+      "confirmed": [],
+      "decision": "REQUIRED_keep_revise_or_reselect",
+      "figure_id": "spatial_features_hpca_ttr",
+      "final_path": "06_figures/final/round-1/spatial_features_hpca_ttr.png",
+      "final_sha256": "29b42645f2c2fcc5f01fc20a21689342defd05f8bd4c50c970fc7eabd6c67b85",
+      "findings": [],
+      "interpretable": [],
+      "original_path": "06_figures/original/round-1/spatial_features_hpca_ttr.png",
+      "original_sha256": "bb131935e71224188651b32c4bcaa79e877a93073a63448d1dc278593390cd12",
+      "visible": []
+    }
+  ],
+  "schema_version": "2.0",
+  "status": "keep",
+  "terminal_review_path": "06_figures/review/review-round-1.json",
+  "terminal_review_sha256": "73493da1caf9a5c0ff5f52926b9d814bffbb4328c8c5e129351bd035fc3752b5",
+  "visual_config_hash": "da4dad04cb6bcbfed2b4e9f6d2df75531f80afbf9c76ae9cadbec9a49a9ee475"
+}

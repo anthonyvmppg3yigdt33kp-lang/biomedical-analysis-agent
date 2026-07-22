@@ -1,0 +1,45 @@
+schema_version: '1.0'
+case_id: p0-single-cell-gse185948
+analysis_id: p0-single-cell-gse185948-reduced-real-data-fixture
+domain: single_cell
+assay: single-nucleus RNA-seq
+mode: run
+distribution: complete_runner_without_binary_inputs
+measurement_unit: nucleus
+future_inference_unit: donor
+source:
+  accession: GSE185948
+  samples: [GSM5627690, GSM5627691, GSM5627692, GSM5627693, GSM5627694]
+  features_per_matrix: 36601
+  total_filtered_barcodes: 56728
+sampling:
+  method: deterministic-without-replacement-h5-csc-column-slice
+  seed: 20260719
+  max_nuclei_per_donor: 1000
+  analyzed_input_barcodes: 5000
+  full_matrix_loaded_before_sampling: false
+methods:
+  qc: distribution-derived per donor and nucleus-aware
+  doublet: Scanpy Scrublet score plus seeded heteroscedastic Gaussian mixture
+  doublet_filter_policy: all-donors-or-none
+  normalization: total-count normalization and log1p
+  feature_selection: union of per-donor highly variable genes
+  representation: unintegrated PCA after donor-library-batch confounding review
+  clustering: Leiden
+  annotation: coarse canonical marker-panel evidence with unknown allowed
+formal_execution:
+  environment_backend: offline-relocated-python-prefix-snapshot
+  environment_lock_hash: e6a35fca578e65e9ccd32ce9644a94b7d34f4591ec6273a3357081826ee5df24
+  retained_nuclei: 4919
+  selected_features: 2773
+  clusters: 15
+  figures: 6
+  qa_status: PASS_WITH_WARNINGS
+scientific_boundaries:
+  - filtered matrices do not contain empty droplets for ambient RNA estimation
+  - doublet scoring completed but the all-donors reliability gate prevented filtering
+  - donor, library and batch are one-to-one and cannot be statistically separated
+  - coarse annotation is not reference validated
+  - reduced sampled composition is descriptive and not a prevalence estimate
+  - no case-control, causal, prognostic or clinical claim is supported
+

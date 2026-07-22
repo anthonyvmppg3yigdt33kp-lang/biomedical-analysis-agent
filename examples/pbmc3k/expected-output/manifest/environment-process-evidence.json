@@ -1,0 +1,43 @@
+{
+  "architecture": {
+    "native_architecture": "X64",
+    "parent_environment_modified": false,
+    "platform": "windows",
+    "processor_architecture": "AMD64",
+    "processor_architecture_restored": true,
+    "supported_architecture": "AMD64"
+  },
+  "case_id": "pbmc3k",
+  "command_fingerprint_sha256": "71d6f56902ab9f306e45bf23d4bbbeabacd5bd28f3cecc31dfa2353b2145945c",
+  "forbidden_scan": {
+    "matches": [],
+    "passed": true,
+    "patterns": [
+      "warning:",
+      "warning message",
+      "stack imbalance",
+      "iteration limit reached",
+      "alternation limit reached",
+      "execution halted",
+      "error in ",
+      "caught access violation",
+      "caught segfault",
+      "fatal error"
+    ]
+  },
+  "returncode": 0,
+  "schema_version": "1.0.0",
+  "shutdown_mode": "native_exit",
+  "stage": "environment-provision",
+  "status": "pass",
+  "stderr": {
+    "path": "logs/environment.stderr.log",
+    "sha256": "95e45ca78a74206964acb36874278b4a0dcf4029624aa2d234d6c50e9b4c1fa0",
+    "size_bytes": 15718
+  },
+  "stdout": {
+    "path": "logs/environment.stdout.log",
+    "sha256": "ca344b505dde07a843faf5824b4132e02a9979f6f7d32158a55f2213958b47c8",
+    "size_bytes": 14615
+  }
+}

@@ -1,0 +1,50 @@
+schema_version: '1.1'
+case_id: p0-proteomics-dep-ubilength
+domain: quantitative_proteomics
+mode: run
+distribution: complete_runner_without_source_data
+source:
+  package: DEP
+  source_package_version: 1.32.0
+  bioconductor_release: '3.22'
+  objects: [UbiLength, UbiLength_ExpDesign]
+  article:
+    pmid: '28190767'
+    doi: 10.1016/j.molcel.2017.01.004
+    proteomexchange: PXD004185
+  redistribution: acquire_from_official_package_at_runtime
+runtime:
+  r: 4.5.3
+  dep: 1.31.0
+  qfeatures: 1.20.0
+  limma: 3.66.0
+  rcpp: 1.1.1
+  source_runtime_version_identical: false
+  compatibility_boundary: DEP_1.32.0_source_objects_verified_under_DEP_1.31.0_runtime
+design:
+  statistical_unit: documented_experimental_replicate
+  contrast: Ubi6_vs_Ctrl
+  contrast_vector: Ubi6 - Ctrl
+  multiplicity: BH_across_tested_protein_groups_for_one_contrast
+workflow:
+  primary:
+    method: limma_observed_log2_LFQ_no_imputation
+    min_observed_per_group: 2
+    eBayes_trend: true
+    eBayes_robust: true
+  sensitivity:
+    method: DEP_MinProb_left_censored
+    runtime_package_version: 1.31.0
+    q: 0.01
+    seed: 20260719
+  non_equivalent_substitution_allowed: false
+environment:
+  backend: task_local_renv_pak
+  global_mutation: false
+required_outputs:
+  checkpoints: [P10_input_audit, P20_preprocessing, P30_primary_limma_no_imputation, P40_dep_minprob_sensitivity, P50_figures, P60_analysis_qa]
+  figures: [sample_pca, missingness_structure, primary_volcano, minprob_sensitivity]
+claim_boundary:
+  supports: experimental_replicate_level_differential_measured_enrichment
+  does_not_support: [direct_physical_binding, causal_regulation, pathway_activation, patient_or_population_generalization]
+

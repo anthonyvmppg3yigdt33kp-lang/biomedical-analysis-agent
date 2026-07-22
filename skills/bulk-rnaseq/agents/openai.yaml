@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bulk RNA-seq 工作流"
+  short_description: "从FASTQ或表达矩阵到稳健差异分析、通路解释与结果审核"
+  default_prompt: "Use $bulk-rnaseq to design and audit a reproducible bulk RNA-seq analysis."

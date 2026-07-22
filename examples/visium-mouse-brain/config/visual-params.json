@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "render_round": 1,
+  "image_scale": "lowres",
+  "crop": true,
+  "spot_alpha": 0.9,
+  "feature_alpha_min": 0.1,
+  "feature_alpha_max": 1.0,
+  "image_alpha": 1.0,
+  "point_size_factor": 1.6,
+  "cluster_label": true,
+  "cluster_label_size": 3.5,
+  "cluster_label_repel": true,
+  "base_font_size": 10,
+  "original_export": {
+    "width_in": 12.0,
+    "height_in": 8.0,
+    "dpi": 300
+  },
+  "final_export": {
+    "width_in": 7.1,
+    "height_in": 4.75,
+    "dpi": 300
+  },
+  "allowed_visual_only_revision_keys": [
+    "point_size_factor",
+    "spot_alpha",
+    "image_alpha",
+    "cluster_label_size",
+    "cluster_label_repel",
+    "base_font_size",
+    "original_export",
+    "final_export"
+  ],
+  "never_visual_only": [
+    "feature_alpha_min",
+    "feature_alpha_max",
+    "image_scale",
+    "crop",
+    "analysis filtering",
+    "SCTransform parameters",
+    "PCA dimensions",
+    "neighbor parameters",
+    "cluster resolution",
+    "features"
+  ]
+}
+

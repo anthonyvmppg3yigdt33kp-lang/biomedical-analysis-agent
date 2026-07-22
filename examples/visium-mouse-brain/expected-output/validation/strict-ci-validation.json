@@ -1,0 +1,32 @@
+{
+  "analysis_config_sha256": "e3bcc2939cc8be7bc4f3f71cfd47799a7a85b618bf402c3a9d23561e58144f99",
+  "artifact_ledger_records": 28,
+  "artifact_ledger_sha256": "1ab7b3bf0c9c91810a265a5c55ea8b92656f93ad7ef795a1fbae2b7b8b052292",
+  "case": "visium-mouse-brain",
+  "computational_execution": "passed",
+  "executed_pipeline_sha256": "66953f6db565ec7ccdd56c1924e1fcb326a42843fa0bfb8abeb38d5584e1ebe2",
+  "execution_summary_sha256": "3c60020da7fd9783b492dde24aa10a544d343307473a00823d04eb07a96f5e54",
+  "final_png_dimensions": [
+    2130,
+    1425
+  ],
+  "native_visual_review": "not_asserted_by_ci",
+  "ok": true,
+  "original_final_figure_pairs": 3,
+  "original_png_dimensions": [
+    3600,
+    2400
+  ],
+  "renv_lock_sha256": "b8450521054cd750e93a27fab0b44757519361bd8b694ffbae35636de508cf5b",
+  "runtime": {
+    "R": "4.5.3",
+    "Seurat": "5.5.0",
+    "renv": "1.2.2"
+  },
+  "runtime_warning_blockers": 0,
+  "runtime_warning_evidence_sha256": "5b0e8ad1c508b080312247fd832f7e24f31bc4e18ceb33441d81c21590938dc6",
+  "runtime_warning_occurrences": 0,
+  "runtime_warning_records": 0,
+  "schema_version": "1.0.0",
+  "terminal_state": "DELIVERED"
+}

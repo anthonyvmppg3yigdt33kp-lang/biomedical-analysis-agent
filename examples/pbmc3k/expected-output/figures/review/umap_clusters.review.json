@@ -1,0 +1,63 @@
+{
+  "backend": "r",
+  "case_id": "pbmc3k",
+  "data_sha256": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "figure_id": "umap_clusters",
+  "max_rounds": 3,
+  "rounds": [
+    {
+      "cannot_assert": [
+        "donor-level abundance or expression effects",
+        "population prevalence",
+        "mechanism or causality"
+      ],
+      "confirmed": [
+        "The final cluster UMAP has clear direct cluster labels and a readable nine-entry legend without clipping.",
+        "The original and final panels contain the same UMAP coordinates and cluster identities."
+      ],
+      "decision": "keep",
+      "evidence_level": "image_code_data",
+      "final": {
+        "height_px": 1560,
+        "path": "figures/final/umap_clusters.png",
+        "sha256": "297f5217824c21f0b483bbbe4b8b8552409ee187a81d08e61d88d64b97a31657",
+        "width_px": 2160
+      },
+      "findings": [],
+      "interpretable": [
+        "The panel provides a descriptive cell-level view of the nine teaching clusters in PBMC3K."
+      ],
+      "native_view": {
+        "method": "native_local_image_view",
+        "opened_final": true,
+        "opened_final_sha256": "297f5217824c21f0b483bbbe4b8b8552409ee187a81d08e61d88d64b97a31657",
+        "opened_original": true,
+        "opened_original_sha256": "0493ba17a3e5545a0ae7ae67904e68148d77f476c83cf308537567dcfe50aef6",
+        "tool": "Codex view_image (detail=original)"
+      },
+      "original": {
+        "height_px": 2100,
+        "path": "figures/original/umap_clusters.png",
+        "sha256": "0493ba17a3e5545a0ae7ae67904e68148d77f476c83cf308537567dcfe50aef6",
+        "width_px": 3000
+      },
+      "reviewer": "Codex view_image(detail=original)",
+      "round": 1,
+      "visible": [
+        "All cluster labels, point clouds, axes, and legend entries are fully visible."
+      ],
+      "visual_parameter_diff": {
+        "changed": [
+          "theme",
+          "cluster palette",
+          "point size",
+          "label size and repel",
+          "title and legend labels"
+        ],
+        "scientific_parameters_changed": false
+      }
+    }
+  ],
+  "schema_version": "2.0.0",
+  "status": "native-reviewed"
+}

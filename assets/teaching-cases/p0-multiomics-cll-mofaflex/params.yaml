@@ -1,0 +1,20 @@
+schema_version: '1.0'
+analysis: p0-multiomics-cll-mofaflex
+statistical_unit: patient
+patient_set_policy: union-with-view-specific-missingness
+pretrained_model:
+  factors: 15
+reduced_stability_probe:
+  factors: 6
+  seeds: [42, 43]
+  max_epochs: 200
+  early_stopper_patience: 50
+  learning_rate: 0.01
+  device: cpu
+  threads: 2
+  feature_caps: {Drugs: 100, Methylation: 200, Mutations: 69, mRNA: 200}
+  feature_selection: descending finite within-view variance; feature name breaks ties
+  factor_matching: Hungarian assignment maximizing absolute Spearman score correlation
+  top_loading_features: 20
+claim_scope: exploratory and descriptive only
+

@@ -1,0 +1,20 @@
+case_id: p0-proteomics-dep-ubilength
+seed: 20260719
+contrast: Ubi6_vs_Ctrl
+contrast_vector: Ubi6 - Ctrl
+primary:
+  method: limma_observed_log2_LFQ_no_imputation
+  min_observed_per_group: 2
+  eBayes_trend: true
+  eBayes_robust: true
+  fdr_method: BH
+sensitivity:
+  method: DEP_MinProb
+  q: 0.01
+  same_limma_model: true
+visualization:
+  pca: complete_protein_groups_only_no_imputation
+  final_dpi: 320
+  palette: Okabe-Ito-derived
+claim_boundary: experimental_replicate_level_only
+

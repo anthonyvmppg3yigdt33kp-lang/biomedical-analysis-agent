@@ -1,0 +1,45 @@
+schema_version: '1.0'
+case_id: p0-multiomics-cll-mofa
+analysis_id: p0-multiomics-cll-mofaflex
+domain: multi_omics
+mode: run
+distribution: complete_runner_without_binary_inputs
+statistical_unit: patient
+inputs:
+  dataset:
+    logical_name: cll.h5mu
+    sha256: 1da99d3967f8616adcee2bcea0157c30acf34c46884902343518e9634ec2f7ee
+    patient_union: 200
+    complete_four_view_patients: 121
+    views:
+      Drugs: [184, 310]
+      Methylation: [196, 4248]
+      Mutations: [200, 69]
+      mRNA: [136, 5000]
+  pretrained_model:
+    logical_name: cll_model.h5
+    sha256: 8effa89420f7e4c3cc0c2f4f5423d3f6901ba9be1c0f5f04f3b4deb2437db562
+    factors: 15
+model:
+  reduced_stability_probe:
+    factors: 6
+    seeds: [42, 43]
+    max_epochs: 200
+    feature_caps: {Drugs: 100, Methylation: 200, Mutations: 69, mRNA: 200}
+    feature_selection: descending_finite_within_view_variance
+    factor_matching: hungarian_maximum_absolute_spearman
+  automatic_method_fallback: false
+environment:
+  backend: task_local_python_uv
+  source_repository: bioFAM/mofaflex
+  commit: bd2c8f066008174fc6be68eaf85d9534a10a6b0c
+  global_mutation: false
+expected_verified_metrics:
+  matched_factors: 6
+  high_operational_stability: 5
+  moderate_operational_stability: 1
+  low_operational_stability: 0
+  median_absolute_score_rho: 0.9799467486687168
+  minimum_absolute_score_rho: 0.7786799669991752
+claim_boundary: exploratory_descriptive_only
+

@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "case_id": "p0-single-cell-gse185948-reduced-real-data-fixture",
+  "source_mode": "read_only",
+  "analysis_mode": "reduced-real-data-teaching-fixture",
+  "sampling": {
+    "method": "deterministic-without-replacement-h5-csc-column-slice",
+    "seed": 20260719,
+    "max_nuclei_per_donor": 1000,
+    "full_matrix_loaded_before_sampling": false,
+    "claim_boundary": "Execution fixture only; sampled results cannot substitute for full-data biological analysis."
+  },
+  "inputs": [
+    {
+      "path": "REPLACE_WITH_GSM5627690_H5",
+      "sample_accession": "GSM5627690",
+      "donor_id": "cont1",
+      "sha256": "bc4f985540176f7acc49b01bc99b8c32b75d6efc424943dd239155433ce9fc99",
+      "size_bytes": 26385307,
+      "expected_features": 36601,
+      "expected_barcodes": 8951
+    },
+    {
+      "path": "REPLACE_WITH_GSM5627691_H5",
+      "sample_accession": "GSM5627691",
+      "donor_id": "cont2",
+      "sha256": "e7f61e0e281b7a4427d16352989e2478c74fec6154e4976ed328b958369e3936",
+      "size_bytes": 60596538,
+      "expected_features": 36601,
+      "expected_barcodes": 15493
+    },
+    {
+      "path": "REPLACE_WITH_GSM5627692_H5",
+      "sample_accession": "GSM5627692",
+      "donor_id": "cont3",
+      "sha256": "6c1ee9e2748cf1d04addf3e361b256b3d2a5d509a7780a4598e538d6e730072c",
+      "size_bytes": 26000386,
+      "expected_features": 36601,
+      "expected_barcodes": 9349
+    },
+    {
+      "path": "REPLACE_WITH_GSM5627693_H5",
+      "sample_accession": "GSM5627693",
+      "donor_id": "cont4",
+      "sha256": "2ee83d0750324c404ab0ec630f4c2320f2d1bed768beca7c32aad685808a1ff9",
+      "size_bytes": 54076325,
+      "expected_features": 36601,
+      "expected_barcodes": 13243
+    },
+    {
+      "path": "REPLACE_WITH_GSM5627694_H5",
+      "sample_accession": "GSM5627694",
+      "donor_id": "cont5",
+      "sha256": "e2b6625ba206e0619ae498b14b7613f585e20ff9cbd1a0ebdef31ed2a5084b4c",
+      "size_bytes": 22425529,
+      "expected_features": 36601,
+      "expected_barcodes": 9692
+    }
+  ]
+}
+

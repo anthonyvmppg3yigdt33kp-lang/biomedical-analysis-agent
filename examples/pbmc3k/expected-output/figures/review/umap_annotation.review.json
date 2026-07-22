@@ -1,0 +1,70 @@
+{
+  "backend": "r",
+  "case_id": "pbmc3k",
+  "data_sha256": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "figure_id": "umap_annotation",
+  "max_rounds": 3,
+  "rounds": [
+    {
+      "cannot_assert": [
+        "donor-level abundance or expression effects",
+        "population prevalence",
+        "mechanism or causality"
+      ],
+      "confirmed": [
+        "The final annotation UMAP replaces overlapping direct labels with a readable legend and remains uncropped.",
+        "The original and final panels contain the same UMAP coordinates and conservative teaching labels."
+      ],
+      "decision": "keep",
+      "evidence_level": "image_code_data",
+      "final": {
+        "height_px": 1560,
+        "path": "figures/final/umap_annotation.png",
+        "sha256": "be8114712cd122af0d285909b1c1ac6546eda7ae7993d0ecbc882a3d007af15a",
+        "width_px": 2160
+      },
+      "findings": [
+        {
+          "finding": "Direct labels overlap substantially in the unoptimized original panel.",
+          "resolution": "The final panel uses a complete legend, eliminating the label collision while retaining identical data content.",
+          "severity": "major",
+          "status": "resolved"
+        }
+      ],
+      "interpretable": [
+        "The final panel supports descriptive inspection of conservative teaching labels in this single library."
+      ],
+      "native_view": {
+        "method": "native_local_image_view",
+        "opened_final": true,
+        "opened_final_sha256": "be8114712cd122af0d285909b1c1ac6546eda7ae7993d0ecbc882a3d007af15a",
+        "opened_original": true,
+        "opened_original_sha256": "12d9d9939f4c295c8a36a4e39329f6cdee34af5e3a2ba80ba3ce175d29763384",
+        "tool": "Codex view_image (detail=original)"
+      },
+      "original": {
+        "height_px": 2100,
+        "path": "figures/original/umap_annotation.png",
+        "sha256": "12d9d9939f4c295c8a36a4e39329f6cdee34af5e3a2ba80ba3ce175d29763384",
+        "width_px": 3000
+      },
+      "reviewer": "Codex view_image(detail=original)",
+      "round": 1,
+      "visible": [
+        "The complete point cloud and all teaching-label legend entries are visible without clipping."
+      ],
+      "visual_parameter_diff": {
+        "changed": [
+          "theme",
+          "label presentation",
+          "teaching-label palette",
+          "point size",
+          "title and legend labels"
+        ],
+        "scientific_parameters_changed": false
+      }
+    }
+  ],
+  "schema_version": "2.0.0",
+  "status": "native-reviewed"
+}

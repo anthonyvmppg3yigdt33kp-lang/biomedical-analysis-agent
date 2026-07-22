@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "pbmc3k",
+  "required_capabilities": [
+    "single-cell",
+    "visualization"
+  ],
+  "required_skills": [
+    "bio-workflows-scrnaseq-pipeline",
+    "visualization-2026718-v1"
+  ],
+  "forbidden_capabilities": [
+    "spatial-transcriptomics",
+    "bulk-rna",
+    "quantitative-proteomics",
+    "multi-omics"
+  ],
+  "notes": "Generic 10x and Seurat evidence is appropriate here because the request explicitly declares single-cell; the route must not add unrelated domains."
+}

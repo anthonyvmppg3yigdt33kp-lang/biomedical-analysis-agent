@@ -1,0 +1,62 @@
+{
+  "backend": "r",
+  "case_id": "pbmc3k",
+  "data_sha256": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "figure_id": "qc_violin",
+  "max_rounds": 3,
+  "rounds": [
+    {
+      "cannot_assert": [
+        "donor-level abundance or expression effects",
+        "population prevalence",
+        "mechanism or causality"
+      ],
+      "confirmed": [
+        "All three QC violin panels are clear and uncropped in the final figure.",
+        "The original and final panels show the same nFeature_RNA, nCount_RNA, and percent.mt distributions."
+      ],
+      "decision": "keep",
+      "evidence_level": "image_code_data",
+      "final": {
+        "height_px": 1560,
+        "path": "figures/final/qc_violin.png",
+        "sha256": "2674b42bd61d730b3f34dcef01c358e94d4d90629928bef009efb6703e94b118",
+        "width_px": 2160
+      },
+      "findings": [],
+      "interpretable": [
+        "The figure supports descriptive inspection of per-cell QC distributions in the retained PBMC3K object."
+      ],
+      "native_view": {
+        "method": "native_local_image_view",
+        "opened_final": true,
+        "opened_final_sha256": "2674b42bd61d730b3f34dcef01c358e94d4d90629928bef009efb6703e94b118",
+        "opened_original": true,
+        "opened_original_sha256": "3643dc38a3252de8da1420f675b59554c0dd97b8ee1c9f6d20684f5558675aaf",
+        "tool": "Codex view_image (detail=original)"
+      },
+      "original": {
+        "height_px": 2100,
+        "path": "figures/original/qc_violin.png",
+        "sha256": "3643dc38a3252de8da1420f675b59554c0dd97b8ee1c9f6d20684f5558675aaf",
+        "width_px": 3000
+      },
+      "reviewer": "Codex view_image(detail=original)",
+      "round": 1,
+      "visible": [
+        "All violin geometries, panel labels, axes, and ranges are fully visible."
+      ],
+      "visual_parameter_diff": {
+        "changed": [
+          "theme",
+          "base font size",
+          "title styling",
+          "legend position"
+        ],
+        "scientific_parameters_changed": false
+      }
+    }
+  ],
+  "schema_version": "2.0.0",
+  "status": "native-reviewed"
+}

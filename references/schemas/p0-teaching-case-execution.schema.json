@@ -1,0 +1,943 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/biomedical-analysis-agent/p0-teaching-case-execution.schema.json",
+  "title": "P0TeachingCaseExecutionRegistry",
+  "type": "object",
+  "required": ["schema_version", "registry_id", "distribution", "source_mode", "public_candidate_registry_ref", "executions"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "registry_id": {"const": "biomedical-analysis-agent-p0-teaching-case-executions"},
+    "distribution": {"const": "private-local-only"},
+    "source_mode": {"const": "read-only-evidence"},
+    "public_candidate_registry_ref": {"const": "references/p0-teaching-cases.json"},
+    "executions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/Execution"},
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "RelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:[\\\\/])(?![\\\\/])(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    },
+    "HashedFile": {
+      "type": "object",
+      "required": ["relative_path", "sha256", "size_bytes"],
+      "properties": {
+        "relative_path": {"$ref": "#/$defs/RelativePath"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "ExternalHashedFile": {
+      "type": "object",
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "InputEvidence": {
+      "type": "object",
+      "required": ["locator_ref", "sha256", "size_bytes", "access_mode"],
+      "properties": {
+        "locator_ref": {"type": "string", "pattern": "^local:p0\\."},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "access_mode": {"const": "read-only"}
+      },
+      "additionalProperties": false
+    },
+    "Authorization": {
+      "type": "object",
+      "required": ["mode", "scope", "network_install", "allowed_sources", "global_changes"],
+      "properties": {
+        "mode": {"const": "run"},
+        "scope": {"const": "task-local"},
+        "network_install": {"const": true},
+        "allowed_sources": {"type": "array", "items": {"const": "pypi"}, "minItems": 1, "maxItems": 1},
+        "global_changes": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "Environment": {
+      "type": "object",
+      "required": ["state", "backend", "platform", "env_id", "lock_hash", "manifest", "marker", "requirements_lock"],
+      "properties": {
+        "state": {"const": "frozen"},
+        "backend": {"const": "python-uv"},
+        "platform": {"const": "windows-amd64"},
+        "env_id": {"type": "string", "pattern": "^env_python_[0-9a-f]{12}$"},
+        "lock_hash": {"$ref": "#/$defs/Sha256"},
+        "manifest": {"$ref": "#/$defs/HashedFile"},
+        "marker": {"$ref": "#/$defs/HashedFile"},
+        "requirements_lock": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "ArtifactHash": {
+      "type": "object",
+      "required": ["relative_path", "sha256"],
+      "properties": {
+        "relative_path": {"$ref": "#/$defs/RelativePath"},
+        "sha256": {"$ref": "#/$defs/Sha256"}
+      },
+      "additionalProperties": false
+    },
+    "Reproducibility": {
+      "type": "object",
+      "required": ["fresh_run_dir", "fresh_returncode", "cached_run_dir", "cached_returncode", "restored_from_cache", "compared_artifact_count", "all_hashes_equal", "artifact_hashes"],
+      "properties": {
+        "fresh_run_dir": {"$ref": "#/$defs/RelativePath"},
+        "fresh_returncode": {"const": 0},
+        "cached_run_dir": {"$ref": "#/$defs/RelativePath"},
+        "cached_returncode": {"const": 0},
+        "restored_from_cache": {"const": true},
+        "compared_artifact_count": {"const": 9},
+        "all_hashes_equal": {"const": true},
+        "artifact_hashes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ArtifactHash"},
+          "minItems": 9,
+          "maxItems": 9
+        }
+      },
+      "additionalProperties": false
+    },
+    "ReviewedFigure": {
+      "type": "object",
+      "required": ["relative_path", "cached_copy_relative_path", "sha256", "size_bytes", "scientific_boundary"],
+      "properties": {
+        "relative_path": {"$ref": "#/$defs/RelativePath"},
+        "cached_copy_relative_path": {"$ref": "#/$defs/RelativePath"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "scientific_boundary": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "NativeReview": {
+      "type": "object",
+      "required": ["review_file", "review_state", "decision", "reviewed_native_pixels", "figures"],
+      "properties": {
+        "review_file": {"$ref": "#/$defs/HashedFile"},
+        "review_state": {"const": "native-reviewed"},
+        "decision": {"const": "PASS_WITH_BOUNDARIES"},
+        "reviewed_native_pixels": {"const": true},
+        "figures": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ReviewedFigure"},
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormalValidation": {
+      "type": "object",
+      "required": ["ok", "verify_hashes", "errors"],
+      "properties": {
+        "ok": {"const": true},
+        "verify_hashes": {"const": true},
+        "errors": {"type": "array", "maxItems": 0}
+      },
+      "additionalProperties": false
+    },
+    "ResumeAudit": {
+      "type": "object",
+      "required": ["ok", "read_only", "prior_state", "environment_locked", "verify_input_hashes", "latest_valid_checkpoint", "resume_requires_new_workflow_instance", "errors"],
+      "properties": {
+        "ok": {"const": true},
+        "read_only": {"const": true},
+        "prior_state": {"const": "DELIVERED"},
+        "environment_locked": {"const": true},
+        "verify_input_hashes": {"const": true},
+        "latest_valid_checkpoint": {"type": "string", "pattern": "^[0-9]{2}-[A-Za-z0-9._-]+$"},
+        "resume_requires_new_workflow_instance": {"const": true},
+        "errors": {"type": "array", "maxItems": 0}
+      },
+      "additionalProperties": false
+    },
+    "FormalRun": {
+      "type": "object",
+      "required": ["run_root", "run_id", "state", "promotion_report", "validation", "resume_audit", "registered_artifact_count", "manifest_artifact_count", "ledger_entry_count", "duplicate_registration_count", "run_manifest", "artifact_ledger", "workflow_plan", "environment", "final_figures", "reports"],
+      "properties": {
+        "run_root": {"type": "string", "minLength": 1},
+        "run_id": {"type": "string", "pattern": "^run-[A-Za-z0-9._-]+$"},
+        "state": {"const": "DELIVERED"},
+        "promotion_report": {"$ref": "#/$defs/ExternalHashedFile"},
+        "validation": {"$ref": "#/$defs/FormalValidation"},
+        "resume_audit": {"$ref": "#/$defs/ResumeAudit"},
+        "registered_artifact_count": {"type": "integer", "minimum": 1},
+        "manifest_artifact_count": {"type": "integer", "minimum": 1},
+        "ledger_entry_count": {"type": "integer", "minimum": 1},
+        "duplicate_registration_count": {"const": 0},
+        "run_manifest": {"$ref": "#/$defs/HashedFile"},
+        "artifact_ledger": {"$ref": "#/$defs/HashedFile"},
+        "workflow_plan": {"$ref": "#/$defs/HashedFile"},
+        "environment": {
+          "type": "object",
+          "required": ["lock_hash", "manifest", "marker", "requirements_lock"],
+          "properties": {
+            "lock_hash": {"$ref": "#/$defs/Sha256"},
+            "manifest": {"$ref": "#/$defs/HashedFile"},
+            "marker": {"$ref": "#/$defs/HashedFile"},
+            "requirements_lock": {"$ref": "#/$defs/HashedFile"}
+          },
+          "additionalProperties": false
+        },
+        "final_figures": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/HashedFile"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "reports": {
+          "type": "object",
+          "required": ["qa_report", "figure_notes"],
+          "properties": {
+            "qa_report": {"$ref": "#/$defs/HashedFile"},
+            "figure_notes": {"$ref": "#/$defs/HashedFile"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "VisualizationExecution": {
+      "type": "object",
+      "required": ["execution_id", "case_id", "domain", "recorded_on", "task_root", "teaching_report", "authorization", "input", "script", "environment", "reproducibility", "native_review", "formal_run", "maturity", "scientific_claim_ceiling", "verification_scope"],
+      "properties": {
+        "execution_id": {"type": "string", "pattern": "^exec-p0-[a-z0-9-]+-[0-9]{8}$"},
+        "case_id": {"type": "string", "pattern": "^p0-[a-z0-9][a-z0-9-]*$"},
+        "domain": {"const": "visualization"},
+        "recorded_on": {"type": "string", "format": "date"},
+        "task_root": {"type": "string", "minLength": 1},
+        "teaching_report": {"$ref": "#/$defs/HashedFile"},
+        "authorization": {"$ref": "#/$defs/Authorization"},
+        "input": {"$ref": "#/$defs/InputEvidence"},
+        "script": {"$ref": "#/$defs/HashedFile"},
+        "environment": {"$ref": "#/$defs/Environment"},
+        "reproducibility": {"$ref": "#/$defs/Reproducibility"},
+        "native_review": {"$ref": "#/$defs/NativeReview"},
+        "formal_run": {"$ref": "#/$defs/FormalRun"},
+        "maturity": {"const": "data-verified"},
+        "scientific_claim_ceiling": {"type": "string", "minLength": 1},
+        "verification_scope": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellAuthorization": {
+      "type": "object",
+      "required": ["mode", "scope", "source_access", "global_changes", "remote_publication"],
+      "properties": {
+        "mode": {"const": "run"},
+        "scope": {"const": "task-local"},
+        "source_access": {"const": "read-only"},
+        "global_changes": {"const": false},
+        "remote_publication": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "ReducedSampling": {
+      "type": "object",
+      "required": ["method", "sampled_barcodes", "max_per_donor", "seeds", "full_sparse_matrix_loaded_before_sampling", "membership_hashes_recorded"],
+      "properties": {
+        "method": {"const": "deterministic-without-replacement-h5-csc-column-slice"},
+        "sampled_barcodes": {"const": 5000},
+        "max_per_donor": {"const": 1000},
+        "seeds": {
+          "type": "array",
+          "items": {"type": "integer"},
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "full_sparse_matrix_loaded_before_sampling": {"const": false},
+        "membership_hashes_recorded": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellInputs": {
+      "type": "object",
+      "required": ["source_identifier", "metadata_sidecar_sha256", "features_per_matrix", "total_filtered_barcodes", "total_size_bytes", "artifacts", "reduced_sampling"],
+      "properties": {
+        "source_identifier": {"type": "string", "minLength": 1},
+        "metadata_sidecar_sha256": {"$ref": "#/$defs/Sha256"},
+        "features_per_matrix": {"type": "integer", "minimum": 1},
+        "total_filtered_barcodes": {"type": "integer", "minimum": 1},
+        "total_size_bytes": {"type": "integer", "minimum": 1},
+        "artifacts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/InputEvidence"},
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "reduced_sampling": {"$ref": "#/$defs/ReducedSampling"}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellVersions": {
+      "type": "object",
+      "required": ["python", "scanpy", "anndata", "h5py", "numpy", "scipy", "pandas", "scikit-learn", "matplotlib", "igraph", "leidenalg"],
+      "properties": {
+        "python": {"type": "string", "minLength": 1},
+        "scanpy": {"type": "string", "minLength": 1},
+        "anndata": {"type": "string", "minLength": 1},
+        "h5py": {"type": "string", "minLength": 1},
+        "numpy": {"type": "string", "minLength": 1},
+        "scipy": {"type": "string", "minLength": 1},
+        "pandas": {"type": "string", "minLength": 1},
+        "scikit-learn": {"type": "string", "minLength": 1},
+        "matplotlib": {"type": "string", "minLength": 1},
+        "igraph": {"type": "string", "minLength": 1},
+        "leidenalg": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "ThreadLimits": {
+      "type": "object",
+      "required": ["OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS", "NUMBA_NUM_THREADS"],
+      "properties": {
+        "OMP_NUM_THREADS": {"const": "2"},
+        "OPENBLAS_NUM_THREADS": {"const": "2"},
+        "MKL_NUM_THREADS": {"const": "2"},
+        "NUMEXPR_NUM_THREADS": {"const": "2"},
+        "NUMBA_NUM_THREADS": {"const": "2"}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellEnvironment": {
+      "type": "object",
+      "required": ["state", "backend", "platform", "env_id", "lock_hash", "source_target_tree_sha256", "external_runtime_references", "active_editable_or_vcs_locators", "generated_bytecode_files", "versions", "thread_limits", "manifest", "marker"],
+      "properties": {
+        "state": {"const": "frozen"},
+        "backend": {"const": "python-relocated-conda-snapshot"},
+        "platform": {"const": "windows-amd64"},
+        "env_id": {"type": "string", "pattern": "^env_python_[0-9a-f]{12}$"},
+        "lock_hash": {"$ref": "#/$defs/Sha256"},
+        "source_target_tree_sha256": {"$ref": "#/$defs/Sha256"},
+        "external_runtime_references": {"const": 0},
+        "active_editable_or_vcs_locators": {"const": 0},
+        "generated_bytecode_files": {"const": 0},
+        "versions": {"$ref": "#/$defs/SingleCellVersions"},
+        "thread_limits": {"$ref": "#/$defs/ThreadLimits"},
+        "manifest": {"$ref": "#/$defs/HashedFile"},
+        "marker": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellAnalysisSummary": {
+      "type": "object",
+      "required": ["sampled_nuclei", "retained_nuclei", "retained_by_donor", "selected_features", "leiden_clusters", "coarse_labels", "unknown_or_ambiguous_nuclei", "inferential_tests_performed", "integration_method"],
+      "properties": {
+        "sampled_nuclei": {"const": 5000},
+        "retained_nuclei": {"type": "integer", "minimum": 1, "maximum": 5000},
+        "retained_by_donor": {
+          "type": "object",
+          "minProperties": 5,
+          "maxProperties": 5,
+          "additionalProperties": {"type": "integer", "minimum": 1, "maximum": 1000}
+        },
+        "selected_features": {"type": "integer", "minimum": 1},
+        "leiden_clusters": {"type": "integer", "minimum": 2},
+        "coarse_labels": {"type": "integer", "minimum": 1},
+        "unknown_or_ambiguous_nuclei": {"type": "integer", "minimum": 0},
+        "inferential_tests_performed": {"const": false},
+        "integration_method": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "DoubletHandling": {
+      "type": "object",
+      "required": ["scoring_all_donors_completed", "filter_policy", "all_donors_filter_eligible", "filtering_applied", "doublet_cleared", "reason"],
+      "properties": {
+        "scoring_all_donors_completed": {"const": true},
+        "filter_policy": {"const": "all-donors-or-none"},
+        "all_donors_filter_eligible": {"const": false},
+        "filtering_applied": {"const": false},
+        "doublet_cleared": {"const": false},
+        "reason": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "MemoryContract": {
+      "type": "object",
+      "required": ["donor_processing", "full_gene_merged_matrix_created", "dense_full_count_matrix_created", "peak_working_set_gb", "minimum_observed_system_available_gb"],
+      "properties": {
+        "donor_processing": {"const": "serial"},
+        "full_gene_merged_matrix_created": {"const": false},
+        "dense_full_count_matrix_created": {"const": false},
+        "peak_working_set_gb": {"type": "number", "exclusiveMinimum": 0},
+        "minimum_observed_system_available_gb": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellRuntimeExecution": {
+      "type": "object",
+      "required": ["run_id", "run_root", "fresh_returncode", "fresh_state", "cached_resume_returncode", "cached_resume_state", "cached_resume_elapsed_seconds", "restored_from_cache", "cached_stages_revalidated", "analysis_mode", "analysis_output_tree_sha256", "artifact_count", "artifact_index_exact_set_verified", "artifact_hash_or_size_errors", "machine_qa", "analysis_summary", "doublet_handling", "memory_contract"],
+      "properties": {
+        "run_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+        "run_root": {"$ref": "#/$defs/RelativePath"},
+        "fresh_returncode": {"const": 0},
+        "fresh_state": {"const": "CHECKPOINTED"},
+        "cached_resume_returncode": {"const": 0},
+        "cached_resume_state": {"const": "CHECKPOINTED"},
+        "cached_resume_elapsed_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "restored_from_cache": {"const": true},
+        "cached_stages_revalidated": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "00-intake"},
+            {"const": "01-environment"},
+            {"const": "02-analysis"}
+          ],
+          "items": false,
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "analysis_mode": {"const": "reduced-real-data-teaching-fixture"},
+        "analysis_output_tree_sha256": {"$ref": "#/$defs/Sha256"},
+        "artifact_count": {"const": 31},
+        "artifact_index_exact_set_verified": {"const": true},
+        "artifact_hash_or_size_errors": {"const": 0},
+        "machine_qa": {"const": "PASS_WITH_WARNINGS"},
+        "analysis_summary": {"$ref": "#/$defs/SingleCellAnalysisSummary"},
+        "doublet_handling": {"$ref": "#/$defs/DoubletHandling"},
+        "memory_contract": {"$ref": "#/$defs/MemoryContract"}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellNativeReview": {
+      "type": "object",
+      "required": ["state", "decision", "reviewed_native_pixels", "figure_count", "blocking_findings", "review_source", "checkpoint"],
+      "properties": {
+        "state": {"const": "native-reviewed"},
+        "decision": {"const": "PASS_WITH_MINOR_FINDINGS"},
+        "reviewed_native_pixels": {"const": true},
+        "figure_count": {"const": 6},
+        "blocking_findings": {"const": 0},
+        "review_source": {"$ref": "#/$defs/HashedFile"},
+        "checkpoint": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "ReadOnlyDeliveryVerify": {
+      "type": "object",
+      "required": ["ok", "manifest_unchanged", "checkpoint_unchanged"],
+      "properties": {
+        "ok": {"const": true},
+        "manifest_unchanged": {"const": true},
+        "checkpoint_unchanged": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellDelivery": {
+      "type": "object",
+      "required": ["state", "latest_valid_checkpoint", "run_manifest", "analysis_checkpoint", "artifact_index", "machine_qa", "qa_report", "analysis_figure_notes", "final_figure_notes", "delivery_checkpoint", "delivery_payload_tree_sha256", "read_only_delivery_verify"],
+      "properties": {
+        "state": {"const": "DELIVERED"},
+        "latest_valid_checkpoint": {"const": "04-delivery-report"},
+        "run_manifest": {"$ref": "#/$defs/HashedFile"},
+        "analysis_checkpoint": {"$ref": "#/$defs/HashedFile"},
+        "artifact_index": {"$ref": "#/$defs/HashedFile"},
+        "machine_qa": {"$ref": "#/$defs/HashedFile"},
+        "qa_report": {"$ref": "#/$defs/HashedFile"},
+        "analysis_figure_notes": {"$ref": "#/$defs/HashedFile"},
+        "final_figure_notes": {"$ref": "#/$defs/HashedFile"},
+        "delivery_checkpoint": {"$ref": "#/$defs/HashedFile"},
+        "delivery_payload_tree_sha256": {"$ref": "#/$defs/Sha256"},
+        "read_only_delivery_verify": {"$ref": "#/$defs/ReadOnlyDeliveryVerify"}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellCode": {
+      "type": "object",
+      "required": ["pipeline", "run_manager", "delivery_binder", "input_config"],
+      "properties": {
+        "pipeline": {"$ref": "#/$defs/HashedFile"},
+        "run_manager": {"$ref": "#/$defs/HashedFile"},
+        "delivery_binder": {"$ref": "#/$defs/HashedFile"},
+        "input_config": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "SingleCellExecution": {
+      "type": "object",
+      "required": ["schema_version", "execution_id", "case_id", "domain", "distribution", "recorded_on", "task_root", "public_candidate_registry_immutable", "authorization", "inputs", "environment", "execution", "native_review", "delivery", "code", "maturity", "maturity_scope", "scientific_claim_ceiling", "known_limitations"],
+      "properties": {
+        "schema_version": {"const": "candidate-single-cell-execution-1.0"},
+        "execution_id": {"type": "string", "pattern": "^exec-p0-single-cell-[a-z0-9-]+-[0-9]{8}$"},
+        "case_id": {"type": "string", "pattern": "^p0-single-cell-[a-z0-9][a-z0-9-]*$"},
+        "domain": {"const": "single-cell"},
+        "distribution": {"const": "private-local-only"},
+        "recorded_on": {"type": "string", "format": "date"},
+        "task_root": {"type": "string", "minLength": 1},
+        "public_candidate_registry_immutable": {"const": true},
+        "authorization": {"$ref": "#/$defs/SingleCellAuthorization"},
+        "inputs": {"$ref": "#/$defs/SingleCellInputs"},
+        "environment": {"$ref": "#/$defs/SingleCellEnvironment"},
+        "execution": {"$ref": "#/$defs/SingleCellRuntimeExecution"},
+        "native_review": {"$ref": "#/$defs/SingleCellNativeReview"},
+        "delivery": {"$ref": "#/$defs/SingleCellDelivery"},
+        "code": {"$ref": "#/$defs/SingleCellCode"},
+        "maturity": {"const": "data-verified"},
+        "maturity_scope": {"type": "string", "minLength": 1},
+        "scientific_claim_ceiling": {"type": "string", "minLength": 1},
+        "known_limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "SpatialInputs": {
+      "type": "object",
+      "required": ["platform", "sample_id", "section_id", "section_count", "spot_count", "gene_count", "image_dimensions_xy", "coordinate_space", "total_size_bytes", "artifacts"],
+      "properties": {
+        "platform": {"const": "10x-visium-spatial-3-prime-v1"},
+        "sample_id": {"const": "NCF221-D"},
+        "section_id": {"const": "NCF221-D"},
+        "section_count": {"const": 1},
+        "spot_count": {"const": 685},
+        "gene_count": {"const": 32285},
+        "image_dimensions_xy": {
+          "type": "array",
+          "prefixItems": [{"const": 2600}, {"const": 4100}],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "coordinate_space": {"const": "Space Ranger full-resolution image pixels"},
+        "total_size_bytes": {"const": 232639352},
+        "artifacts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/InputEvidence"},
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "SpatialVersions": {
+      "type": "object",
+      "required": ["python", "anndata", "h5py", "matplotlib", "numpy", "pandas", "pillow", "scikit-learn", "scipy"],
+      "properties": {
+        "python": {"type": "string", "minLength": 1},
+        "anndata": {"type": "string", "minLength": 1},
+        "h5py": {"type": "string", "minLength": 1},
+        "matplotlib": {"type": "string", "minLength": 1},
+        "numpy": {"type": "string", "minLength": 1},
+        "pandas": {"type": "string", "minLength": 1},
+        "pillow": {"type": "string", "minLength": 1},
+        "scikit-learn": {"type": "string", "minLength": 1},
+        "scipy": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "SpatialThreadLimits": {
+      "type": "object",
+      "required": ["OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"],
+      "properties": {
+        "OMP_NUM_THREADS": {"const": "2"},
+        "OPENBLAS_NUM_THREADS": {"const": "2"},
+        "MKL_NUM_THREADS": {"const": "2"},
+        "NUMEXPR_NUM_THREADS": {"const": "2"}
+      },
+      "additionalProperties": false
+    },
+    "SpatialRuntimeTreeAtLock": {
+      "type": "object",
+      "required": ["tree_sha256", "file_count", "size_bytes"],
+      "properties": {
+        "tree_sha256": {"$ref": "#/$defs/Sha256"},
+        "file_count": {"type": "integer", "minimum": 1},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "SpatialEnvironment": {
+      "type": "object",
+      "required": ["state", "backend", "platform", "env_id", "lock_hash", "task_owned_runtime", "external_runtime_references", "global_changes", "runtime_tree_at_lock", "versions", "thread_limits", "manifest", "marker", "uv_lock", "requirements_lock", "pyproject", "model_probe"],
+      "properties": {
+        "state": {"const": "frozen"},
+        "backend": {"const": "python-uv-task-owned-runtime"},
+        "platform": {"const": "windows-amd64"},
+        "env_id": {"type": "string", "pattern": "^env_python_[0-9a-f]{12}$"},
+        "lock_hash": {"$ref": "#/$defs/Sha256"},
+        "task_owned_runtime": {"const": true},
+        "external_runtime_references": {"const": 0},
+        "global_changes": {"const": false},
+        "runtime_tree_at_lock": {"$ref": "#/$defs/SpatialRuntimeTreeAtLock"},
+        "versions": {"$ref": "#/$defs/SpatialVersions"},
+        "thread_limits": {"$ref": "#/$defs/SpatialThreadLimits"},
+        "manifest": {"$ref": "#/$defs/HashedFile"},
+        "marker": {"$ref": "#/$defs/HashedFile"},
+        "uv_lock": {"$ref": "#/$defs/HashedFile"},
+        "requirements_lock": {"$ref": "#/$defs/HashedFile"},
+        "pyproject": {"$ref": "#/$defs/HashedFile"},
+        "model_probe": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "SpatialAnalysisSummary": {
+      "type": "object",
+      "required": ["spot_count", "gene_count", "selected_features", "expression_clusters", "coordinate_identity_correlation", "graph_sensitivity_moran_spearman", "qc_flag_sensitivity_cluster_ari", "spatial_unit", "sampling_unit", "inference_unit", "independent_inference_units", "inferential_tests_performed", "population_inference_allowed"],
+      "properties": {
+        "spot_count": {"const": 685},
+        "gene_count": {"const": 32285},
+        "selected_features": {"const": 1000},
+        "expression_clusters": {"const": 3},
+        "coordinate_identity_correlation": {"type": "number", "minimum": 0.995, "maximum": 1},
+        "graph_sensitivity_moran_spearman": {"type": "number", "minimum": -1, "maximum": 1},
+        "qc_flag_sensitivity_cluster_ari": {"type": "number", "minimum": -1, "maximum": 1},
+        "spatial_unit": {"const": "spot"},
+        "sampling_unit": {"const": "section"},
+        "inference_unit": {"const": "animal/specimen"},
+        "independent_inference_units": {"const": 1},
+        "inferential_tests_performed": {"const": false},
+        "population_inference_allowed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "SpatialModelBranch": {
+      "type": "object",
+      "required": ["requested_method", "status", "attempted", "deconvolution_completed", "installation_attempted_in_this_environment", "substitution_performed", "scientifically_non_equivalent_fallback_used", "source_commit", "required_future_environment"],
+      "properties": {
+        "requested_method": {"const": "Spotiphy deconvolution/decomposition"},
+        "status": {"const": "blocked"},
+        "attempted": {"const": false},
+        "deconvolution_completed": {"const": false},
+        "installation_attempted_in_this_environment": {"const": false},
+        "substitution_performed": {"const": false},
+        "scientifically_non_equivalent_fallback_used": {"const": false},
+        "source_commit": {"const": "8167624a942fec97cf5cdfc8ed3a537622aa78f1"},
+        "required_future_environment": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "SpatialRuntimeExecution": {
+      "type": "object",
+      "required": ["run_id", "run_root", "fresh_returncode", "state", "analysis_mode", "stage_ids", "checkpoint_count", "artifact_count", "ledger_entry_count", "native_figure_count", "analysis_summary", "model_branch"],
+      "properties": {
+        "run_id": {"type": "string", "pattern": "^run-p0-spatial-[A-Za-z0-9._-]+$"},
+        "run_root": {"$ref": "#/$defs/RelativePath"},
+        "fresh_returncode": {"const": 0},
+        "state": {"const": "DELIVERED"},
+        "analysis_mode": {"const": "real-data-descriptive-spatial-core"},
+        "stage_ids": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "S00_INTAKE"},
+            {"const": "S10_INGEST"},
+            {"const": "S20_COORD_IMAGE_QC"},
+            {"const": "S30_UNIT_QC"},
+            {"const": "S40_PREPROCESS"},
+            {"const": "S50_SPATIAL_GRAPH"},
+            {"const": "S60_CORE_DISCOVERY"},
+            {"const": "S70_COMPOSITION_MAPPING"},
+            {"const": "S90_INFERENCE_QA"},
+            {"const": "S95_VISUALIZE_INTERPRET"}
+          ],
+          "items": false,
+          "minItems": 10,
+          "maxItems": 10
+        },
+        "checkpoint_count": {"const": 10},
+        "artifact_count": {"const": 102},
+        "ledger_entry_count": {"const": 102},
+        "native_figure_count": {"const": 4},
+        "analysis_summary": {"$ref": "#/$defs/SpatialAnalysisSummary"},
+        "model_branch": {"$ref": "#/$defs/SpatialModelBranch"}
+      },
+      "additionalProperties": false
+    },
+    "SpatialNativeReview": {
+      "type": "object",
+      "required": ["state", "decision", "reviewed_native_pixels", "all_originals_opened", "all_finals_opened", "figure_count", "blocking_findings", "major_findings", "review_source", "checkpoint"],
+      "properties": {
+        "state": {"const": "native-reviewed"},
+        "decision": {"const": "PASS_WITH_MINOR_FINDINGS"},
+        "reviewed_native_pixels": {"const": true},
+        "all_originals_opened": {"const": true},
+        "all_finals_opened": {"const": true},
+        "figure_count": {"const": 4},
+        "blocking_findings": {"const": 0},
+        "major_findings": {"const": 0},
+        "review_source": {"$ref": "#/$defs/HashedFile"},
+        "checkpoint": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "SpatialDelivery": {
+      "type": "object",
+      "required": ["state", "latest_valid_checkpoint", "run_manifest", "artifact_ledger", "artifact_index", "qa_report", "figure_notes", "analysis_design", "workflow_plan", "failure_evidence"],
+      "properties": {
+        "state": {"const": "DELIVERED"},
+        "latest_valid_checkpoint": {"const": "S95_VISUALIZE_INTERPRET"},
+        "run_manifest": {"$ref": "#/$defs/HashedFile"},
+        "artifact_ledger": {"$ref": "#/$defs/HashedFile"},
+        "artifact_index": {"$ref": "#/$defs/HashedFile"},
+        "qa_report": {"$ref": "#/$defs/HashedFile"},
+        "figure_notes": {"$ref": "#/$defs/HashedFile"},
+        "analysis_design": {"$ref": "#/$defs/HashedFile"},
+        "workflow_plan": {"$ref": "#/$defs/HashedFile"},
+        "failure_evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/HashedFile"},
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "SpatialCode": {
+      "type": "object",
+      "required": ["pipeline", "executor", "environment_preparer", "input_config", "finalizer"],
+      "properties": {
+        "pipeline": {"$ref": "#/$defs/HashedFile"},
+        "executor": {"$ref": "#/$defs/HashedFile"},
+        "environment_preparer": {"$ref": "#/$defs/HashedFile"},
+        "input_config": {"$ref": "#/$defs/HashedFile"},
+        "finalizer": {"$ref": "#/$defs/ExternalHashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "SpatialExecution": {
+      "type": "object",
+      "required": ["schema_version", "execution_id", "case_id", "domain", "distribution", "recorded_on", "task_root", "public_candidate_registry_immutable", "authorization", "inputs", "environment", "execution", "native_review", "delivery", "code", "maturity", "maturity_scope", "scientific_claim_ceiling", "known_limitations"],
+      "properties": {
+        "schema_version": {"const": "candidate-spatial-execution-1.0"},
+        "execution_id": {"type": "string", "pattern": "^exec-p0-spatial-[a-z0-9-]+-[0-9]{8}$"},
+        "case_id": {"type": "string", "pattern": "^p0-spatial-[a-z0-9][a-z0-9-]*$"},
+        "domain": {"const": "spatial-transcriptomics"},
+        "distribution": {"const": "private-local-only"},
+        "recorded_on": {"type": "string", "format": "date"},
+        "task_root": {"type": "string", "minLength": 1},
+        "public_candidate_registry_immutable": {"const": true},
+        "authorization": {"$ref": "#/$defs/SingleCellAuthorization"},
+        "inputs": {"$ref": "#/$defs/SpatialInputs"},
+        "environment": {"$ref": "#/$defs/SpatialEnvironment"},
+        "execution": {"$ref": "#/$defs/SpatialRuntimeExecution"},
+        "native_review": {"$ref": "#/$defs/SpatialNativeReview"},
+        "delivery": {"$ref": "#/$defs/SpatialDelivery"},
+        "code": {"$ref": "#/$defs/SpatialCode"},
+        "maturity": {"const": "data-verified"},
+        "maturity_scope": {"type": "string", "minLength": 1},
+        "scientific_claim_ceiling": {"type": "string", "minLength": 1},
+        "known_limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsInputArtifact": {
+      "type": "object",
+      "required": ["locator_ref", "role", "sha256", "size_bytes", "access_mode"],
+      "properties": {
+        "locator_ref": {"type": "string", "pattern": "^local:p0\\."},
+        "role": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "access_mode": {"const": "read-only"}
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsInputs": {
+      "type": "object",
+      "required": ["source_identifier", "statistical_unit", "artifacts", "input_contract_verified"],
+      "properties": {
+        "source_identifier": {"type": "string", "minLength": 1},
+        "statistical_unit": {"type": "string", "minLength": 1},
+        "artifacts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/FormalOmicsInputArtifact"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "input_contract_verified": {"const": true},
+        "dimensions": {"type": "object", "minProperties": 1, "additionalProperties": true}
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsEnvironment": {
+      "type": "object",
+      "required": ["state", "backend", "platform", "runtime", "env_id", "lock_hash", "package_count", "manifest", "primary_lock", "restore_evidence", "exact_restore_verified", "verification_hashes", "global_changes"],
+      "properties": {
+        "state": {"const": "frozen"},
+        "backend": {"enum": ["r-renv", "python-uv"]},
+        "platform": {"const": "windows-amd64"},
+        "runtime": {"type": "string", "minLength": 1},
+        "env_id": {"type": "string", "pattern": "^env_(?:r|python)_[0-9a-f]{12}$"},
+        "lock_hash": {"$ref": "#/$defs/Sha256"},
+        "package_count": {"type": "integer", "minimum": 1},
+        "manifest": {"$ref": "#/$defs/HashedFile"},
+        "primary_lock": {"$ref": "#/$defs/HashedFile"},
+        "restore_evidence": {"$ref": "#/$defs/ExternalHashedFile"},
+        "exact_restore_verified": {"const": true},
+        "verification_hashes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/Sha256"},
+          "minItems": 2
+        },
+        "global_changes": {"const": false},
+        "version_boundaries": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsRuntimeExecution": {
+      "type": "object",
+      "required": ["run_id", "run_root", "state", "exit_code", "stage_ids", "checkpoint_count", "manifest_artifact_count", "ledger_entry_count", "validation_ok", "recoverable_checkpoints_verified", "analysis_summary"],
+      "properties": {
+        "run_id": {"type": "string", "minLength": 1},
+        "run_root": {"$ref": "#/$defs/RelativePath"},
+        "state": {"const": "DELIVERED"},
+        "exit_code": {"const": 0},
+        "stage_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "checkpoint_count": {"type": "integer", "minimum": 4},
+        "manifest_artifact_count": {"type": "integer", "minimum": 1},
+        "ledger_entry_count": {"type": "integer", "minimum": 1},
+        "validation_ok": {"const": true},
+        "recoverable_checkpoints_verified": {"const": true},
+        "analysis_summary": {"type": "object", "minProperties": 4, "additionalProperties": true}
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsReviewedFigure": {
+      "type": "object",
+      "required": ["relative_path", "sha256", "size_bytes", "width_px", "height_px", "scientific_boundary"],
+      "properties": {
+        "relative_path": {"$ref": "#/$defs/RelativePath"},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "width_px": {"type": "integer", "minimum": 1000},
+        "height_px": {"type": "integer", "minimum": 1000},
+        "scientific_boundary": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsNativeReview": {
+      "type": "object",
+      "required": ["state", "decision", "reviewed_native_pixels", "all_final_figures_opened", "figure_count", "blocking_findings", "review_source", "figures"],
+      "properties": {
+        "state": {"const": "native-reviewed"},
+        "decision": {"enum": ["PASS", "PASS_WITH_BOUNDARIES", "PASS_WITH_MINOR_FINDINGS"]},
+        "reviewed_native_pixels": {"const": true},
+        "all_final_figures_opened": {"const": true},
+        "figure_count": {"type": "integer", "minimum": 1},
+        "blocking_findings": {"const": 0},
+        "review_source": {"$ref": "#/$defs/HashedFile"},
+        "figures": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/FormalOmicsReviewedFigure"},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsDelivery": {
+      "type": "object",
+      "required": ["state", "output_root", "package_manifest", "package_file_count", "package_verification_ok", "run_manifest", "artifact_ledger", "qa_report", "figure_notes", "analysis_design"],
+      "properties": {
+        "state": {"const": "DELIVERED"},
+        "output_root": {"type": "string", "minLength": 1},
+        "package_manifest": {"$ref": "#/$defs/ExternalHashedFile"},
+        "package_file_count": {"type": "integer", "minimum": 1},
+        "package_verification_ok": {"const": true},
+        "run_manifest": {"$ref": "#/$defs/HashedFile"},
+        "artifact_ledger": {"$ref": "#/$defs/HashedFile"},
+        "qa_report": {"$ref": "#/$defs/HashedFile"},
+        "figure_notes": {"$ref": "#/$defs/HashedFile"},
+        "analysis_design": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsCode": {
+      "type": "object",
+      "required": ["pipeline", "verifier"],
+      "properties": {
+        "pipeline": {"$ref": "#/$defs/HashedFile"},
+        "verifier": {"$ref": "#/$defs/HashedFile"},
+        "renderer": {"$ref": "#/$defs/HashedFile"},
+        "finalizer": {"$ref": "#/$defs/HashedFile"},
+        "parameters": {"$ref": "#/$defs/HashedFile"}
+      },
+      "additionalProperties": false
+    },
+    "FormalOmicsExecution": {
+      "type": "object",
+      "required": ["schema_version", "execution_id", "case_id", "domain", "distribution", "recorded_on", "task_root", "public_candidate_registry_immutable", "authorization", "inputs", "environment", "execution", "native_review", "delivery", "code", "maturity", "maturity_scope", "scientific_claim_ceiling", "known_limitations"],
+      "properties": {
+        "schema_version": {"const": "candidate-formal-omics-execution-1.0"},
+        "execution_id": {"type": "string", "pattern": "^exec-p0-[a-z0-9-]+-[0-9]{8}$"},
+        "case_id": {"enum": ["p0-bulk-rna-airway", "p0-proteomics-dep-ubilength", "p0-multiomics-cll-mofa"]},
+        "domain": {"enum": ["bulk-rna", "quantitative-proteomics", "multi-omics"]},
+        "distribution": {"const": "private-local-only"},
+        "recorded_on": {"type": "string", "format": "date"},
+        "task_root": {"type": "string", "minLength": 1},
+        "public_candidate_registry_immutable": {"const": true},
+        "authorization": {"$ref": "#/$defs/SingleCellAuthorization"},
+        "inputs": {"$ref": "#/$defs/FormalOmicsInputs"},
+        "environment": {"$ref": "#/$defs/FormalOmicsEnvironment"},
+        "execution": {"$ref": "#/$defs/FormalOmicsRuntimeExecution"},
+        "native_review": {"$ref": "#/$defs/FormalOmicsNativeReview"},
+        "delivery": {"$ref": "#/$defs/FormalOmicsDelivery"},
+        "code": {"$ref": "#/$defs/FormalOmicsCode"},
+        "maturity": {"const": "data-verified"},
+        "maturity_scope": {"type": "string", "minLength": 1},
+        "scientific_claim_ceiling": {"type": "string", "minLength": 1},
+        "known_limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"domain": {"const": "bulk-rna"}}, "required": ["domain"]},
+          "then": {"properties": {"case_id": {"const": "p0-bulk-rna-airway"}}}
+        },
+        {
+          "if": {"properties": {"domain": {"const": "quantitative-proteomics"}}, "required": ["domain"]},
+          "then": {"properties": {"case_id": {"const": "p0-proteomics-dep-ubilength"}}}
+        },
+        {
+          "if": {"properties": {"domain": {"const": "multi-omics"}}, "required": ["domain"]},
+          "then": {"properties": {"case_id": {"const": "p0-multiomics-cll-mofa"}}}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "Execution": {
+      "oneOf": [
+        {"$ref": "#/$defs/VisualizationExecution"},
+        {"$ref": "#/$defs/SingleCellExecution"},
+        {"$ref": "#/$defs/SpatialExecution"},
+        {"$ref": "#/$defs/FormalOmicsExecution"}
+      ]
+    }
+  }
+}

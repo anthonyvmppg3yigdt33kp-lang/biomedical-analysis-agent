@@ -1,0 +1,43 @@
+biomedical-analysis-agent
+Copyright (c) 2026 anthonyvmppg3yigdt33kp-lang contributors
+
+The MIT grant in LICENSE applies only to this repository's original code and
+documentation. It does not grant rights to third-party software, data, prose,
+models, or other materials identified below.
+
+The tutorials interoperate with third-party software, including R, Seurat,
+renv, ggplot2, patchwork, and their dependencies. Those projects retain their
+own copyrights and licenses. No third-party package source or binary is
+redistributed by this repository.
+
+The optional visualization skill is not bundled or redistributed in this
+repository or its release archives. bootstrap_skills.py obtains the pinned tree
+at run time into an explicit task-local destination. The upstream repository's
+original code and documentation are governed by its LICENSE (MIT). Its
+third-party, data-derived, or otherwise separately attributed materials remain
+governed by its NOTICE.md and their respective licenses. Installing that mixed-
+rights tree does not relicense those materials under this repository's MIT
+license or authorize their redistribution.
+
+The locked biomedical public-runtime profile omits upstream audit snapshots,
+curated reference images, source-block-derived candidates, and the raw extracted
+code/search catalog. Those materials remain in the upstream audit repository;
+they are not part of the task-local public installation.
+
+10x Genomics PBMC3K and Mouse Brain Sagittal-Anterior data are third-party
+data, attributed in THIRD_PARTY_DATA.md, and licensed separately under CC BY
+4.0. The data files are downloaded at run time and are not part of this
+repository or its MIT license.
+
+The Seurat tutorial pages are cited as methodological references. Their prose
+and code are not copied into this repository; the teaching workflows here are
+independently written implementations using documented public APIs.
+
+The additional P0 teaching-case runners under `assets/teaching-cases/` are
+independently written interoperability or scientific-reimplementation code and
+are covered by this repository's MIT License. They reference, but do not copy or
+redistribute, upstream package or repository source including MOFA-FLEX
+(BSD-3-Clause), Spotiphy (Apache-2.0), and DEP (Artistic-2.0). Those projects
+retain their own copyrights and licenses. Their source archives, package data,
+pretrained models, tutorial objects, and other binary inputs are excluded from
+this repository and from the MIT grant.

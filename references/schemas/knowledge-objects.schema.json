@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/biomedical-analysis-agent/knowledge-objects.schema.json",
+  "title": "Biomedical analysis knowledge objects",
+  "$defs": {
+    "Maturity": {
+      "type": "string",
+      "enum": ["raw-extracted", "normalized", "parse-verified", "fixture-verified", "data-verified", "native-reviewed"]
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "Provenance": {
+      "type": "object",
+      "required": ["source_path", "sha256"],
+      "properties": {
+        "source_path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/Sha256"},
+        "article_id": {"type": "string"},
+        "license": {"type": ["string", "null"]},
+        "private_source": {"type": "boolean", "default": true}
+      },
+      "additionalProperties": false
+    },
+    "Dependency": {
+      "type": "object",
+      "required": ["name", "manager", "version_constraint"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "manager": {"type": "string", "enum": ["cran", "bioconductor", "pypi", "conda", "github", "system"]},
+        "version_constraint": {"type": "string", "minLength": 1},
+        "repository": {"type": "string"},
+        "commit_sha": {"type": "string", "pattern": "^[a-fA-F0-9]{40}$"},
+        "system_dependencies": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "allOf": [
+        {"if": {"properties": {"manager": {"const": "github"}}}, "then": {"required": ["repository", "commit_sha"]}}
+      ],
+      "additionalProperties": false
+    },
+    "ArtifactContract": {
+      "type": "object",
+      "required": ["artifact_id", "artifact_type", "format", "producer", "consumers", "relative_path", "validation", "claim_role"],
+      "properties": {
+        "artifact_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+        "artifact_type": {"type": "string", "enum": ["input", "table", "object", "figure", "report", "log", "checkpoint", "environment-lock"]},
+        "format": {"type": "string", "minLength": 1},
+        "schema": {"type": ["string", "object", "null"]},
+        "unit": {"type": ["string", "null"]},
+        "modality": {"type": ["string", "null"]},
+        "producer": {"type": "string", "minLength": 1},
+        "consumers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "relative_path": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:[\\\\/])(?![\\\\/]).+"},
+        "sha256": {"anyOf": [{"$ref": "#/$defs/Sha256"}, {"type": "null"}]},
+        "sensitivity": {"type": "string", "enum": ["public", "internal", "sensitive", "restricted"]},
+        "validation": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+        "claim_role": {"type": "string", "enum": ["none", "exploratory", "supporting", "primary", "diagnostic"]}
+      },
+      "additionalProperties": false
+    },
+    "SourceFlowBundle": {
+      "type": "object",
+      "required": ["bundle_id", "title", "provenance", "ordered_code", "images", "code_image_links", "object_graph", "gaps", "maturity"],
+      "properties": {
+        "bundle_id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "provenance": {"type": "array", "items": {"$ref": "#/$defs/Provenance"}, "minItems": 1},
+        "ordered_code": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["order", "language", "source_path", "sha256"],
+            "properties": {
+              "order": {"type": "integer", "minimum": 1},
+              "language": {"type": "string", "enum": ["r", "python", "shell", "other"]},
+              "source_path": {"type": "string", "minLength": 1},
+              "sha256": {"$ref": "#/$defs/Sha256"},
+              "produces": {"type": "array", "items": {"type": "string"}},
+              "consumes": {"type": "array", "items": {"type": "string"}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "images": {"type": "array", "items": {"$ref": "#/$defs/Provenance"}},
+        "code_image_links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["image_path", "code_orders", "relationship", "confidence"],
+            "properties": {
+              "image_path": {"type": "string", "minLength": 1},
+              "code_orders": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 1, "uniqueItems": true},
+              "relationship": {"type": "string", "enum": ["generated-by", "illustrates", "unknown"]},
+              "confidence": {"type": "string", "enum": ["confirmed", "inferred", "unresolved"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "object_graph": {
+          "type": "object",
+          "required": ["nodes", "edges"],
+          "properties": {
+            "nodes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+            "edges": {"type": "array", "items": {"type": "array", "prefixItems": [{"type": "string"}, {"type": "string"}], "items": false}}
+          },
+          "additionalProperties": false
+        },
+        "packages": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "gaps": {"type": "array", "items": {"type": "string"}},
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    },
+    "MethodCard": {
+      "type": "object",
+      "required": ["method_id", "question", "applicability", "statistical_unit", "combination_logic", "assumptions", "alternatives", "limitations", "validation", "claim_ceiling", "maturity"],
+      "properties": {
+        "method_id": {"type": "string", "minLength": 1},
+        "question": {"type": "string", "minLength": 1},
+        "applicability": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "statistical_unit": {"type": "string", "minLength": 1},
+        "combination_logic": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "assumptions": {"type": "array", "items": {"type": "string"}},
+        "alternatives": {"type": "array", "items": {"type": "string"}},
+        "limitations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "validation": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "claim_ceiling": {"type": "string", "minLength": 1},
+        "provenance": {"type": "array", "items": {"$ref": "#/$defs/Provenance"}},
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    },
+    "PackageCard": {
+      "type": "object",
+      "required": ["package_id", "name", "language", "source", "version_policy", "functions", "complete_workflow", "dependencies", "install_fallbacks", "maturity"],
+      "properties": {
+        "package_id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "language": {"type": "string", "enum": ["r", "python", "system"]},
+          "source": {"type": "string", "enum": ["cran", "bioconductor", "pypi", "conda", "github", "system", "unknown"]},
+        "version_policy": {"type": "string", "minLength": 1},
+        "functions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "complete_workflow": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "dependencies": {"type": "array", "items": {"$ref": "#/$defs/Dependency"}},
+        "install_fallbacks": {"type": "array", "items": {"type": "string", "enum": ["lock-restore", "pak", "uv", "conda", "github-sha", "scientific-alternative"]}, "minItems": 1, "uniqueItems": true},
+        "known_failures": {"type": "array", "items": {"type": "string"}},
+        "provenance": {"type": "array", "items": {"$ref": "#/$defs/Provenance"}},
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    },
+    "AnalysisRecipe": {
+      "type": "object",
+      "required": ["recipe_id", "purpose", "language", "inputs", "outputs", "dependencies", "steps", "maturity"],
+      "properties": {
+        "recipe_id": {"type": "string", "minLength": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "language": {"type": "string", "enum": ["r", "python", "shell"]},
+        "inputs": {"type": "array", "items": {"$ref": "#/$defs/ArtifactContract"}},
+        "outputs": {"type": "array", "items": {"$ref": "#/$defs/ArtifactContract"}, "minItems": 1},
+        "dependencies": {"type": "array", "items": {"$ref": "#/$defs/Dependency"}},
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "not": {"pattern": "(install\\.packages|BiocManager::install|pak::pkg_install|remotes::install_github|pip +install|uv +add|conda +install)"}
+          },
+          "minItems": 1
+        },
+        "parameters": {"type": "object"},
+        "seed": {"type": ["integer", "null"]},
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    },
+    "WorkflowNode": {
+      "type": "object",
+      "required": ["node_id", "recipe_id", "skill", "depends_on", "checkpoint_required"],
+      "properties": {
+        "node_id": {"type": "string", "minLength": 1},
+        "recipe_id": {"type": "string", "minLength": 1},
+        "skill": {"type": "string", "minLength": 1},
+        "depends_on": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "condition": {"type": ["string", "null"]},
+        "checkpoint_required": {"type": "boolean"},
+        "environment_id": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "WorkflowTemplate": {
+      "type": "object",
+      "required": ["template_id", "domain", "nodes", "optional_branches", "maturity"],
+      "properties": {
+        "template_id": {"type": "string", "minLength": 1},
+        "domain": {"type": "string", "minLength": 1},
+        "nodes": {"type": "array", "items": {"$ref": "#/$defs/WorkflowNode"}, "minItems": 1},
+        "optional_branches": {"type": "array", "items": {"type": "string"}},
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    },
+    "WorkflowInstance": {
+      "type": "object",
+      "required": ["instance_id", "template_id", "plan_id", "request_sha256", "frozen", "mode", "nodes", "routes", "scientific_gates"],
+      "properties": {
+        "instance_id": {"type": "string", "minLength": 1},
+        "template_id": {"type": "string", "minLength": 1},
+        "plan_id": {"type": "string", "minLength": 1},
+        "request_sha256": {"$ref": "#/$defs/Sha256"},
+        "frozen": {"const": true},
+        "mode": {"type": "string", "enum": ["plan", "run", "resume", "reproduce-figure", "explain"]},
+        "nodes": {"type": "array", "items": {"$ref": "#/$defs/WorkflowNode"}, "minItems": 1},
+        "routes": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "scientific_gates": {"type": "array", "items": {"type": "object"}},
+        "output_root": {"type": "string"},
+        "method_substitution": {"const": "forbidden-without-new-plan"},
+        "cross_backend_exchange": {"const": "artifact-contract-only"}
+      },
+      "additionalProperties": false
+    },
+    "FigureCard": {
+      "type": "object",
+      "required": ["figure_id", "question", "figure_path", "statistical_unit", "semantics", "directly_visible", "supported_claims", "unsupported_claims", "visual_qa", "reproduction_class", "provenance", "maturity"],
+      "properties": {
+        "figure_id": {"type": "string", "minLength": 1},
+        "question": {"type": "string", "minLength": 1},
+        "figure_path": {"type": "string", "minLength": 1},
+        "statistical_unit": {"type": "string", "minLength": 1},
+        "semantics": {"type": "object"},
+        "directly_visible": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "supported_claims": {"type": "array", "items": {"type": "string"}},
+        "unsupported_claims": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "assumptions": {"type": "array", "items": {"type": "string"}},
+        "visual_qa": {"type": "string", "enum": ["pass", "revise", "block"]},
+        "reproduction_class": {"type": "string", "enum": ["exact", "compatible", "alternative_method", "not-applicable"]},
+        "provenance": {"type": "array", "items": {"$ref": "#/$defs/Provenance"}, "minItems": 1},
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    },
+    "RunManifest": {
+      "type": "object",
+      "required": ["run_id", "plan_id", "mode", "state", "request_sha256", "inputs", "environments", "stages", "commands", "seeds", "retry_history", "artifacts", "qa", "claim_boundaries"],
+      "properties": {
+        "run_id": {"type": "string", "minLength": 1},
+        "plan_id": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "enum": ["plan", "run", "resume", "reproduce-figure", "explain"]},
+        "state": {"type": "string", "enum": ["INTAKE", "DATA_PROFILED", "PLAN_COMPILED", "AWAITING_AUTHORIZATION", "ENV_PREPARING", "ENV_LOCKED", "RUNNING_STAGE", "STAGE_VALIDATING", "CHECKPOINTED", "ANALYSIS_QA", "VISUALIZING", "NATIVE_VISUAL_REVIEW", "INTERPRETING", "DELIVERED", "BLOCKED_INPUT", "BLOCKED_ENV", "FAILED_STAGE", "BLOCKED_QA", "CANCELLED"]},
+        "request_sha256": {"$ref": "#/$defs/Sha256"},
+        "inputs": {"type": "array", "items": {"$ref": "#/$defs/ArtifactContract"}},
+        "environments": {"type": "array", "items": {"type": "object"}},
+        "stages": {"type": "array", "items": {"type": "object"}},
+        "commands": {"type": "array", "items": {"type": "object"}},
+        "seeds": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "retry_history": {"type": "array", "items": {"type": "object"}},
+        "exit_code": {"type": ["integer", "null"]},
+        "artifacts": {"type": "array", "items": {"$ref": "#/$defs/ArtifactContract"}},
+        "qa": {"type": "array", "items": {"type": "object"}},
+        "claim_boundaries": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "PreprocessingRecord": {
+      "type": "object",
+      "required": ["schema_version", "preprocess_record_id", "ordinal", "identity", "record_sha256", "distillation_value", "record", "source_mode", "distribution", "maturity"],
+      "properties": {
+        "schema_version": {"const": "1.0"},
+        "preprocess_record_id": {"type": "string", "pattern": "^prep-[0-9a-f]{24}$"},
+        "ordinal": {"type": "integer", "minimum": 1},
+        "identity": {
+          "type": "object",
+          "required": ["source_root_id", "canonical_locator"],
+          "properties": {
+            "source_root_id": {"type": "string"},
+            "canonical_locator": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "legacy_identity": {
+          "type": "object",
+          "required": ["来源文件夹", "清单文件", "记录标题", "路径"],
+          "properties": {
+            "来源文件夹": {"type": "string"},
+            "清单文件": {"type": "string"},
+            "记录标题": {"type": "string"},
+            "路径": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "record_sha256": {"$ref": "#/$defs/Sha256"},
+        "distillation_value": {"type": "string"},
+        "record": {"type": "object"},
+        "source_mode": {"const": "read_only"},
+        "distribution": {"const": "private_local_only"},
+        "maturity": {"const": "raw-extracted"}
+      },
+      "additionalProperties": false
+    },
+    "PreprocessingCrosswalk": {
+      "type": "object",
+      "required": ["schema_version", "preprocess_record_id", "record_sha256", "source_root_id", "source_folder", "record_title", "distillation_value", "category", "code_asset_completeness", "status", "relation_verified", "relations", "warnings", "maturity"],
+      "properties": {
+        "schema_version": {"const": "1.0"},
+        "preprocess_record_id": {"type": "string", "pattern": "^prep-[0-9a-f]{24}$"},
+        "record_sha256": {"$ref": "#/$defs/Sha256"},
+        "source_root_id": {"type": ["string", "null"]},
+        "source_folder": {"type": "string"},
+        "record_title": {"type": "string"},
+        "distillation_value": {"type": "string"},
+        "category": {"type": "string"},
+        "code_asset_completeness": {"type": "string"},
+        "status": {
+          "type": "string",
+          "enum": ["exact_bundle_path", "exact_source_file", "collection_bundle_set", "project_root_descriptor", "external_reuse_hash_verified", "external_reuse_partial", "external_reuse_pending_item_link", "declared_missing_source_asset", "heuristic_bundle_candidate", "source_root_not_configured", "unmatched"]
+        },
+        "relation_verified": {"type": "boolean"},
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["relation_type", "verified"],
+            "properties": {
+              "relation_type": {"type": "string"},
+              "bundle_id": {"type": "string"},
+              "source_relative_path": {"type": "string"},
+              "target_skill": {"type": "string"},
+              "target_relative_path": {"type": "string"},
+              "sha256": {"type": ["string", "null"]},
+              "source_sha256": {"type": ["string", "null"]},
+              "verified": {"type": "boolean"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "maturity": {"const": "raw-extracted"}
+      },
+      "additionalProperties": false
+    },
+    "VariantSet": {
+      "type": "object",
+      "required": ["variant_set_id", "capability", "canonical_variant", "variants", "maturity"],
+      "properties": {
+        "variant_set_id": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "canonical_variant": {"type": "string", "minLength": 1},
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["variant_id", "classification", "implementation_ref", "differences", "auto_fallback"],
+            "properties": {
+              "variant_id": {"type": "string", "minLength": 1},
+              "classification": {"type": "string", "enum": ["exact", "compatible", "alternative_method"]},
+              "implementation_ref": {"type": "string", "minLength": 1},
+              "differences": {"type": "array", "items": {"type": "string"}},
+              "auto_fallback": {"type": "boolean"},
+              "provenance": {"type": "array", "items": {"$ref": "#/$defs/Provenance"}}
+            },
+            "allOf": [
+              {
+                "if": {"not": {"properties": {"classification": {"const": "exact"}}, "required": ["classification"]}},
+                "then": {
+                  "properties": {
+                    "auto_fallback": {"const": false},
+                    "differences": {"minItems": 1}
+                  }
+                }
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "maturity": {"$ref": "#/$defs/Maturity"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "blocking_issues": [
+    {
+      "id": "execution-authorization",
+      "message": "Explicit task-local execution authorization is required.",
+      "status": "block"
+    }
+  ],
+  "environment_policy": {
+    "immutable_after_freeze": true,
+    "max_identical_install_retries": 2,
+    "reuse": "exact-lock-hash-and-preflight",
+    "task_local_only": true
+  },
+  "frozen": true,
+  "mode": "run",
+  "output_contract": {
+    "directories": {
+      "00_request": "runs\\visium-mouse-brain\\canonical\\00_request",
+      "01_plan": "runs\\visium-mouse-brain\\canonical\\01_plan",
+      "02_environment": "runs\\visium-mouse-brain\\canonical\\02_environment",
+      "03_scripts/modules": "runs\\visium-mouse-brain\\canonical\\03_scripts\\modules",
+      "04_intermediate": "runs\\visium-mouse-brain\\canonical\\04_intermediate",
+      "05_results/objects": "runs\\visium-mouse-brain\\canonical\\05_results\\objects",
+      "05_results/tables": "runs\\visium-mouse-brain\\canonical\\05_results\\tables",
+      "06_figures/final": "runs\\visium-mouse-brain\\canonical\\06_figures\\final",
+      "06_figures/original": "runs\\visium-mouse-brain\\canonical\\06_figures\\original",
+      "06_figures/review": "runs\\visium-mouse-brain\\canonical\\06_figures\\review",
+      "07_reports": "runs\\visium-mouse-brain\\canonical\\07_reports",
+      "logs": "runs\\visium-mouse-brain\\canonical\\logs",
+      "manifest": "runs\\visium-mouse-brain\\canonical\\manifest"
+    },
+    "required_files": [
+      "00_request/intent.yaml",
+      "00_request/input_manifest.json",
+      "01_plan/ANALYSIS_DESIGN.md",
+      "01_plan/workflow.plan.yaml",
+      "02_environment/environment_manifest.json",
+      "03_scripts/params.yaml",
+      "07_reports/FIGURE_NOTES.md",
+      "07_reports/QA_REPORT.md",
+      "07_reports/ARTIFACT_INDEX.md",
+      "manifest/run_manifest.json",
+      "manifest/artifact_ledger.jsonl"
+    ]
+  },
+  "plan_id": "plan-f4096346647e",
+  "request_sha256": "f4096346647ec6e25cb21984d65bbe1d621b516ccc732ccc67f82b831ff652f1",
+  "routes": [
+    {
+      "capability": "spatial-transcriptomics",
+      "evidence": [
+        "spatial",
+        "spot",
+        "visium"
+      ],
+      "score": 30,
+      "skill": "bio-workflows-spatial-pipeline"
+    },
+    {
+      "capability": "visualization",
+      "evidence": [
+        "plots",
+        "visualization"
+      ],
+      "score": 20,
+      "skill": "visualization-2026718-v1"
+    }
+  ],
+  "run": {
+    "root": "runs\\visium-mouse-brain\\canonical",
+    "run_id": "canonical",
+    "task_slug": "visium-mouse-brain"
+  },
+  "schema_version": "1.0.0",
+  "scientific_gates": [
+    {
+      "id": "execution-authorization",
+      "message": "Explicit task-local execution authorization is required.",
+      "status": "block"
+    },
+    {
+      "id": "input-manifest",
+      "message": "Declare local input paths before execution.",
+      "status": "pass"
+    },
+    {
+      "id": "sensitive-data-boundary",
+      "message": "No remote upload requested.",
+      "status": "pass"
+    },
+    {
+      "id": "spatial-platform",
+      "message": "Declare the spatial platform.",
+      "status": "pass"
+    },
+    {
+      "id": "spatial-unit",
+      "message": "Declare spot, bin, or cell resolution.",
+      "status": "pass"
+    }
+  ],
+  "state": "AWAITING_AUTHORIZATION",
+  "state_machine": [
+    "INTAKE",
+    "DATA_PROFILED",
+    "PLAN_COMPILED",
+    "AWAITING_AUTHORIZATION",
+    "ENV_PREPARING",
+    "ENV_LOCKED",
+    "RUNNING_STAGE",
+    "STAGE_VALIDATING",
+    "CHECKPOINTED",
+    "ANALYSIS_QA",
+    "VISUALIZING",
+    "NATIVE_VISUAL_REVIEW",
+    "INTERPRETING",
+    "DELIVERED"
+  ],
+  "workflow": {
+    "cross_backend_exchange": "artifact-contract-only",
+    "frozen": true,
+    "instance_id": "workflow-f4096346647e",
+    "method_substitution": "forbidden-without-new-plan",
+    "mode": "run",
+    "nodes": [
+      {
+        "checkpoint_required": false,
+        "depends_on": [],
+        "environment_id": null,
+        "node_id": "01-intake",
+        "recipe_id": "compiled:intake",
+        "skill": "biomedical-analysis-agent"
+      },
+      {
+        "checkpoint_required": false,
+        "depends_on": [
+          "01-intake"
+        ],
+        "environment_id": null,
+        "node_id": "02-data-profile",
+        "recipe_id": "compiled:data-profile",
+        "skill": "biomedical-analysis-agent"
+      },
+      {
+        "checkpoint_required": true,
+        "depends_on": [
+          "02-data-profile"
+        ],
+        "environment_id": null,
+        "node_id": "03-methodology-review",
+        "recipe_id": "compiled:methodology-review",
+        "skill": "biomedical-analysis-agent"
+      },
+      {
+        "checkpoint_required": true,
+        "depends_on": [
+          "03-methodology-review"
+        ],
+        "environment_id": null,
+        "node_id": "04-spatial-transcriptomics",
+        "recipe_id": "compiled:spatial-transcriptomics",
+        "skill": "bio-workflows-spatial-pipeline"
+      },
+      {
+        "checkpoint_required": true,
+        "depends_on": [
+          "04-spatial-transcriptomics"
+        ],
+        "environment_id": null,
+        "node_id": "05-analysis-qa",
+        "recipe_id": "compiled:analysis-qa",
+        "skill": "biomedical-analysis-agent"
+      },
+      {
+        "checkpoint_required": true,
+        "depends_on": [
+          "05-analysis-qa"
+        ],
+        "environment_id": null,
+        "node_id": "06-visualization",
+        "recipe_id": "compiled:visualization",
+        "skill": "visualization-2026718-v1"
+      },
+      {
+        "checkpoint_required": true,
+        "depends_on": [
+          "06-visualization"
+        ],
+        "environment_id": null,
+        "node_id": "07-native-visual-review",
+        "recipe_id": "compiled:native-visual-review",
+        "skill": "biomedical-analysis-agent"
+      },
+      {
+        "checkpoint_required": true,
+        "depends_on": [
+          "07-native-visual-review"
+        ],
+        "environment_id": null,
+        "node_id": "08-interpretation",
+        "recipe_id": "compiled:interpretation",
+        "skill": "biomedical-analysis-agent"
+      }
+    ],
+    "output_root": "runs\\visium-mouse-brain\\canonical",
+    "plan_id": "plan-f4096346647e",
+    "request_sha256": "f4096346647ec6e25cb21984d65bbe1d621b516ccc732ccc67f82b831ff652f1",
+    "routes": [
+      "spatial-transcriptomics",
+      "visualization"
+    ],
+    "scientific_gates": [
+      {
+        "id": "execution-authorization",
+        "message": "Explicit task-local execution authorization is required.",
+        "status": "block"
+      },
+      {
+        "id": "input-manifest",
+        "message": "Declare local input paths before execution.",
+        "status": "pass"
+      },
+      {
+        "id": "sensitive-data-boundary",
+        "message": "No remote upload requested.",
+        "status": "pass"
+      },
+      {
+        "id": "spatial-platform",
+        "message": "Declare the spatial platform.",
+        "status": "pass"
+      },
+      {
+        "id": "spatial-unit",
+        "message": "Declare spot, bin, or cell resolution.",
+        "status": "pass"
+      }
+    ],
+    "template_id": "compiled-composite-v1"
+  }
+}

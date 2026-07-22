@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "image_name": "anterior1",
+  "exact_object_expected_barcode_match": true,
+  "exact_assay_image_coordinate_barcode_match": true,
+  "directed_barcode_difference_counts": {
+    "assay_cells_not_image_cells": 0,
+    "image_cells_not_assay_cells": 0,
+    "assay_cells_not_coordinates": 0,
+    "coordinates_not_assay_cells": 0,
+    "image_cells_not_coordinates": 0,
+    "coordinates_not_image_cells": 0
+  },
+  "coordinate_columns": ["x", "y", "cell"],
+  "image_coordinate_pair": ["x", "y"],
+  "full_resolution_coordinate_bounds": {
+    "x": [1480, 9533],
+    "y": [2684, 10468]
+  },
+  "loaded_image_coordinate_bounds": {
+    "x": [76.42, 492.2375],
+    "y": [138.5886, 540.5164]
+  },
+  "loaded_image_dimensions": [600, 600, 3],
+  "coordinate_transform": {
+    "source_space": "vendor_full_resolution_pixels",
+    "target_space": "loaded_low_resolution_image_pixels",
+    "scale_factor_name": "lowres",
+    "scale_factor": 0.0516
+  },
+  "coordinate_bounds_within_loaded_image": true,
+  "scale_factors": {
+    "spot": 89.472,
+    "fiducial": 144.5317,
+    "hires": 0.1721,
+    "lowres": 0.0516
+  },
+  "required_image_assets": [
+    "scalefactors_json.json",
+    "tissue_hires_image.png",
+    "tissue_lowres_image.png"
+  ],
+  "orientation": "vendor_transform_preserved_no_manual_flip",
+  "native_alignment_review": "pending"
+}

@@ -1,0 +1,15 @@
+{
+  "absolute_paths_included": false,
+  "completion_marker_sha256": "0fe8ec11d11b84beb1face204ecc32b24f8283a92f2a1ced8afc17b6dc57e5d0",
+  "forbidden_matches": [],
+  "mode": "resume",
+  "native_returncode": 0,
+  "parent_environment_modified": false,
+  "pipeline_mode": "resume",
+  "process_evidence_sha256": "b0b407e7e622cb2f011f7836092b221d9355212c50e646b360f730c76bc95465",
+  "processor_architecture": "AMD64",
+  "processor_architecture_restored": true,
+  "schema_version": "1.0",
+  "shutdown_mode": "native_exit",
+  "status": "passed"
+}

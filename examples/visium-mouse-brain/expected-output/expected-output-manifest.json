@@ -1,0 +1,203 @@
+{
+  "artifacts": [
+    {
+      "path": "05_results/tables/attrition.csv",
+      "sha256": "6d9388de48a71f3cfc07fecd85c168072c9f8718b9b603a03411c43b70f5dfb4",
+      "size_bytes": 257
+    },
+    {
+      "path": "05_results/tables/barcode_reconciliation.csv",
+      "sha256": "13923d9bf4fc54c5be60b1c90c96ddcd3c699e2fc1ae1af648f3a71b2820abc3",
+      "size_bytes": 175
+    },
+    {
+      "path": "05_results/tables/barcode_set_differences.csv",
+      "sha256": "e08caa79a588a7937287d81e9eae04d0c6b6995510782161da089f0d95cb68ee",
+      "size_bytes": 29
+    },
+    {
+      "path": "05_results/tables/barcode_set_reconciliation.json",
+      "sha256": "f51f053da09f1a78f72956cda0d2ec4048834f0de45875e0e94a9b253a214b41",
+      "size_bytes": 701
+    },
+    {
+      "path": "05_results/tables/cluster_counts.csv",
+      "sha256": "0cc70928e40f977689e39679dc68d8eb3042fc282ac80ab23bf5a264bc73fa9a",
+      "size_bytes": 124
+    },
+    {
+      "path": "05_results/tables/coordinate_image_qc.json",
+      "sha256": "ea65e63e8490f0139908ec97dacd81711fd028b2a585e44bcae68bb1dd37476a",
+      "size_bytes": 1389
+    },
+    {
+      "path": "05_results/tables/spot_qc.csv",
+      "sha256": "614726ef648a6a0a242f69f90cb12e938382beeb1b4bcb7397de0209cfd386cd",
+      "size_bytes": 88692
+    },
+    {
+      "path": "06_figures/final/round-1/spatial_clusters.png",
+      "sha256": "deb35a78ca334186a107489d98bd5046cfa0e9433f7ea9384dd592a2598348ce",
+      "size_bytes": 1446921
+    },
+    {
+      "path": "06_figures/final/round-1/spatial_features_hpca_ttr.png",
+      "sha256": "29b42645f2c2fcc5f01fc20a21689342defd05f8bd4c50c970fc7eabd6c67b85",
+      "size_bytes": 1547752
+    },
+    {
+      "path": "06_figures/final/round-1/spatial_qc.png",
+      "sha256": "24cd8d19d8986521a209ceb50e36c69f56c439e7cde8cb064a8e35a42bf1ddd3",
+      "size_bytes": 1558192
+    },
+    {
+      "path": "06_figures/original/round-1/spatial_clusters.png",
+      "sha256": "40fedb1478ce097380dc4587a24a6afa4aaf7e14deef08f0bf2a92460e3412c8",
+      "size_bytes": 3179853
+    },
+    {
+      "path": "06_figures/original/round-1/spatial_features_hpca_ttr.png",
+      "sha256": "bb131935e71224188651b32c4bcaa79e877a93073a63448d1dc278593390cd12",
+      "size_bytes": 3292187
+    },
+    {
+      "path": "06_figures/original/round-1/spatial_qc.png",
+      "sha256": "7c9e9f3147feb10f2d00fdd88f9cd127b6190a92c9d8e4a5bd1c20fb80be7827",
+      "size_bytes": 3272536
+    },
+    {
+      "path": "06_figures/review/review-round-1.json",
+      "sha256": "73493da1caf9a5c0ff5f52926b9d814bffbb4328c8c5e129351bd035fc3752b5",
+      "size_bytes": 5070
+    },
+    {
+      "path": "06_figures/review/visual-params-round-1.json",
+      "sha256": "d56c0c5dc31c7be0a2ad43a8cd25db6d2b3b9780d42a3aef3d2fc61c4de094ec",
+      "size_bytes": 922
+    },
+    {
+      "path": "06_figures/review/visual-review-state-round-1-reviewed.json",
+      "sha256": "2b31280bb21fe1320a015159e0a53b844921b793db080cebd03b39f0e32560c0",
+      "size_bytes": 2641
+    },
+    {
+      "path": "07_reports/ARTIFACT_INDEX.md",
+      "sha256": "ef6aa054f68a0c6a81050ea8ef2362776fcedf73f1d1a7514b29eb830958ea16",
+      "size_bytes": 5429
+    },
+    {
+      "path": "07_reports/FIGURE_NOTES.md",
+      "sha256": "35d278736306f39a6e6c2ab49be449d902209f3b277d83691a8170933539140c",
+      "size_bytes": 1000
+    },
+    {
+      "path": "07_reports/QA_REPORT.md",
+      "sha256": "697d256715987324b7648ae67c19e40463135802fcd5f754abad093cd601bf82",
+      "size_bytes": 2125
+    },
+    {
+      "path": "07_reports/RESULTS.md",
+      "sha256": "4b436e7e14412d37b7cef3f004c32397fa0409517daae5baa130d621a4b9d0bc",
+      "size_bytes": 3807
+    },
+    {
+      "path": "manifest/artifact_ledger.jsonl",
+      "sha256": "5126ab66b314c3072f3fd6a131ddc23639adb7491a13889fc4e46f301eee0535",
+      "size_bytes": 10163
+    },
+    {
+      "path": "manifest/execution-summary.json",
+      "sha256": "3c60020da7fd9783b492dde24aa10a544d343307473a00823d04eb07a96f5e54",
+      "size_bytes": 3526
+    },
+    {
+      "path": "manifest/run_manifest.json",
+      "sha256": "a4b8b869d3a0a610f7a0ba82c0f50f3f3b45fd15ea7bfcef604aff49a7eae252",
+      "size_bytes": 968
+    },
+    {
+      "path": "manifest/verification-summary.json",
+      "sha256": "6cb87492ccd7793490c1868952deaa3fb89fa61d2c13eb15d9eae339662c4083",
+      "size_bytes": 2639
+    },
+    {
+      "path": "provenance/DATA_LICENSE.md",
+      "sha256": "049f2790b39bf4ecfb970f0513812e69700786b53137a82182e491c2cae04061",
+      "size_bytes": 882
+    },
+    {
+      "path": "provenance/input-manifest.json",
+      "sha256": "6865d5781ae90b703c532f24ae1f967d1b01583eb609e860ee34136ba446259c",
+      "size_bytes": 2447
+    },
+    {
+      "path": "README.md",
+      "sha256": "799d02b3dc5663933fe9684a905adb173cdc7d28d87ba528adc7790f0f8b98ee",
+      "size_bytes": 1426
+    },
+    {
+      "path": "validation/checkpoint-resume-reuse.json",
+      "sha256": "47cdf67bfabedfb50160372d5b1ba19861edd76a2bc387d7d8aa80635231b51f",
+      "size_bytes": 761
+    },
+    {
+      "path": "validation/corrupted-cache-negative-control.json",
+      "sha256": "01ae53a808abc3c0c893e3d6c06b5c2946045b4b5a4160ed18e8a943ae52955a",
+      "size_bytes": 687
+    },
+    {
+      "path": "validation/environment-cache-reuse.json",
+      "sha256": "0ca007891b02a2d7168ca76894769d424deaaa2eb96cf0601e1be2986a7c8ba1",
+      "size_bytes": 1568
+    },
+    {
+      "path": "validation/execution-gates.json",
+      "sha256": "396e1bc531d01a28ba3f00753bcc0caca1f6c0a4495d8f6aaca85fcc286deacf",
+      "size_bytes": 2184
+    },
+    {
+      "path": "validation/fault-before-completion-marker.json",
+      "sha256": "d3b7b53268401d67268638e521c3aa97942a7a08425666226912641aea0c43be",
+      "size_bytes": 866
+    },
+    {
+      "path": "validation/input-cache-reuse.json",
+      "sha256": "ab13e549d3e298a0ebccdfc6b84c9c0fe2371bcaa84bbafbaa0d616958474aa5",
+      "size_bytes": 777
+    },
+    {
+      "path": "validation/pipeline-fresh-native-exit-evidence.json",
+      "sha256": "7b30c592d862fc74da8537f3f280d9faeeb96dc8dcd8f138574bc207c97d27b5",
+      "size_bytes": 550
+    },
+    {
+      "path": "validation/pipeline-resume-native-exit-evidence.json",
+      "sha256": "6f32054e2ab212427e1cd4d831267e96dfe19274bfb8ddecd3436d652ad58481",
+      "size_bytes": 554
+    },
+    {
+      "path": "validation/pipeline-warnings.json",
+      "sha256": "5b0e8ad1c508b080312247fd832f7e24f31bc4e18ceb33441d81c21590938dc6",
+      "size_bytes": 658
+    },
+    {
+      "path": "validation/strict-ci-validation.json",
+      "sha256": "69cfdc2d42e35ed8b239b21daf1e0a6859ee4ce0b072c34bbce121470dc9e36e",
+      "size_bytes": 1139
+    }
+  ],
+  "case": "visium-mouse-brain",
+  "dataset_id": "10x-V1-Mouse-Brain-Sagittal-Anterior",
+  "distribution_profile": "derived_artifacts_only",
+  "excluded_payload_classes": [
+    "raw_10x_inputs",
+    "analysis_objects",
+    "task_local_environment",
+    "runtime_binaries",
+    "cache_and_checkpoints"
+  ],
+  "manifest_self_excluded": true,
+  "schema_version": "1.0",
+  "status": "verified_public_teaching_snapshot",
+  "terminal_native_review": "keep"
+}

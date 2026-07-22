@@ -1,0 +1,62 @@
+{
+  "backend": "r",
+  "case_id": "pbmc3k",
+  "data_sha256": "7292fd797b576b405c99dff072d7fde073f4331bed8029f4467388d09e0ec36e",
+  "figure_id": "marker_dotplot",
+  "max_rounds": 3,
+  "rounds": [
+    {
+      "cannot_assert": [
+        "donor-level abundance or expression effects",
+        "population prevalence",
+        "mechanism or causality"
+      ],
+      "confirmed": [
+        "The final marker dot plot has clear gene labels, teaching-label rows, size legend, and expression-color legend.",
+        "The original and final panels show the same marker-by-label data; only visual styling changed."
+      ],
+      "decision": "keep",
+      "evidence_level": "image_code_data",
+      "final": {
+        "height_px": 1560,
+        "path": "figures/final/marker_dotplot.png",
+        "sha256": "80fdb8016a06bb5ef6d09d0a286b4c3fbe3dd6b141c92b9d9a7110ba0cea2a9e",
+        "width_px": 2160
+      },
+      "findings": [],
+      "interpretable": [
+        "Marker expression patterns can be read as descriptive support for conservative teaching labels."
+      ],
+      "native_view": {
+        "method": "native_local_image_view",
+        "opened_final": true,
+        "opened_final_sha256": "80fdb8016a06bb5ef6d09d0a286b4c3fbe3dd6b141c92b9d9a7110ba0cea2a9e",
+        "opened_original": true,
+        "opened_original_sha256": "b74872b99eab60aa099718bdb9893c9672eebf88f2e710458c907bea9ecc318d",
+        "tool": "Codex view_image (detail=original)"
+      },
+      "original": {
+        "height_px": 2100,
+        "path": "figures/original/marker_dotplot.png",
+        "sha256": "b74872b99eab60aa099718bdb9893c9672eebf88f2e710458c907bea9ecc318d",
+        "width_px": 3000
+      },
+      "reviewer": "Codex view_image(detail=original)",
+      "round": 1,
+      "visible": [
+        "All plot panels, axis labels, and both legends are visible without clipping."
+      ],
+      "visual_parameter_diff": {
+        "changed": [
+          "theme",
+          "color scale",
+          "dot scale",
+          "title and legend labels"
+        ],
+        "scientific_parameters_changed": false
+      }
+    }
+  ],
+  "schema_version": "2.0.0",
+  "status": "native-reviewed"
+}

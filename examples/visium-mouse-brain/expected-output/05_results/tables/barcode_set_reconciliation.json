@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "contract": "Spatial_assay_cells_equals_image_cells_equals_coordinate_barcodes",
+  "counts": {
+    "matrix_barcodes": 2695,
+    "vendor_all_positions": 4992,
+    "vendor_in_tissue": 2695,
+    "loaded_object": 2695,
+    "assay_cells": 2695,
+    "image_cells": 2695,
+    "coordinates": 2695
+  },
+  "directed_difference_counts": {
+    "assay_cells_not_image_cells": 0,
+    "image_cells_not_assay_cells": 0,
+    "assay_cells_not_coordinates": 0,
+    "coordinates_not_assay_cells": 0,
+    "image_cells_not_coordinates": 0,
+    "coordinates_not_image_cells": 0
+  },
+  "difference_table": "barcode_set_differences.csv",
+  "full_differences_preserved": true
+}

@@ -1,0 +1,24 @@
+{
+  "absolute_paths_included": false,
+  "cache_scope": "task_local_external_to_run_root",
+  "canonical_inputs_modified": false,
+  "download_performed": false,
+  "files": [
+    {
+      "file_id": "filtered_h5",
+      "sha256": "56078d8d6fe6c13de248fdb1c518b691cdef78fb00021b659786b4a47c6656d5",
+      "size_bytes": 20554697
+    },
+    {
+      "file_id": "spatial_archive",
+      "sha256": "5f41a803e2bd69fa4dfca6abc8fa2d4e0d76aeb6c72d7038a5fdcf9cc50a36f8",
+      "size_bytes": 9233573
+    }
+  ],
+  "fully_validated_before_evidence_write": true,
+  "materialization": "direct_read_no_copy",
+  "resolved_manifest_sha256": "ac226c9d498eb9abc13a1dff657f8d2e3a0acdaa057e62015f947b242a8f8610",
+  "reuse": true,
+  "schema_version": "1.0",
+  "status": "passed"
+}

@@ -1,0 +1,28 @@
+{
+  "absolute_paths_included": false,
+  "all_checkpoints_reused": true,
+  "expected_checkpoint_keys": [
+    "S10_INGEST",
+    "S20_COORD_IMAGE_QC",
+    "S30_UNIT_QC",
+    "S40_PREPROCESS",
+    "S60_CORE_DISCOVERY",
+    "S80_ADVANCED/round-1",
+    "S90_INFERENCE_QA",
+    "S95_VISUALIZE_INTERPRET/round-1"
+  ],
+  "observed_resume_reuse_keys": [
+    "S10_INGEST",
+    "S20_COORD_IMAGE_QC",
+    "S30_UNIT_QC",
+    "S40_PREPROCESS",
+    "S60_CORE_DISCOVERY",
+    "S80_ADVANCED/round-1",
+    "S90_INFERENCE_QA",
+    "S95_VISUALIZE_INTERPRET/round-1"
+  ],
+  "pipeline_resume_log_sha256": "3311e9bd189b81e1f3a3addb0ee2bc6b88a950a73004ffa0addb07f39dc4f054",
+  "schema_version": "1.0",
+  "stage_start_observed": false,
+  "status": "passed"
+}

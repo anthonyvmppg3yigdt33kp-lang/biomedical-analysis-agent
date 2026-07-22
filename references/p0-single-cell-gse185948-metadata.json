@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "metadata_id": "p0-single-cell-gse185948-public-metadata",
+  "case_id": "p0-single-cell-gse185948",
+  "verified_on": "2026-07-19",
+  "verification_scope": "Public study, assay, processing, sample and citation metadata verified against the official NCBI GEO and PubMed records; no analysis was run.",
+  "series": {
+    "accession": "GSE185948",
+    "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE185948",
+    "organism": "Homo sapiens",
+    "tissue": "healthy control kidney cortex",
+    "assay": "single-nucleus RNA-seq",
+    "source_material": "nuclear RNA",
+    "platform": "10x Genomics Chromium 3' v3",
+    "processing": "Cell Ranger 6.0.0 with --include-introns",
+    "genome_build": "GRCh38"
+  },
+  "samples": [
+    {
+      "sample_accession": "GSM5627690",
+      "sample_label": "Healthy1",
+      "donor_label": "cont1",
+      "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5627690",
+      "condition": "healthy control",
+      "tissue": "kidney cortex",
+      "assay": "single-nucleus RNA-seq",
+      "age_years": 54,
+      "sex": "male",
+      "egfr_ml_min_1_73m2": 58
+    },
+    {
+      "sample_accession": "GSM5627691",
+      "sample_label": "Healthy2",
+      "donor_label": "cont2",
+      "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5627691",
+      "condition": "healthy control",
+      "tissue": "kidney cortex",
+      "assay": "single-nucleus RNA-seq",
+      "age_years": 62,
+      "sex": "male",
+      "egfr_ml_min_1_73m2": 61
+    },
+    {
+      "sample_accession": "GSM5627692",
+      "sample_label": "Healthy3",
+      "donor_label": "cont3",
+      "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5627692",
+      "condition": "healthy control",
+      "tissue": "kidney cortex",
+      "assay": "single-nucleus RNA-seq",
+      "age_years": 61,
+      "sex": "female",
+      "egfr_ml_min_1_73m2": 69
+    },
+    {
+      "sample_accession": "GSM5627693",
+      "sample_label": "Healthy4",
+      "donor_label": "cont4",
+      "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5627693",
+      "condition": "healthy control",
+      "tissue": "kidney cortex",
+      "assay": "single-nucleus RNA-seq",
+      "age_years": 50,
+      "sex": "male",
+      "egfr_ml_min_1_73m2": 78
+    },
+    {
+      "sample_accession": "GSM5627694",
+      "sample_label": "Healthy5",
+      "donor_label": "cont5",
+      "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM5627694",
+      "condition": "healthy control",
+      "tissue": "kidney cortex",
+      "assay": "single-nucleus RNA-seq",
+      "age_years": 52,
+      "sex": "female",
+      "egfr_ml_min_1_73m2": 98
+    }
+  ],
+  "citation": {
+    "pmid": "36310237",
+    "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/36310237/",
+    "doi": "10.1038/s41467-022-34255-z",
+    "doi_url": "https://doi.org/10.1038/s41467-022-34255-z",
+    "verification_status": "verified"
+  },
+  "governance": {
+    "license_status": "pending",
+    "redistribution_status": "pending",
+    "required_action": "Resolve dataset redistribution and reuse terms before packaging any input data."
+  },
+  "analysis_constraints": [
+    "Treat nuclei, not whole cells, as the measurement units.",
+    "Derive QC thresholds per donor from observed distributions; do not apply canned whole-cell mitochondrial thresholds.",
+    "All five samples are healthy controls, so this candidate has no case-control estimand.",
+    "Use donors as biological replicates for any future inferential model."
+  ]
+}

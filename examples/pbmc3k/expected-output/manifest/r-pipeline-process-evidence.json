@@ -1,0 +1,60 @@
+{
+  "analysis_runtime_contract": {
+    "algorithm_changed": false,
+    "handler_muffling_used": false,
+    "metric": "cosine",
+    "option_name": "Seurat.warn.umap.uwot",
+    "option_restored": true,
+    "option_value_during_call": false,
+    "path": "05_results/tables/umap_runtime_contract.json",
+    "r_warn_option": 1,
+    "seed_use": 42,
+    "sha256": "64d8628c48a85fdfe975f830d0501bd48c13a685959b57c5d54f77559958d67f",
+    "suppress_warnings_used": false,
+    "transition_notice_option_applied": true,
+    "umap_method": "uwot",
+    "warning_allowlist_used": false,
+    "warning_delivery": "immediate-stderr-via-options(warn=1)"
+  },
+  "architecture": {
+    "native_architecture": "X64",
+    "parent_environment_modified": false,
+    "platform": "windows",
+    "processor_architecture": "AMD64",
+    "processor_architecture_restored": true,
+    "supported_architecture": "AMD64"
+  },
+  "case_id": "pbmc3k",
+  "command_fingerprint_sha256": "e5c01150a30c2eb917d9013150adc35583d2cfa084e7630aefda3081978cf6b3",
+  "forbidden_scan": {
+    "matches": [],
+    "passed": true,
+    "patterns": [
+      "warning:",
+      "warning message",
+      "stack imbalance",
+      "iteration limit reached",
+      "alternation limit reached",
+      "execution halted",
+      "error in ",
+      "caught access violation",
+      "caught segfault",
+      "fatal error"
+    ]
+  },
+  "returncode": 0,
+  "schema_version": "1.0.0",
+  "shutdown_mode": "native_exit",
+  "stage": "pbmc3k-r-pipeline",
+  "status": "pass",
+  "stderr": {
+    "path": "logs/r-pipeline.stderr.log",
+    "sha256": "4bcb8ea9178b0a47da784ec8db67530eb09a1f5c1793bb3010483194ef8cb498",
+    "size_bytes": 345
+  },
+  "stdout": {
+    "path": "logs/r-pipeline.stdout.log",
+    "sha256": "86fa87199be5540b85121f8de86f358f5bf280b5de9fbc879f3088af1c54e6c4",
+    "size_bytes": 72
+  }
+}

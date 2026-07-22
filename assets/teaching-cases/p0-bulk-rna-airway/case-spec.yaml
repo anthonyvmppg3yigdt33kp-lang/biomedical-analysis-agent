@@ -1,0 +1,27 @@
+schema_version: '1.0'
+case_id: p0-bulk-rna-airway
+modality: bulk RNA-seq
+dataset:
+  source: Bioconductor
+  package: airway
+  version: 1.30.0
+  accession: GSE52778
+  expected_dimensions: [63677, 8]
+experimental_unit: airway smooth-muscle cell line
+blocking_factor: cell
+design: '~ cell + dex'
+contrast:
+  factor: dex
+  numerator: trt
+  denominator: untrt
+  positive_log2_fold_change: higher_in_trt
+prefilter:
+  minimum_raw_count: 10
+  minimum_samples: 4
+inference:
+  package: DESeq2
+  version: 1.50.2
+  test: Wald
+  multiple_testing: Benjamini-Hochberg
+  fdr_threshold: 0.05
+claim_boundary: four paired airway smooth-muscle cell lines; no patient, clinical, causal, or population generalization

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/biomedical-analysis-agent/native-review/pixel-artifact-review.schema.json",
+  "title": "PixelArtifactReview",
+  "description": "Native-image review state for one unique pixel payload shared by one or more FigureCards.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "pixel_review_id",
+    "pixel_sha256",
+    "representative_figure_id",
+    "figure_ids",
+    "occurrence_count",
+    "dimensions",
+    "extensions",
+    "metadata_flags",
+    "inspection_status",
+    "reviewer",
+    "reviewed_at",
+    "native_review_evidence",
+    "visual_findings",
+    "not_applicable_reason",
+    "claim_boundary"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "pixel_review_id": {"type": "string", "pattern": "^pixel-review-[0-9a-f]{20}$"},
+    "pixel_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "representative_figure_id": {"type": "string", "pattern": "^figure-[0-9a-f]{20}$"},
+    "figure_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^figure-[0-9a-f]{20}$"}
+    },
+    "occurrence_count": {"type": "integer", "minimum": 1},
+    "dimensions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["width", "height"],
+        "properties": {
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "extensions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^\\.[a-z0-9]+$"}
+    },
+    "metadata_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["missing_dimensions", "short_edge_lt_100", "extreme_aspect_ratio_gt_5", "duplicate_pixel_payload"]
+      }
+    },
+    "inspection_status": {
+      "type": "string",
+      "enum": ["pending", "viewed_unresolved", "native_reviewed", "not_applicable"]
+    },
+    "reviewer": {"type": ["string", "null"], "minLength": 1},
+    "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+    "native_review_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_type", "detail"],
+        "properties": {
+          "evidence_type": {
+            "type": "string",
+            "enum": ["native_view_image", "file_metadata", "checksum", "other"]
+          },
+          "detail": {"type": "string", "minLength": 1},
+          "artifact_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "visual_findings": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "not_applicable_reason": {"type": ["string", "null"], "minLength": 1},
+    "claim_boundary": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"inspection_status": {"const": "native_reviewed"}}, "required": ["inspection_status"]},
+      "then": {
+        "properties": {
+          "reviewer": {"type": "string", "minLength": 1},
+          "reviewed_at": {"type": "string", "format": "date-time"},
+          "native_review_evidence": {"minItems": 1},
+          "visual_findings": {"minItems": 1},
+          "not_applicable_reason": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"inspection_status": {"const": "not_applicable"}}, "required": ["inspection_status"]},
+      "then": {"properties": {"not_applicable_reason": {"type": "string", "minLength": 1}}}
+    },
+    {
+      "if": {"properties": {"inspection_status": {"const": "pending"}}, "required": ["inspection_status"]},
+      "then": {
+        "properties": {
+          "reviewer": {"type": "null"},
+          "reviewed_at": {"type": "null"},
+          "native_review_evidence": {"maxItems": 0},
+          "visual_findings": {"maxItems": 0},
+          "not_applicable_reason": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

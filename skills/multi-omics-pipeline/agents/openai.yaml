@@ -1,0 +1,4 @@
+interface:
+  display_name: "多组学整合工作流"
+  short_description: "MOFA2、DIABLO、SNF与MCIA的设计、验证和解释"
+  default_prompt: "Use $multi-omics-pipeline to design and validate a specimen-level multi-omics integration."

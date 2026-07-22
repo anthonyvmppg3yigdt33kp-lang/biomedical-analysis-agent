@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "option_name": "Seurat.warn.umap.uwot",
+  "option_previous_state": "TRUE",
+  "option_value_during_call": false,
+  "option_restored": true,
+  "umap_method": "uwot",
+  "metric": "cosine",
+  "seed_use": 42,
+  "dims_used": 10,
+  "algorithm_changed": false,
+  "r_warn_option": 1,
+  "warning_delivery": "immediate-stderr-via-options(warn=1)",
+  "transition_notice_option_applied": true,
+  "suppress_warnings_used": false,
+  "handler_muffling_used": false,
+  "warning_allowlist_used": false,
+  "purpose": "use Seurat's official transition option in the smallest scope to disable only its one-time migration notice for an explicitly configured uwot/cosine call, then restore the prior option state"
+}

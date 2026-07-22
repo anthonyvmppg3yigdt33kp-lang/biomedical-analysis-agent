@@ -1,0 +1,21 @@
+[
+  {
+    "capability": "spatial-transcriptomics",
+    "evidence": [
+      "spatial",
+      "spot",
+      "visium"
+    ],
+    "score": 30,
+    "skill": "bio-workflows-spatial-pipeline"
+  },
+  {
+    "capability": "visualization",
+    "evidence": [
+      "plots",
+      "visualization"
+    ],
+    "score": 20,
+    "skill": "visualization-2026718-v1"
+  }
+]

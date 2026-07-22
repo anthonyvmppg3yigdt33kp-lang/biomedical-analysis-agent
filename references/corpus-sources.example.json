@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "source_roots": [
+    {
+      "id": "private-corpus-1",
+      "name": "本地私有语料目录",
+      "path": "D:\\REPLACE_WITH_PRIVATE_CORPUS",
+      "mode": "read_only"
+    }
+  ],
+  "preprocessing_records": "D:\\REPLACE_WITH_PREPROCESSING\\records.json",
+  "distribution": {
+    "raw_articles": "private_local_only",
+    "raw_code": "private_local_only",
+    "raw_images": "private_local_only",
+    "derived_schemas_and_engine": "distributable_after_license_review"
+  }
+}

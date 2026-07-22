@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spatial Transcriptomics Pipeline"
+  short_description: "平台感知空间转录组流程、统计推断QA、图像审核与可复现交付"
+  default_prompt: "Use $bio-workflows-spatial-pipeline to audit my spatial inputs and compile a platform-aware, donor-aware analysis plan before execution."

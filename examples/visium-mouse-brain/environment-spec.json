@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.1",
+  "backend": "r",
+  "runtime": {
+    "name": "R",
+    "version": "4.5.3",
+    "exact": true,
+    "supported_platform": "x86_64-w64-mingw32",
+    "child_processor_architecture": "AMD64",
+    "shutdown_mode": "native_exit"
+  },
+  "manager": {
+    "name": "renv",
+    "version": "1.2.2",
+    "bioconductor_manager_version": "1.30.27",
+    "task_local": true,
+    "base_environment_mutation": false,
+    "host_renv_required": false,
+    "cran_repository_snapshot": "https://packagemanager.posit.co/cran/2026-04-23",
+    "package_type": "binary",
+    "dependencies_argument": "NA",
+    "snapshot_status_must_be_synchronized": true,
+    "snapshot_sources_must_be_resolved": true,
+    "snapshot_provenance_lookup_package_type": "source",
+    "installation_package_type": "binary",
+    "validated_library_search_set": [
+      "task_local_renv_project_library",
+      "exact_R_home_library"
+    ],
+    "r_home_base_library_asserted": true,
+    "bootstrap_binary": {
+      "filename": "renv_1.2.2.zip",
+      "size_bytes": 2514910,
+      "sha256": "bcba2170563c65c6d6ed9328e4a624033ad9c5ee4e5bf9132cff7bcc7327cce5",
+      "index_md5_available": false
+    }
+  },
+  "bioconductor": {
+    "release": "3.21",
+    "BiocVersion": "3.21.1",
+    "same_release_closure_required": true,
+    "cross_release_packages_allowed": false,
+    "source_compilation_allowed": false,
+    "pins_file": "config/bioconductor-3.21-archive-pins.json",
+    "pins_sha256": "696aead7c1ecbec8ef30eb8a714bc360b8f85ebd40de3417efde4edefe77d41a",
+    "archive_manifest_sha256": "81945d54001b5b756549793aa61c807cd900a4a38edec8c72bf60ff4797638c7",
+    "closure_packages": 47,
+    "platform_independent_data_exception": {
+      "name": "GenomeInfoDbData",
+      "version": "1.2.14",
+      "archive_type": "source_data_no_compilation",
+      "NeedsCompilation": "no"
+    },
+    "annotation_source_index_gate": {
+      "repository": "https://bioconductor.org/packages/3.21/data/annotation",
+      "contrib_url": "https://bioconductor.org/packages/3.21/data/annotation/src/contrib",
+      "package": "GenomeInfoDbData",
+      "version": "1.2.14",
+      "NeedsCompilation": "no"
+    }
+  },
+  "dependencies": [
+    {"name": "renv", "version": "1.2.2", "exact": true, "source": "PPM snapshot"},
+    {"name": "BiocManager", "version": "1.30.27", "exact": true, "source": "PPM snapshot"},
+    {"name": "Seurat", "version": "5.5.0", "exact": true, "source": "PPM snapshot"},
+    {"name": "SeuratObject", "version": "5.4.0", "exact": true, "source": "PPM snapshot"},
+    {"name": "sctransform", "version": "0.4.3", "exact": true, "source": "PPM snapshot"},
+    {"name": "hdf5r", "version": "1.3.12", "exact": true, "source": "PPM snapshot"},
+    {"name": "glmGamPoi", "version": "1.20.0", "exact": true, "source": "Bioconductor 3.21 Windows binary"},
+    {"name": "SparseArray", "version": "1.8.1", "exact": true, "source": "Bioconductor 3.21 Windows binary"},
+    {"name": "BiocVersion", "version": "3.21.1", "exact": true, "source": "Bioconductor 3.21 Windows binary"}
+  ],
+  "analysis_contract": {
+    "SCTransform_vst_flavor": "v2",
+    "SCTransform_method": "glmGamPoi_offset",
+    "backend_confirmation": "SCTModel arguments must record method, vst.flavor and glmGamPoi_check=true",
+    "finite_assertions": ["SCT counts", "SCT data", "SCT scale.data", "PCA embeddings", "PCA loadings", "PCA stdev"]
+  },
+  "policy": "Provisioning is authorized and task-local. Python restores a missing PROCESSOR_ARCHITECTURE only in each Windows R child after GetNativeSystemInfo proves native X64; conflicting, unknown, ARM64 and x86 states fail closed. The parent environment is never mutated. Every pinned archive is downloaded and size/SHA-256/DESCRIPTION verified before installation. All compiled packages come from one Bioconductor 3.21/R 4.5 Windows-binary cohort. GenomeInfoDbData is the sole platform-independent source-format data archive and must declare NeedsCompilation=no. Bioconductor 3.22/3.23 packages, source compilation, version fallback, hard-exit helpers and retry-based shutdown are prohibited. Environment preparation and analysis must each finish by one native R exit 0 with clean independently captured stdout/stderr and a hash-bound completion marker."
+}

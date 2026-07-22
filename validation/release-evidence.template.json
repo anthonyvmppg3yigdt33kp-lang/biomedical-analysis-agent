@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "release": {
+    "version": "v1.0.0",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "gates": {
+    "local_static": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "local_pbmc3k": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "local_visium_mouse_brain": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "local_native_visual_review": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "upstream_visualization": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "github_actions_ci": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "github_actions_real_data": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "anonymous_clone": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    },
+    "license_and_leak_scan": {
+      "status": "pending",
+      "commit": "0000000000000000000000000000000000000000",
+      "evidence": [],
+      "details": {}
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "classification_version": "1.0",
+  "case": "visium-mouse-brain",
+  "status": "passed",
+  "warning_free": true,
+  "warning_occurrences": 0,
+  "unique_warning_records": 0,
+  "blocking_warning_occurrences": 0,
+  "warning_allowlist_used": false,
+  "scientific_parameters_changed": false,
+  "records": [],
+  "code_hash": "66953f6db565ec7ccdd56c1924e1fcb326a42843fa0bfb8abeb38d5584e1ebe2",
+  "analysis_config_hash": "e3bcc2939cc8be7bc4f3f71cfd47799a7a85b618bf402c3a9d23561e58144f99",
+  "environment_lock_hash": "b8450521054cd750e93a27fab0b44757519361bd8b694ffbae35636de508cf5b",
+  "absolute_paths_included": false
+}

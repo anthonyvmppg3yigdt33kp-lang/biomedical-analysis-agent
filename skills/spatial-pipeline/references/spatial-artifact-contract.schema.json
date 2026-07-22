@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/spatial-artifact-contract.schema.json",
+  "title": "Spatial ArtifactContract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact_id",
+    "stage_id",
+    "role",
+    "type",
+    "format",
+    "path",
+    "sha256",
+    "size_bytes",
+    "producer",
+    "consumers",
+    "environment_lock_hash",
+    "validation",
+    "maturity"
+  ],
+  "properties": {
+    "artifact_id": {"type": "string", "minLength": 1},
+    "stage_id": {
+      "type": "string",
+      "enum": ["S00_INTAKE", "S10_INGEST", "S20_COORD_IMAGE_QC", "S30_UNIT_QC", "S40_PREPROCESS", "S50_SPATIAL_GRAPH", "S60_CORE_DISCOVERY", "S70_COMPOSITION_MAPPING", "S80_ADVANCED", "S90_INFERENCE_QA", "S95_VISUALIZE_INTERPRET"]
+    },
+    "role": {"type": "string", "minLength": 1},
+    "type": {"type": "string", "minLength": 1},
+    "format": {"type": "string", "minLength": 1},
+    "path": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "size_bytes": {"type": "integer", "minimum": 0},
+    "created_at": {"type": "string"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_id", "code_version"],
+      "properties": {
+        "recipe_id": {"type": "string", "minLength": 1},
+        "code_version": {"type": "string", "minLength": 1}
+      }
+    },
+    "consumers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "environment_lock_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "units": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "assay_unit": {"enum": ["spot", "bin", "cell", "sample", "subject", "not_applicable"]},
+        "spatial_unit": {"type": "string"},
+        "sampling_unit": {"type": "string"},
+        "inference_unit": {"type": "string"}
+      }
+    },
+    "spatial_frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coordinate_system", "coordinate_unit"],
+      "properties": {
+        "coordinate_system": {"type": "string", "minLength": 1},
+        "coordinate_unit": {"enum": ["pixel", "micron", "array", "other"]},
+        "transform_id": {"type": ["string", "null"]}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "rules"],
+      "properties": {
+        "status": {"enum": ["passed", "failed", "pending"]},
+        "rules": {"type": "array", "items": {"type": "string"}},
+        "evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "maturity": {"enum": ["raw-extracted", "normalized", "parse-verified", "fixture-verified", "data-verified", "native-reviewed"]},
+    "conclusion_role": {"type": ["string", "null"]},
+    "source_artifact_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

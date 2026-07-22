@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "pbmc3k",
+  "mode": "plan",
+  "expected_state": "PLAN_COMPILED",
+  "frozen": true,
+  "analysis_scope": "descriptive-only",
+  "required_route_order": [
+    "single-cell",
+    "visualization"
+  ],
+  "required_domain_stages": [
+    "SC01_IMPORT_AND_IDENTITY",
+    "SC04_QC_PER_CAPTURE",
+    "SC06_NORMALIZE_AND_HVG_PER_SAMPLE",
+    "SC08_GRAPH_CLUSTER_AND_EMBED",
+    "SC09_ANNOTATE_AND_REVIEW",
+    "SC13_FIGURES_AND_INTERPRETATION"
+  ],
+  "forbidden_domain_stages": [
+    "SC02_DEMULTIPLEX",
+    "SC03_AMBIENT_RNA",
+    "SC05_DOUBLETS_PER_CAPTURE",
+    "SC07_MERGE_AND_INTEGRATE",
+    "SC10_PSEUDOBULK_DE",
+    "SC11_DIFFERENTIAL_ABUNDANCE",
+    "SC12_ADVANCED_BRANCHES"
+  ],
+  "execution_gate": {
+    "plan": "read-only",
+    "run": "requires --authorize-run and task-local scope"
+  },
+  "method_substitution": "forbidden-without-new-plan",
+  "environment": {
+    "r_version": "4.5.3",
+    "seurat_version": "5.5.0",
+    "manager": "renv",
+    "task_local_only": true
+  },
+  "canonical_expectations": {
+    "input_cells": 2700,
+    "qc_retained_cells": 2638,
+    "clusters": 9
+  }
+}
