@@ -63,40 +63,64 @@ assert_within <- function(path, root) {
   invisible(normalized_path)
 }
 
+sha256_file <- function(path) {
+  value <- unname(tools::sha256sum(path))
+  if (length(value) != 1L || is.na(value) || !grepl("^[0-9a-fA-F]{64}$", value)) {
+    stop(sprintf("SHA256_EVIDENCE_FAILED: %s", basename(path)), call. = FALSE)
+  }
+  tolower(value)
+}
+
+promote_if_changed <- function(temporary, path, artifact_label) {
+  if (!file.exists(temporary)) {
+    stop(sprintf("Temporary %s artifact is missing: %s", artifact_label, temporary), call. = FALSE)
+  }
+  if (
+    file.exists(path) &&
+    identical(unname(file.info(temporary)$size), unname(file.info(path)$size)) &&
+    identical(sha256_file(temporary), sha256_file(path))
+  ) {
+    unlink(temporary, force = TRUE)
+    return(invisible(FALSE))
+  }
+  if (file.exists(path)) {
+    unlink(path, force = TRUE)
+  }
+  if (!file.rename(temporary, path)) {
+    stop(sprintf("Unable to promote %s artifact: %s", artifact_label, path), call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 atomic_json <- function(value, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   temporary <- paste0(path, ".tmp")
   jsonlite::write_json(value, temporary, auto_unbox = TRUE, pretty = TRUE, null = "null")
-  if (file.exists(path)) {
-    unlink(path)
-  }
-  if (!file.rename(temporary, path)) {
-    stop(sprintf("Unable to promote JSON artifact: %s", path), call. = FALSE)
-  }
+  promote_if_changed(temporary, path, "JSON")
 }
 
 atomic_csv <- function(value, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   temporary <- paste0(path, ".tmp")
   utils::write.csv(value, temporary, row.names = FALSE, na = "")
-  if (file.exists(path)) {
-    unlink(path)
-  }
-  if (!file.rename(temporary, path)) {
-    stop(sprintf("Unable to promote table artifact: %s", path), call. = FALSE)
-  }
+  promote_if_changed(temporary, path, "table")
 }
 
 atomic_rds <- function(value, path) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   temporary <- paste0(path, ".tmp")
   saveRDS(value, temporary, compress = TRUE)
-  if (file.exists(path)) {
-    unlink(path)
+  promote_if_changed(temporary, path, "RDS")
+}
+
+copy_artifact_if_changed <- function(source, path) {
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  temporary <- paste0(path, ".tmp.copy")
+  unlink(temporary, force = TRUE)
+  if (!file.copy(source, temporary, overwrite = TRUE, copy.mode = TRUE, copy.date = FALSE)) {
+    stop(sprintf("Unable to stage copied artifact: %s", source), call. = FALSE)
   }
-  if (!file.rename(temporary, path)) {
-    stop(sprintf("Unable to promote RDS artifact: %s", path), call. = FALSE)
-  }
+  promote_if_changed(temporary, path, "copied")
 }
 
 checkpoint_object <- function(stage_id, object_name, run_root, signature, environment, builder) {
@@ -226,12 +250,7 @@ save_plot <- function(plot, path, width, height, dpi) {
     bg = "white",
     limitsize = FALSE
   )
-  if (file.exists(path)) {
-    unlink(path)
-  }
-  if (!file.rename(temporary, path)) {
-    stop(sprintf("Unable to promote plot artifact: %s", path), call. = FALSE)
-  }
+  promote_if_changed(temporary, path, "plot")
 }
 
 args <- parse_args(commandArgs(trailingOnly = TRUE))
@@ -568,14 +587,14 @@ for (path in c(tables_dir, objects_dir, original_dir, final_dir)) {
 qc_stage <- file.path(run_root, "04_intermediate", "SC04_QC_PER_CAPTURE")
 import_stage <- file.path(run_root, "04_intermediate", "SC01_IMPORT_AND_IDENTITY")
 annotation_stage <- file.path(run_root, "04_intermediate", "SC09_ANNOTATE_AND_REVIEW")
-file.copy(file.path(import_stage, "feature_name_mapping.csv"), file.path(tables_dir, "feature_name_mapping.csv"), overwrite = TRUE)
-file.copy(file.path(import_stage, "feature_name_mapping_summary.csv"), file.path(tables_dir, "feature_name_mapping_summary.csv"), overwrite = TRUE)
-file.copy(file.path(qc_stage, "qc_summary.csv"), file.path(tables_dir, "qc_summary.csv"), overwrite = TRUE)
-file.copy(file.path(qc_stage, "qc_cell_audit.csv"), file.path(tables_dir, "qc_cell_audit.csv"), overwrite = TRUE)
-file.copy(file.path(run_root, "04_intermediate", "SC08_GRAPH_CLUSTER_AND_EMBED", "cluster_sizes.csv"), file.path(tables_dir, "cluster_sizes.csv"), overwrite = TRUE)
-file.copy(file.path(run_root, "04_intermediate", "SC08_GRAPH_CLUSTER_AND_EMBED", "umap_runtime_contract.json"), file.path(tables_dir, "umap_runtime_contract.json"), overwrite = TRUE)
-file.copy(file.path(annotation_stage, "cluster_markers.csv"), file.path(tables_dir, "cluster_markers.csv"), overwrite = TRUE)
-file.copy(file.path(annotation_stage, "annotation_evidence.csv"), file.path(tables_dir, "annotation_evidence.csv"), overwrite = TRUE)
+copy_artifact_if_changed(file.path(import_stage, "feature_name_mapping.csv"), file.path(tables_dir, "feature_name_mapping.csv"))
+copy_artifact_if_changed(file.path(import_stage, "feature_name_mapping_summary.csv"), file.path(tables_dir, "feature_name_mapping_summary.csv"))
+copy_artifact_if_changed(file.path(qc_stage, "qc_summary.csv"), file.path(tables_dir, "qc_summary.csv"))
+copy_artifact_if_changed(file.path(qc_stage, "qc_cell_audit.csv"), file.path(tables_dir, "qc_cell_audit.csv"))
+copy_artifact_if_changed(file.path(run_root, "04_intermediate", "SC08_GRAPH_CLUSTER_AND_EMBED", "cluster_sizes.csv"), file.path(tables_dir, "cluster_sizes.csv"))
+copy_artifact_if_changed(file.path(run_root, "04_intermediate", "SC08_GRAPH_CLUSTER_AND_EMBED", "umap_runtime_contract.json"), file.path(tables_dir, "umap_runtime_contract.json"))
+copy_artifact_if_changed(file.path(annotation_stage, "cluster_markers.csv"), file.path(tables_dir, "cluster_markers.csv"))
+copy_artifact_if_changed(file.path(annotation_stage, "annotation_evidence.csv"), file.path(tables_dir, "annotation_evidence.csv"))
 
 metadata <- pbmc[[]]
 metadata$barcode <- rownames(metadata)
@@ -728,13 +747,6 @@ delivery_checkpoint <- checkpoint_object(
   }
 )
 message("PBMC3K pipeline completed; figures remain pending native visual review.")
-sha256_file <- function(path) {
-  value <- unname(tools::sha256sum(path))
-  if (length(value) != 1L || is.na(value) || !grepl("^[0-9a-fA-F]{64}$", value)) {
-    stop(sprintf("SHA256_EVIDENCE_FAILED: %s", basename(path)), call. = FALSE)
-  }
-  tolower(value)
-}
 execution_metrics_path <- file.path(tables_dir, "execution_metrics.json")
 umap_runtime_contract_path <- file.path(tables_dir, "umap_runtime_contract.json")
 delivery_checkpoint_path <- file.path(

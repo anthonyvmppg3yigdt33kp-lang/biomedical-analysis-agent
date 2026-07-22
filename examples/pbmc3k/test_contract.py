@@ -322,6 +322,17 @@ class PBMC3KContractTests(unittest.TestCase):
             self.assertEqual(0, completed.returncode)
             self.assertIn("--run-root", completed.stdout)
 
+    def test_resume_preserves_byte_identical_materialized_artifacts(self):
+        r_code = (CASE_DIR / "run_pipeline.R").read_text(encoding="utf-8")
+        self.assertIn("promote_if_changed <- function", r_code)
+        self.assertIn("identical(sha256_file(temporary), sha256_file(path))", r_code)
+        self.assertIn("return(invisible(FALSE))", r_code)
+        self.assertIn("copy_artifact_if_changed <- function", r_code)
+        self.assertNotIn(
+            'file.copy(file.path(import_stage, "feature_name_mapping.csv"),',
+            r_code,
+        )
+
     def test_committed_expected_output_is_verified(self):
         completed = subprocess.run(
             [sys.executable, str(CASE_DIR / "verify_expected_output.py")],

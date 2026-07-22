@@ -135,8 +135,10 @@ def test_exact_windows_binary_environment_contract() -> None:
         "restore_action_count <- nrow(restore_actions)",
         "status_difference_count = length(status_diff)",
         "v4_failed_status_scope_audit",
+        "tools::sha256sum(renv_binary_path)",
     ):
         assert required in r_code
+    assert "Get-FileHash" not in r_code
     assert "exit-helper" not in r_code
     assert "hard_exit" not in r_code
 

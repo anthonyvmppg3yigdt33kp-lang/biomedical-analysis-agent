@@ -23,6 +23,10 @@ release metadata; this tracked changelog contains no mutable publication claim.
 - Teaching documentation now distinguishes public `not-executed` candidates
   from real data-verified executions and places hash-bound native review before
   terminal report/verification.
+- Windows real-data execution now hashes the pinned Visium `renv` bootstrap
+  archive with R's native SHA-256 implementation, avoiding shell-output encoding
+  differences, while PBMC resume preserves byte-identical materialized results
+  instead of replacing them.
 - Distribution validation rejects private-home locators (including escaped
   JSON/Python forms), high-confidence credentials, private keys, symlinks,
   oversized payloads, absolute paths in committed expected outputs, and a

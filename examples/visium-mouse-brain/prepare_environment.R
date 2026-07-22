@@ -198,23 +198,14 @@ if (!identical(renv_binary_size, expected_renv_binary_size)) {
     call. = FALSE
   )
 }
-powershell <- Sys.which("powershell")
-if (!nzchar(powershell)) stop("Windows PowerShell is required for pre-install SHA-256 verification", call. = FALSE)
-hash_script <- "& { param([string]$Target) (Get-FileHash -LiteralPath $Target -Algorithm SHA256).Hash.ToLowerInvariant() }"
-hash_output <- system2(
-  powershell,
-  args = c("-NoProfile", "-NonInteractive", "-Command", shQuote(hash_script), shQuote(renv_binary_path)),
-  stdout = TRUE,
-  stderr = TRUE
-)
-hash_status <- attr(hash_output, "status")
-if (!is.null(hash_status) && hash_status != 0L) {
-  stop("PowerShell Get-FileHash failed while hashing the task-local renv binary", call. = FALSE)
+renv_binary_sha256 <- tolower(unname(tools::sha256sum(renv_binary_path)))
+if (
+  length(renv_binary_sha256) != 1L ||
+  is.na(renv_binary_sha256) ||
+  !grepl("^[0-9a-f]{64}$", renv_binary_sha256)
+) {
+  stop("Cannot compute one SHA-256 for the task-local renv binary", call. = FALSE)
 }
-hash_candidates <- tolower(trimws(hash_output))
-hash_candidates <- hash_candidates[grepl("^[0-9a-f]{64}$", hash_candidates)]
-if (length(hash_candidates) != 1L) stop("Cannot parse one SHA-256 from PowerShell Get-FileHash output", call. = FALSE)
-renv_binary_sha256 <- hash_candidates[[1L]]
 if (!identical(renv_binary_sha256, expected_renv_binary_sha256)) {
   stop(
     sprintf("Downloaded renv binary SHA-256 mismatch: required %s, found %s", expected_renv_binary_sha256, renv_binary_sha256),
