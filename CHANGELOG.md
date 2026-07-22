@@ -15,6 +15,9 @@ release metadata; this tracked changelog contains no mutable publication claim.
 - Seurat 5.5.0 PBMC3K and Visium Mouse Brain teaching-workflow candidates.
 - Task-local bootstrap, environment locks, checkpoint/resume, artifact ledger,
   native visual-review trail, license/data notices, Windows CI, and release gates.
+- A credential-free Windows anonymous-clone workflow that runs the complete
+  static suite and both real-data tutorials from the public HTTPS repository,
+  verifies clean porcelain, and exports sanitized self-verifying evidence.
 
 ### Fixed
 

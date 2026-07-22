@@ -33,7 +33,7 @@ evidence.
 | visualization strict validation and real Visium Recipe execution | Merged upstream commit, content hash, and strict report |
 | Windows GitHub Actions `CI` | Saved GitHub API run response for the release commit |
 | Windows GitHub Actions `Real-data release gate` | Saved GitHub API run response for the release commit |
-| Anonymous clone, bootstrap, tests, both tutorials, and clean worktree | Schema-valid clone report and SHA-256 |
+| `Anonymous clone release gate`: public HTTPS clone, bootstrap, tests, both tutorials, and clean worktree | Schema-valid clone report, two self-verifying tutorial bundles, and SHA-256 |
 | License, private-locator, binary-input, and sensitive-data scan | Schema-valid distribution report and SHA-256 |
 
 The distribution report also requires both public expected-output snapshots.
@@ -92,6 +92,14 @@ original/final previews must receive native review. If the tracked upstream
 evidence, previews, catalog, or review registry changes, merge a new upstream
 commit, update both fields in `skills.lock.json`, and repeat bootstrap and
 commit-bound release validation.
+
+The anonymous-clone workflow deliberately does not use `actions/checkout`. It
+must run from the selected public `main` commit, clear GitHub token/askpass
+variables for Git subprocesses, disable credential helpers and prompts, verify
+the exact public remote and HEAD, and keep every environment/run outside the
+clone. A successful workflow artifact still requires primary-agent native review
+of all eight original/final pairs before its clone record can enter release
+evidence.
 
 ## Reproducible command set
 
