@@ -312,6 +312,13 @@ def test_ci_is_windows_exact_python_and_r_with_static_gates():
         assert command in CI
 
 
+def test_every_pip_cache_uses_the_tracked_dependency_file():
+    for workflow in (CI, REAL):
+        assert workflow.count("cache-dependency-path: requirements-dev.txt") == workflow.count(
+            "cache: pip"
+        )
+
+
 def test_all_third_party_actions_are_full_sha_pinned():
     for workflow in (CI, REAL):
         uses = re.findall(r"(?m)^\s*uses:\s+([^\s#]+)", workflow)
