@@ -99,6 +99,10 @@ jobs:
             credential_config_entries = 0
             ok = $true
           } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'anonymous-clone-preflight.json') -Encoding utf8
+          # `git config --get-regexp` returns 1 when no matching credential
+          # configuration exists. That is the expected clean result above, but
+          # pwsh otherwise propagates the stale native exit code for the step.
+          exit 0
 
       - name: Set up exact Python 3.13
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
