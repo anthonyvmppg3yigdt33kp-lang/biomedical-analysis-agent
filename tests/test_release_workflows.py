@@ -409,6 +409,13 @@ def test_anonymous_clone_gate_is_public_credential_free_and_runs_both_cases():
         "anonymous-clone-${{ github.sha }}",
     ):
         assert required in ANONYMOUS
+    clone_step = re.search(
+        r"(?ms)- name: Perform a credential-free public HTTPS clone\n.*?"
+        r"(?=\n      - name: Set up exact Python 3\.13)",
+        ANONYMOUS,
+    )
+    assert clone_step is not None
+    assert clone_step.group(0).rstrip().endswith("exit 0")
     helper = ANONYMOUS_HELPER.read_text(encoding="utf-8")
     compile(helper, str(ANONYMOUS_HELPER), "exec")
     for required in (
