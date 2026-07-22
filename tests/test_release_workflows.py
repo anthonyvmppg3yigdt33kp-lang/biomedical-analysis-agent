@@ -12,7 +12,11 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 CI = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 REAL = (ROOT / ".github" / "workflows" / "real-data-release-gate.yml").read_text(encoding="utf-8")
+ANONYMOUS = (ROOT / ".github" / "workflows" / "anonymous-clone-release-gate.yml").read_text(
+    encoding="utf-8"
+)
 ARTIFACT_HELPER = ROOT / ".github" / "scripts" / "tutorial_ci_artifact.py"
+ANONYMOUS_HELPER = ROOT / ".github" / "scripts" / "run_anonymous_case.py"
 
 
 def load_module(name: str, path: Path):
@@ -21,6 +25,9 @@ def load_module(name: str, path: Path):
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
+
+
+ANONYMOUS_HELPER_MODULE = load_module("anonymous_case_helper", ANONYMOUS_HELPER)
 
 
 ARTIFACT = load_module("tutorial_ci_artifact", ARTIFACT_HELPER)
@@ -313,14 +320,14 @@ def test_ci_is_windows_exact_python_and_r_with_static_gates():
 
 
 def test_every_pip_cache_uses_the_tracked_dependency_file():
-    for workflow in (CI, REAL):
+    for workflow in (CI, REAL, ANONYMOUS):
         assert workflow.count("cache-dependency-path: requirements-dev.txt") == workflow.count(
             "cache: pip"
         )
 
 
 def test_all_third_party_actions_are_full_sha_pinned():
-    for workflow in (CI, REAL):
+    for workflow in (CI, REAL, ANONYMOUS):
         uses = re.findall(r"(?m)^\s*uses:\s+([^\s#]+)", workflow)
         assert uses
         for reference in uses:
@@ -370,6 +377,81 @@ def test_real_data_gate_uses_case_specific_fault_boundaries_and_uploads_only_ver
         "/logs/",
     ):
         assert forbidden not in upload
+
+
+def test_anonymous_clone_gate_is_public_credential_free_and_runs_both_cases():
+    assert "workflow_dispatch:" in ANONYMOUS
+    assert "expected_commit:" in ANONYMOUS
+    assert "RUN_ANONYMOUS_CLONE_V1_0_0" in ANONYMOUS
+    assert "runs-on: windows-latest" in ANONYMOUS
+    assert "contents: read" in ANONYMOUS
+    assert "contents: write" not in ANONYMOUS
+    assert "actions/checkout@" not in ANONYMOUS
+    assert (
+        "https://github.com/anthonyvmppg3yigdt33kp-lang/biomedical-analysis-agent.git"
+        in ANONYMOUS
+    )
+    for required in (
+        "credential.helper=",
+        "http.extraHeader=",
+        "GIT_TERMINAL_PROMPT",
+        "Remove-Item Env:\\GH_TOKEN",
+        "Remove-Item Env:\\GITHUB_TOKEN",
+        "git -C $cloneRoot fsck --full --no-dangling",
+        "git -C $cloneRoot status --porcelain=v1 --untracked-files=all",
+        "evidence_type = 'anonymous-clone-validation'",
+        "credentials_used = $false",
+        "run_anonymous_case.py",
+        "--case pbmc3k",
+        "--case visium-mouse-brain",
+        "pbmc3k-bundle/verify_tutorial_ci_artifact.py",
+        "visium-mouse-brain-bundle/verify_tutorial_ci_artifact.py",
+        "anonymous-clone-${{ github.sha }}",
+    ):
+        assert required in ANONYMOUS
+    helper = ANONYMOUS_HELPER.read_text(encoding="utf-8")
+    compile(helper, str(ANONYMOUS_HELPER), "exec")
+    for required in (
+        '"tutorial_cli.py", "run"',
+        '"tutorial_cli.py", "resume"',
+        "immutable_checkpoint_and_analysis_artifacts",
+        "inject_tutorial_checksum_failure.py",
+        "--inject-error-before-exit",
+        "inject_environment_fault.py",
+        "tutorial_ci_artifact.py",
+        "bundle-verification.json",
+    ):
+        assert required in helper
+
+
+def test_anonymous_case_helper_removes_git_credentials(monkeypatch):
+    for name in ("GH_TOKEN", "GITHUB_TOKEN", "GIT_ASKPASS", "SSH_ASKPASS"):
+        monkeypatch.setenv(name, "must-not-leak")
+    environment = ANONYMOUS_HELPER_MODULE.sanitized_environment()
+    assert environment["GIT_TERMINAL_PROMPT"] == "0"
+    assert environment["PYTHONIOENCODING"] == "utf-8"
+    for name in ("GH_TOKEN", "GITHUB_TOKEN", "GIT_ASKPASS", "SSH_ASKPASS"):
+        assert name not in environment
+
+
+def test_anonymous_case_helper_detects_resume_artifact_mutation(tmp_path):
+    checkpoint = tmp_path / "04_intermediate" / "stage.complete.json"
+    result = tmp_path / "05_results" / "tables" / "summary.tsv"
+    checkpoint.parent.mkdir(parents=True)
+    result.parent.mkdir(parents=True)
+    checkpoint.write_text('{"ok": true}\n', encoding="utf-8")
+    result.write_text("metric\tvalue\nclusters\t9\n", encoding="utf-8")
+
+    before, checkpoint_count, analysis_count = (
+        ANONYMOUS_HELPER_MODULE.snapshot_frozen_files(tmp_path)
+    )
+    assert checkpoint_count == 1
+    assert analysis_count == 1
+    ANONYMOUS_HELPER_MODULE.assert_snapshot_unchanged(tmp_path, before)
+
+    result.write_text("metric\tvalue\nclusters\t10\n", encoding="utf-8")
+    with pytest.raises(ANONYMOUS_HELPER_MODULE.AnonymousCaseError, match="rewrote"):
+        ANONYMOUS_HELPER_MODULE.assert_snapshot_unchanged(tmp_path, before)
 
 
 def test_real_data_bundle_is_exact_hash_bound_minimal_and_self_verifying(tmp_path):
@@ -557,16 +639,19 @@ def test_workflow_powershell_blocks_parse():
     executable = shutil.which("pwsh") or shutil.which("powershell")
     if executable is None:
         pytest.skip("PowerShell parser is unavailable")
-    blocks = re.findall(r"(?m)^ {8}run: \|\r?\n((?:^ {10}.*(?:\r?\n|$))+)", REAL)
-    assert blocks
-    for block in blocks:
-        source = "\n".join(line[10:] for line in block.splitlines())
-        command = [
-            executable,
-            "-NoProfile",
-            "-NonInteractive",
-            "-Command",
-            "$null=[scriptblock]::Create([Console]::In.ReadToEnd())",
-        ]
-        parsed = subprocess.run(command, input=source, text=True, capture_output=True, check=False)
-        assert parsed.returncode == 0, parsed.stderr
+    for workflow in (REAL, ANONYMOUS):
+        blocks = re.findall(r"(?m)^ {8}run: \|\r?\n((?:^ {10}.*(?:\r?\n|$))+)", workflow)
+        assert blocks
+        for block in blocks:
+            source = "\n".join(line[10:] for line in block.splitlines())
+            command = [
+                executable,
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "$null=[scriptblock]::Create([Console]::In.ReadToEnd())",
+            ]
+            parsed = subprocess.run(
+                command, input=source, text=True, capture_output=True, check=False
+            )
+            assert parsed.returncode == 0, parsed.stderr

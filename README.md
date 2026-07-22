@@ -167,6 +167,13 @@ checks and an R 4.5.3 syntax and binary-snapshot smoke test. The separate
 `Real-data release gate` workflow requires an explicit commit SHA and execution
 confirmation, downloads the two official datasets, and publishes computational
 artifacts for review. It does not label generated figures as native-reviewed.
+The separate `Anonymous clone release gate` uses no checkout action: it removes
+GitHub credential variables, disables credential helpers and interactive prompts,
+clones the public HTTPS URL into a fresh runner directory, then repeats bootstrap,
+the complete static gates, both real-data tutorials, resume/cache checks, negative
+controls, bundle verification, and raw clean-worktree verification. Its artifact
+contains the exact schema-valid clone record and both sanitized figure bundles for
+subsequent native review.
 
 ## Repository layout
 

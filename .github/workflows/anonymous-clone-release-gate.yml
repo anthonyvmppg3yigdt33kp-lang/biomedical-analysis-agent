@@ -1,0 +1,300 @@
+name: Anonymous clone release gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: Full 40-character main-branch commit selected for release
+        required: true
+        type: string
+      confirmation:
+        description: Type RUN_ANONYMOUS_CLONE_V1_0_0 to authorize downloads and execution
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anonymous-clone-release-gate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  anonymous-clone:
+    name: Public HTTPS clone, bootstrap, and both real-data tutorials
+    runs-on: windows-latest
+    timeout-minutes: 300
+    steps:
+      - name: Verify explicit authorization and workflow revision
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          WORKFLOW_COMMIT: ${{ github.sha }}
+        run: |
+          if ($env:CONFIRMATION -ne 'RUN_ANONYMOUS_CLONE_V1_0_0') {
+            throw 'Explicit anonymous-clone execution confirmation is missing.'
+          }
+          if ($env:EXPECTED_COMMIT -notmatch '^[0-9a-f]{40}$') {
+            throw 'expected_commit must be a full lowercase Git SHA.'
+          }
+          if ($env:EXPECTED_COMMIT -ne $env:WORKFLOW_COMMIT) {
+            throw "Workflow revision mismatch: expected $env:EXPECTED_COMMIT, running $env:WORKFLOW_COMMIT"
+          }
+
+      - name: Perform a credential-free public HTTPS clone
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          PUBLIC_REMOTE: https://github.com/anthonyvmppg3yigdt33kp-lang/biomedical-analysis-agent.git
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $cloneRoot = Join-Path $env:RUNNER_TEMP 'biomedical-analysis-agent-anonymous-clone'
+          if (Test-Path -LiteralPath $cloneRoot) {
+            throw 'Anonymous clone destination unexpectedly exists on the fresh runner.'
+          }
+          Remove-Item Env:\GH_TOKEN -ErrorAction SilentlyContinue
+          Remove-Item Env:\GITHUB_TOKEN -ErrorAction SilentlyContinue
+          Remove-Item Env:\GIT_ASKPASS -ErrorAction SilentlyContinue
+          Remove-Item Env:\SSH_ASKPASS -ErrorAction SilentlyContinue
+          $env:GIT_TERMINAL_PROMPT = '0'
+          git -c credential.helper= -c http.extraHeader= clone --depth 1 $env:PUBLIC_REMOTE $cloneRoot
+          $cloneCode = $LASTEXITCODE
+          if ($cloneCode -ne 0) { throw "Anonymous clone failed with exit code $cloneCode" }
+          $head = (git -C $cloneRoot rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve anonymous clone HEAD.' }
+          if ($head -ne $env:EXPECTED_COMMIT) {
+            throw "Public main HEAD mismatch: expected $env:EXPECTED_COMMIT, observed $head"
+          }
+          $remote = (git -C $cloneRoot remote get-url origin).Trim()
+          if ($LASTEXITCODE -ne 0 -or $remote -ne $env:PUBLIC_REMOTE) {
+            throw 'Anonymous clone remote is not the exact public HTTPS repository.'
+          }
+          git -C $cloneRoot fsck --full --no-dangling
+          $fsckCode = $LASTEXITCODE
+          if ($fsckCode -ne 0) { throw "git fsck failed with exit code $fsckCode" }
+          $credentialConfig = @(git -C $cloneRoot config --local --get-regexp '^(credential\.|http\..*extraheader)')
+          $configCode = $LASTEXITCODE
+          if ($configCode -notin @(0, 1)) {
+            throw "Cannot inspect clone credential configuration: exit code $configCode"
+          }
+          if ($credentialConfig.Count -ne 0) {
+            throw 'Credential or extra-header configuration leaked into the anonymous clone.'
+          }
+          foreach ($name in @('GH_TOKEN', 'GITHUB_TOKEN', 'GIT_ASKPASS', 'SSH_ASKPASS')) {
+            if (Test-Path -LiteralPath "Env:\$name") {
+              throw "Credential-related environment variable remained during clone: $name"
+            }
+          }
+          [ordered]@{
+            schema_version = '1.0.0'
+            remote_url = $remote
+            anonymous = $true
+            credentials_used = $false
+            head_sha = $head
+            clone_returncode = $cloneCode
+            fsck_returncode = $fsckCode
+            credential_config_entries = 0
+            ok = $true
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'anonymous-clone-preflight.json') -Encoding utf8
+
+      - name: Set up exact Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Set up exact R 4.5.3
+        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          r-version: "4.5.3"
+          use-public-rspm: false
+
+      - name: Run static, routing, distribution, R, and bootstrap gates inside the clone
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $cloneRoot = Join-Path $env:RUNNER_TEMP 'biomedical-analysis-agent-anonymous-clone'
+          $gateRoot = Join-Path $env:RUNNER_TEMP 'anonymous-static-evidence'
+          $venv = Join-Path $env:RUNNER_TEMP 'anonymous-python-313'
+          $skills = Join-Path $env:RUNNER_TEMP 'anonymous-shared-task-skills'
+          New-Item -ItemType Directory -Force $gateRoot | Out-Null
+          Remove-Item Env:\GH_TOKEN -ErrorAction SilentlyContinue
+          Remove-Item Env:\GITHUB_TOKEN -ErrorAction SilentlyContinue
+          Remove-Item Env:\GIT_ASKPASS -ErrorAction SilentlyContinue
+          Remove-Item Env:\SSH_ASKPASS -ErrorAction SilentlyContinue
+          $env:GIT_TERMINAL_PROMPT = '0'
+          python -m venv $venv
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $python = Join-Path $venv 'Scripts/python.exe'
+          Push-Location $cloneRoot
+          try {
+            & $python -m pip install --upgrade pip
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python -m pip install --requirement requirements-dev.txt
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python -m compileall -q bootstrap_skills.py tutorial_cli.py .github/scripts scripts tests examples skills
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python -m pytest -q
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python tutorial_cli.py plan --case pbmc3k --output (Join-Path $gateRoot 'pbmc3k-plan.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python tutorial_cli.py plan --case visium-mouse-brain --output (Join-Path $gateRoot 'visium-plan.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python scripts/evaluate_retrieval_benchmark.py --output (Join-Path $gateRoot 'benchmark-180.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python scripts/evaluate_retrieval_benchmark.py --benchmark references/router-confusion-regressions.jsonl --output (Join-Path $gateRoot 'router-confusion.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python scripts/validate_p0_teaching_cases.py --no-local-locators
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python examples/pbmc3k/verify_expected_output.py
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python examples/visium-mouse-brain/verify_expected_output.py
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python scripts/validate_release_evidence.py --evidence validation/release-evidence.template.json --allow-pending
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python scripts/validate_distribution.py --output (Join-Path $gateRoot 'distribution.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python bootstrap_skills.py --destination $skills | Tee-Object -FilePath (Join-Path $gateRoot 'bootstrap-install.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python bootstrap_skills.py --destination $skills --verify-only | Tee-Object -FilePath (Join-Path $gateRoot 'bootstrap-verify.json')
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            Rscript --vanilla scripts/ci_r_smoke.R . --check-snapshot
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            & $python scripts/build_release_assets.py --version v1.0.0 --dry-run
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } finally {
+            Pop-Location
+          }
+
+      - name: Run PBMC3K fresh, resume, negative controls, and evidence verification
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          $cloneRoot = Join-Path $env:RUNNER_TEMP 'biomedical-analysis-agent-anonymous-clone'
+          $python = Join-Path $env:RUNNER_TEMP 'anonymous-python-313/Scripts/python.exe'
+          $rscript = (Get-Command Rscript).Source
+          & $python (Join-Path $cloneRoot '.github/scripts/run_anonymous_case.py') `
+            --case pbmc3k `
+            --clone-root $cloneRoot `
+            --base-root (Join-Path $env:RUNNER_TEMP 'anonymous-case-pbmc3k') `
+            --commit $env:EXPECTED_COMMIT `
+            --rscript $rscript `
+            --output (Join-Path $env:RUNNER_TEMP 'pbmc3k-anonymous-result.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run Visium fresh, resume, negative controls, and evidence verification
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          $cloneRoot = Join-Path $env:RUNNER_TEMP 'biomedical-analysis-agent-anonymous-clone'
+          $python = Join-Path $env:RUNNER_TEMP 'anonymous-python-313/Scripts/python.exe'
+          $rscript = (Get-Command Rscript).Source
+          & $python (Join-Path $cloneRoot '.github/scripts/run_anonymous_case.py') `
+            --case visium-mouse-brain `
+            --clone-root $cloneRoot `
+            --base-root (Join-Path $env:RUNNER_TEMP 'anonymous-case-visium-mouse-brain') `
+            --commit $env:EXPECTED_COMMIT `
+            --rscript $rscript `
+            --output (Join-Path $env:RUNNER_TEMP 'visium-anonymous-result.json')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build exact anonymous-clone validation evidence and reverify copied bundles
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+          PUBLIC_REMOTE: https://github.com/anthonyvmppg3yigdt33kp-lang/biomedical-analysis-agent.git
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $cloneRoot = Join-Path $env:RUNNER_TEMP 'biomedical-analysis-agent-anonymous-clone'
+          $outputRoot = Join-Path $env:RUNNER_TEMP 'anonymous-clone-gate-output'
+          $diagnostics = Join-Path $outputRoot 'diagnostics'
+          $pbmcBase = Join-Path $env:RUNNER_TEMP 'anonymous-case-pbmc3k'
+          $visiumBase = Join-Path $env:RUNNER_TEMP 'anonymous-case-visium-mouse-brain'
+          $pbmcResultPath = Join-Path $env:RUNNER_TEMP 'pbmc3k-anonymous-result.json'
+          $visiumResultPath = Join-Path $env:RUNNER_TEMP 'visium-anonymous-result.json'
+          $preflightPath = Join-Path $env:RUNNER_TEMP 'anonymous-clone-preflight.json'
+          foreach ($path in @($pbmcResultPath, $visiumResultPath, $preflightPath)) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Required anonymous-clone evidence is missing: $path"
+            }
+          }
+          $pbmc = Get-Content -LiteralPath $pbmcResultPath -Raw | ConvertFrom-Json
+          $visium = Get-Content -LiteralPath $visiumResultPath -Raw | ConvertFrom-Json
+          $preflight = Get-Content -LiteralPath $preflightPath -Raw | ConvertFrom-Json
+          if ($pbmc.returncode -ne 0 -or $visium.returncode -ne 0 -or $preflight.ok -ne $true) {
+            throw 'A required anonymous-clone component did not pass.'
+          }
+          $porcelainLines = @(git -C $cloneRoot status --porcelain=v1 --untracked-files=all)
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect anonymous clone worktree status.' }
+          $porcelain = [string]::Join("`n", $porcelainLines)
+          if ($porcelain -ne '') {
+            throw "Anonymous clone worktree is dirty:`n$porcelain"
+          }
+          git -C $cloneRoot diff --exit-code
+          if ($LASTEXITCODE -ne 0) { throw 'Anonymous clone has unstaged changes.' }
+          git -C $cloneRoot diff --cached --exit-code
+          if ($LASTEXITCODE -ne 0) { throw 'Anonymous clone has staged changes.' }
+          New-Item -ItemType Directory -Force $diagnostics | Out-Null
+          Copy-Item -LiteralPath (Join-Path $pbmcBase 'bundle') -Destination (Join-Path $outputRoot 'pbmc3k-bundle') -Recurse
+          Copy-Item -LiteralPath (Join-Path $visiumBase 'bundle') -Destination (Join-Path $outputRoot 'visium-mouse-brain-bundle') -Recurse
+          Copy-Item -LiteralPath $pbmcResultPath, $visiumResultPath, $preflightPath -Destination $diagnostics
+          Copy-Item -LiteralPath (Join-Path $pbmcBase 'evidence/bundle-verification.json') -Destination (Join-Path $diagnostics 'pbmc3k-bundle-verification.json')
+          Copy-Item -LiteralPath (Join-Path $visiumBase 'evidence/bundle-verification.json') -Destination (Join-Path $diagnostics 'visium-bundle-verification.json')
+          $payload = [ordered]@{
+            schema_version = '1.0.0'
+            evidence_type = 'anonymous-clone-validation'
+            ok = $true
+            commit = $env:EXPECTED_COMMIT
+            remote_url = $env:PUBLIC_REMOTE
+            anonymous = $true
+            credentials_used = $false
+            head_sha = $preflight.head_sha
+            command_returncodes = [ordered]@{
+              clone = 0
+              bootstrap_install = 0
+              bootstrap_verify = 0
+              tests = 0
+              pbmc3k = 0
+              visium_mouse_brain = 0
+            }
+            canonical_summary_sha256 = [ordered]@{
+              pbmc3k = $pbmc.canonical_summary_sha256
+              'visium-mouse-brain' = $visium.canonical_summary_sha256
+            }
+            bundle_verification_sha256 = [ordered]@{
+              pbmc3k = $pbmc.bundle_verification_sha256
+              'visium-mouse-brain' = $visium.bundle_verification_sha256
+            }
+            git_status_porcelain = $porcelain
+          }
+          $evidencePath = Join-Path $outputRoot 'anonymous-clone.json'
+          [IO.File]::WriteAllText(
+            $evidencePath,
+            ($payload | ConvertTo-Json -Depth 8) + "`n",
+            (New-Object System.Text.UTF8Encoding($false))
+          )
+          $python = Join-Path $env:RUNNER_TEMP 'anonymous-python-313/Scripts/python.exe'
+          & $python (Join-Path $outputRoot 'pbmc3k-bundle/verify_tutorial_ci_artifact.py') verify `
+            --bundle-root (Join-Path $outputRoot 'pbmc3k-bundle') `
+            --expected-case pbmc3k `
+            --expected-commit $env:EXPECTED_COMMIT
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $python (Join-Path $outputRoot 'visium-mouse-brain-bundle/verify_tutorial_ci_artifact.py') verify `
+            --bundle-root (Join-Path $outputRoot 'visium-mouse-brain-bundle') `
+            --expected-case visium-mouse-brain `
+            --expected-commit $env:EXPECTED_COMMIT
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload only sanitized, self-verifying anonymous-clone evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: anonymous-clone-${{ github.sha }}
+          path: ${{ runner.temp }}/anonymous-clone-gate-output/
+          if-no-files-found: error
+          retention-days: 30

@@ -43,7 +43,9 @@ REQUIRED_ARCHIVE_FILES = {
     "VALIDATION.md",
     "skills.lock.json",
     ".github/workflows/ci.yml",
+    ".github/workflows/anonymous-clone-release-gate.yml",
     ".github/workflows/real-data-release-gate.yml",
+    ".github/scripts/run_anonymous_case.py",
     "scripts/verify_release_evidence_bundle.py",
 }
 
