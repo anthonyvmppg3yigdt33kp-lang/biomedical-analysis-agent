@@ -2,7 +2,7 @@
   "case": "visium-mouse-brain",
   "checkpoint_resume": {
     "all_checkpoints_reused": true,
-    "evidence_sha256": "47cdf67bfabedfb50160372d5b1ba19861edd76a2bc387d7d8aa80635231b51f",
+    "evidence_sha256": "ccb6d769a46b20313a6687246c826cbcd66f039621cc0a747da4d57205ba501d",
     "stage_start_observed": false,
     "status": "passed"
   },
@@ -13,7 +13,7 @@
   },
   "derived_artifacts_only": true,
   "environment_cache_reuse": {
-    "evidence_sha256": "0ca007891b02a2d7168ca76894769d424deaaa2eb96cf0601e1be2986a7c8ba1",
+    "evidence_sha256": "f08ebab9fd4468d2d2333dda97111b901853f3fc3e69e691259faa16c5c357e2",
     "fully_validated_before_reuse": true,
     "status": "passed"
   },
@@ -24,15 +24,15 @@
   },
   "input_cache_reuse": {
     "direct_read_no_copy": true,
-    "evidence_sha256": "ab13e549d3e298a0ebccdfc6b84c9c0fe2371bcaa84bbafbaa0d616958474aa5",
+    "evidence_sha256": "08df90aea4b0e96b1315b7bae27b5e4d4b80eb78d24cc6ab5b48f6fe7f513b5c",
     "fully_validated_before_reuse": true,
     "status": "passed"
   },
   "native_r_shutdown": {
     "forbidden_matches": [],
-    "fresh_evidence_sha256": "7b30c592d862fc74da8537f3f280d9faeeb96dc8dcd8f138574bc207c97d27b5",
+    "fresh_evidence_sha256": "72a54266f72a53e4e3274c60701cb9f85f4dd2215dad094d5bd2503173d656ed",
     "fresh_native_returncode": 0,
-    "resume_evidence_sha256": "6f32054e2ab212427e1cd4d831267e96dfe19274bfb8ddecd3436d652ad58481",
+    "resume_evidence_sha256": "3944e0415f49a9c37cabdf2e3dc2902e5044aa743855b7dbe46e6bdef0fffa54",
     "resume_native_returncode": 0,
     "status": "passed"
   },
@@ -44,7 +44,7 @@
   },
   "runtime_warning_classification": {
     "blocking_warning_occurrences": 0,
-    "evidence_sha256": "5b0e8ad1c508b080312247fd832f7e24f31bc4e18ceb33441d81c21590938dc6",
+    "evidence_sha256": "10919da557e1d12d099fa76638fdc456268ee21573d192abae70541dcaf72c57",
     "scientific_parameters_changed": false,
     "status": "passed",
     "unique_warning_records": 0,

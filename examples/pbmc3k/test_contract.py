@@ -337,6 +337,13 @@ class PBMC3KContractTests(unittest.TestCase):
         self.assertTrue(summary["native_visual_review_pass"])
         self.assertFalse(summary["raw_data_distributed"])
 
+    def test_committed_expected_output_text_is_lf_canonical(self):
+        text_suffixes = {".csv", ".json", ".jsonl", ".md", ".txt"}
+        for path in (CASE_DIR / "expected-output").rglob("*"):
+            if path.is_file() and path.suffix.lower() in text_suffixes:
+                payload = path.read_bytes()
+                self.assertNotIn(b"\r", payload, path.relative_to(CASE_DIR).as_posix())
+
     def test_no_private_absolute_path(self):
         for path in CASE_DIR.iterdir():
             if path.is_file() and path.suffix.lower() in {".md", ".json", ".py", ".r"}:

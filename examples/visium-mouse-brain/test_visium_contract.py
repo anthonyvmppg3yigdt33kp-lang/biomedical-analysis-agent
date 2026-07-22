@@ -359,6 +359,27 @@ def test_public_expected_output_tooling_is_present() -> None:
         assert required in verifier_code
 
 
+def test_committed_expected_output_is_verified_and_lf_canonical() -> None:
+    output = CASE_DIR / "expected-output"
+    process = subprocess.run(
+        [sys.executable, str(CASE_DIR / "verify_expected_output.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert process.returncode == 0, process.stderr or process.stdout
+    summary = json.loads(process.stdout)
+    assert summary["ok"] is True
+    assert summary["distributed_files"] == 38
+
+    text_suffixes = {".csv", ".json", ".jsonl", ".md", ".txt"}
+    for path in output.rglob("*"):
+        if path.is_file() and path.suffix.lower() in text_suffixes:
+            assert b"\r" not in path.read_bytes(), path.relative_to(CASE_DIR).as_posix()
+
+
 def test_unpublished_expected_output_fails_with_release_blocker() -> None:
     unpublished = CASE_DIR / "expected-output-not-published-test-fixture"
     assert not unpublished.exists()

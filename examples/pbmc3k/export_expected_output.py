@@ -37,11 +37,16 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _write_json(path: Path, value: Any) -> None:
+def _write_text_lf(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    path.write_text(normalized, encoding="utf-8", newline="\n")
+
+
+def _write_json(path: Path, value: Any) -> None:
+    _write_text_lf(
+        path,
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
     )
 
 
@@ -49,7 +54,10 @@ def _copy_file(source: Path, target: Path) -> None:
     if not source.is_file() or source.stat().st_size == 0:
         raise ExportError(f"required source artifact is missing or empty: {source}")
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(source, target)
+    if source.suffix.lower() in TEXT_SUFFIXES:
+        _write_text_lf(target, source.read_text(encoding="utf-8-sig"))
+    else:
+        shutil.copyfile(source, target)
 
 
 def _kind(relative: str) -> str:
@@ -173,23 +181,38 @@ def export_run(run_root: Path, output: Path) -> dict[str, Any]:
             for old, new in replacements:
                 text = text.replace(old, new)
             target = staging / "reports" / name
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(text, encoding="utf-8")
+            _write_text_lf(target, text)
 
         _copy_file(CASE_DIR / "input_manifest.json", staging / "manifest/input-manifest.json")
         _copy_file(run_root / "00_request/input_evidence.json", staging / "manifest/input-evidence.json")
-        _write_json(staging / "manifest/execution-summary.json", source_summary)
-        _write_json(staging / "manifest/run-manifest.json", source_manifest)
         _write_json(staging / "manifest/environment-cache-reuse.json", reuse_evidence)
-        _write_json(staging / "manifest/verification-summary.json", verification)
         _copy_file(
             run_root / "logs/environment-process-evidence.json",
             staging / "manifest/environment-process-evidence.json",
         )
-        _copy_file(
-            run_root / "logs/r-pipeline-process-evidence.json",
-            staging / "manifest/r-pipeline-process-evidence.json",
+        pipeline_process_evidence = _read_json(
+            run_root / "logs/r-pipeline-process-evidence.json"
         )
+        normalized_umap_sha256 = _sha256(staging / "tables/umap_runtime_contract.json")
+        pipeline_process_evidence["analysis_runtime_contract"]["sha256"] = (
+            normalized_umap_sha256
+        )
+        pipeline_process_path = staging / "manifest/r-pipeline-process-evidence.json"
+        _write_json(pipeline_process_path, pipeline_process_evidence)
+
+        exported_evidence_hashes = {
+            "environment_process_evidence_sha256": _sha256(
+                staging / "manifest/environment-process-evidence.json"
+            ),
+            "pipeline_process_evidence_sha256": _sha256(pipeline_process_path),
+            "umap_runtime_contract_sha256": normalized_umap_sha256,
+        }
+        for payload in (source_summary, source_manifest, verification):
+            payload.setdefault("execution_evidence", {}).update(exported_evidence_hashes)
+
+        _write_json(staging / "manifest/execution-summary.json", source_summary)
+        _write_json(staging / "manifest/run-manifest.json", source_manifest)
+        _write_json(staging / "manifest/verification-summary.json", verification)
 
         source_record = {
             "analysis_signature": source_manifest["analysis_signature"],
@@ -241,7 +264,7 @@ def export_run(run_root: Path, output: Path) -> dict[str, Any]:
             "index, to its byte size and SHA-256.",
             "",
         ]
-        (staging / "README.md").write_text("\n".join(readme_lines), encoding="utf-8")
+        _write_text_lf(staging / "README.md", "\n".join(readme_lines))
 
         index_lines = [
             "# PBMC3K expected-output artifact index",
@@ -260,7 +283,7 @@ def export_run(run_root: Path, output: Path) -> dict[str, Any]:
                 "The ledger additionally binds this index; the ledger cannot self-hash and therefore excludes only itself.",
             ]
         )
-        (staging / "ARTIFACT_INDEX.md").write_text("\n".join(index_lines) + "\n", encoding="utf-8")
+        _write_text_lf(staging / "ARTIFACT_INDEX.md", "\n".join(index_lines) + "\n")
 
         ledger_path = staging / "manifest/artifact_ledger.jsonl"
         ledger_path.parent.mkdir(parents=True, exist_ok=True)
@@ -278,9 +301,9 @@ def export_run(run_root: Path, output: Path) -> dict[str, Any]:
                     "size_bytes": path.stat().st_size,
                 }
             )
-        ledger_path.write_text(
+        _write_text_lf(
+            ledger_path,
             "".join(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n" for record in records),
-            encoding="utf-8",
         )
 
         _assert_public_tree(staging)

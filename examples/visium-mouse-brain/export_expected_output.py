@@ -25,6 +25,7 @@ DEFAULT_FAULT_EVIDENCE = (
     / "fault-injection-evidence.json"
 )
 DEFAULT_OUTPUT_ROOT = CASE_DIR / "expected-output"
+TEXT_SUFFIXES = {".csv", ".json", ".jsonl", ".md", ".txt"}
 PRIVATE_PATH = re.compile(
     r"(?im)(?:^|[\s\"'=(:,])(?:[A-Z]:[\\/]|/(?:home|Users)/)"
 )
@@ -59,13 +60,25 @@ def load_json(path: Path) -> dict[str, Any]:
     return value
 
 
-def write_json(path: Path, value: Any) -> None:
+def write_text_lf(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    path.write_text(normalized, encoding="utf-8", newline="\n")
+
+
+def write_json(path: Path, value: Any) -> None:
+    write_text_lf(
+        path,
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-        newline="\n",
     )
+
+
+def copy_public_artifact(source: Path, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if source.suffix.lower() in TEXT_SUFFIXES:
+        write_text_lf(destination, source.read_text(encoding="utf-8-sig"))
+    else:
+        shutil.copy2(source, destination)
 
 
 def safe_relative(text: str) -> PurePosixPath:
@@ -310,11 +323,34 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
     for relative, source in source_files.items():
         safe_relative(relative)
         destination = output_root / Path(relative)
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, destination)
+        copy_public_artifact(source, destination)
         ensure_no_private_path(destination)
 
     write_json(output_root / "validation" / "strict-ci-validation.json", ci_report)
+    gates["checkpoint_resume"]["evidence_sha256"] = sha256_file(
+        output_root / "validation" / "checkpoint-resume-reuse.json"
+    )
+    gates["environment_cache_reuse"]["evidence_sha256"] = sha256_file(
+        output_root / "validation" / "environment-cache-reuse.json"
+    )
+    gates["input_cache_reuse"]["evidence_sha256"] = sha256_file(
+        output_root / "validation" / "input-cache-reuse.json"
+    )
+    gates["checksum_failure_injection"]["evidence_sha256"] = sha256_file(
+        output_root / "validation" / "corrupted-cache-negative-control.json"
+    )
+    gates["pre_completion_fault_injection"]["evidence_sha256"] = sha256_file(
+        output_root / "validation" / "fault-before-completion-marker.json"
+    )
+    gates["native_r_shutdown"]["fresh_evidence_sha256"] = sha256_file(
+        output_root / "validation" / "pipeline-fresh-native-exit-evidence.json"
+    )
+    gates["native_r_shutdown"]["resume_evidence_sha256"] = sha256_file(
+        output_root / "validation" / "pipeline-resume-native-exit-evidence.json"
+    )
+    gates["runtime_warning_classification"]["evidence_sha256"] = sha256_file(
+        output_root / "validation" / "pipeline-warnings.json"
+    )
     write_json(output_root / "validation" / "execution-gates.json", gates)
 
     execution_summary = load_json(output_root / "manifest" / "execution-summary.json")
@@ -443,10 +479,12 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
         )
     ledger_path = output_root / "manifest" / "artifact_ledger.jsonl"
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
-    ledger_path.write_text(
-        "".join(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n" for record in ledger_records),
-        encoding="utf-8",
-        newline="\n",
+    write_text_lf(
+        ledger_path,
+        "".join(
+            json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n"
+            for record in ledger_records
+        ),
     )
 
     index_lines = [
@@ -463,8 +501,9 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
             f"`{record['sha256']}` | {record['size_bytes']} |"
         )
     index_lines.append("")
-    (output_root / "07_reports" / "ARTIFACT_INDEX.md").write_text(
-        "\n".join(index_lines), encoding="utf-8", newline="\n"
+    write_text_lf(
+        output_root / "07_reports" / "ARTIFACT_INDEX.md",
+        "\n".join(index_lines),
     )
 
     readme = """# Verified Visium Mouse Brain teaching output
@@ -483,7 +522,7 @@ From the repository root, verify the exact inventory, hashes, PNG containers/dim
 python examples/visium-mouse-brain/verify_expected_output.py
 ```
 """
-    (output_root / "README.md").write_text(readme, encoding="utf-8", newline="\n")
+    write_text_lf(output_root / "README.md", readme)
 
     artifacts = []
     for path in sorted(path for path in output_root.rglob("*") if path.is_file()):

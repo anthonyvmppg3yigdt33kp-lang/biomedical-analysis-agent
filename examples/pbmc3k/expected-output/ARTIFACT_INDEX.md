@@ -4,7 +4,7 @@ All listed artifacts are public derived outputs. Raw data, RDS objects, environm
 
 | Path | Kind | Bytes | SHA-256 |
 |---|---|---:|---|
-| `README.md` | documentation | 1447 | `fed4e15f2df822637f4b3196a131b075dcafc1032a2dee7c487fa3025f797645` |
+| `README.md` | documentation | 1417 | `b51bf5eaee0d844ef0fde9068d0067d4ea8c67cefa6ff0ead5ee0a31aee6c28d` |
 | `figures/final/marker_dotplot.png` | figure | 50477 | `80fdb8016a06bb5ef6d09d0a286b4c3fbe3dd6b141c92b9d9a7110ba0cea2a9e` |
 | `figures/final/pca_clusters.png` | figure | 51095 | `62b57d8147897d431865c6d11e738d9a83748d7a0f42147941bba623cbb1d662` |
 | `figures/final/qc_violin.png` | figure | 103859 | `2674b42bd61d730b3f34dcef01c358e94d4d90629928bef009efb6703e94b118` |
@@ -15,30 +15,30 @@ All listed artifacts are public derived outputs. Raw data, RDS objects, environm
 | `figures/original/qc_violin.png` | figure | 193799 | `3643dc38a3252de8da1420f675b59554c0dd97b8ee1c9f6d20684f5558675aaf` |
 | `figures/original/umap_annotation.png` | figure | 133288 | `12d9d9939f4c295c8a36a4e39329f6cdee34af5e3a2ba80ba3ce175d29763384` |
 | `figures/original/umap_clusters.png` | figure | 111622 | `0493ba17a3e5545a0ae7ae67904e68148d77f476c83cf308537567dcfe50aef6` |
-| `figures/review/marker_dotplot.review.json` | figure-review | 2221 | `e2b0d9d366dd150f9ca329a87f9a9eba9ff59199e496fde34caa0ca2972e86e9` |
-| `figures/review/pca_clusters.review.json` | figure-review | 2168 | `aee44cd2771b9920b970c285d57a091f70879f26cccb015126bfe4f05a47f097` |
-| `figures/review/qc_violin.review.json` | figure-review | 2173 | `ed1a27fcc683b0c7a484a58baf840c0e408e30a718170d1887f274d21182936d` |
-| `figures/review/umap_annotation.review.json` | figure-review | 2621 | `025b2e370c6fb91b568bf9991e7693ae90e8ceca1406fbab7beefdbb21d8362a` |
-| `figures/review/umap_clusters.review.json` | figure-review | 2240 | `7d52e7affb18fdeede785fd3d0c0670de4d99fce9d96ca1c13f118cd79a29189` |
-| `manifest/environment-cache-reuse.json` | provenance | 1318 | `afe188b4e546ad206dabf1d8a13f733fa1e35047a0cf65007d769492c6bd955e` |
+| `figures/review/marker_dotplot.review.json` | figure-review | 2159 | `df2e7d27df6e6669ca79281cc2a64b6d4c4f728789348181342452b6831f938f` |
+| `figures/review/pca_clusters.review.json` | figure-review | 2106 | `8a3012b7177635a010634c46d79ee7767263c43596437534646db767c88ef5ce` |
+| `figures/review/qc_violin.review.json` | figure-review | 2111 | `e11eb3c9f38610b6058d01dccee5ba37f278b4cc4020a56ffbe4c67a7b047b06` |
+| `figures/review/umap_annotation.review.json` | figure-review | 2551 | `acca7b7ef40c230163f4e49b1fe9f4ab2f58404da81fc8adbd5802815272e47d` |
+| `figures/review/umap_clusters.review.json` | figure-review | 2177 | `abdb7dfb5f2594850568c69b773ad21d40f559819f9c4ecb48c6c908d60f8305` |
+| `manifest/environment-cache-reuse.json` | provenance | 1297 | `f05f77fc338b6dc52ce2aefb7567b3a7ea6bbe82c36d9153ebc2ffdfad693ff2` |
 | `manifest/environment-process-evidence.json` | provenance | 1199 | `f8d8cc1adeaaaa72dfcbbfb1e4920af033562f8c312737f2a00f5436d29f9dbc` |
-| `manifest/execution-summary.json` | provenance | 3039 | `3401c0f329fd44e92011d5bd96260f0cd710df65c6f8441f12c7a3d508da4849` |
+| `manifest/execution-summary.json` | provenance | 2978 | `5a909e542375a5cefd1ff69dfcc5dfdf85a18a080d56401face70822e4a045b6` |
 | `manifest/input-evidence.json` | provenance | 345 | `73eba72e11a663929ffb3025161add300ab40b1dcdcb5bdee1e9e8c94e3bb68a` |
 | `manifest/input-manifest.json` | provenance | 1277 | `b217c874df8f1bc2336ec88bc47b899fd2d673f6ea570611154cc7b9e09e38b6` |
-| `manifest/r-pipeline-process-evidence.json` | provenance | 1826 | `f3e2fec89c9ceb3caf9767e04485efe049fa055654de9fbe5e2a3ea7549deb55` |
-| `manifest/run-manifest.json` | provenance | 3119 | `2149ef5050515f08aef5ce9e79c00c53471906081c80c0e43076cb32ebaf462e` |
-| `manifest/source-run.json` | provenance | 614 | `80935d175b3ca5a8153163ce8d6b51f5c2f398c6f4d841ad22f2a2bab5fef2ea` |
-| `manifest/verification-summary.json` | provenance | 2826 | `cc62f7422a403f473699deca6b4f6465e564740eee696e90e1ebdf454139addb` |
-| `reports/FIGURE_NOTES.md` | report | 1525 | `931c3b9f371aba45d509fbf1d22361d51c96a42850ea6a6cdbc96f02dc69a1c9` |
-| `reports/QA_REPORT.md` | report | 1077 | `0daf5c4ab6ebf08746ebad4424128fbaff27354da6e50c36c803dc38a9423839` |
-| `reports/RESULTS.md` | report | 1859 | `5e30c502da58cb21b0a6825c22dc9831c8e3f651d6ccdf26dc57e2ce81a9ec9c` |
-| `tables/annotation_evidence.csv` | derived-table | 1903 | `1d99ff78ab0f825b743ccb291747ecb173a49051738ad9522619fd6d4351108f` |
-| `tables/canonical_metrics.csv` | derived-table | 131 | `3cc337504b9567a220d2026b442a6580fb53186a6ade7a970914445f288a7cec` |
-| `tables/cluster_markers.csv` | derived-table | 271286 | `51bc9b1fcce548775a85ef2035a568478d3fb3d77eb7016b6533caea141bd572` |
-| `tables/cluster_sizes.csv` | derived-table | 98 | `2b513bce86b9ef0dae8796897794c8136f1b6db5f20f587449af18e82073f11f` |
-| `tables/feature_name_mapping.csv` | derived-table | 946812 | `657739362dfa3fdf08f6238b4d8aaf8d80f3303459231aca4ab6c5341db2b0c1` |
-| `tables/feature_name_mapping_summary.csv` | derived-table | 230 | `ea9eca6ab398529edc748f2cd68074b0d3e6b435a8f3a876c0a9c81ecf3ba5d5` |
-| `tables/qc_summary.csv` | derived-table | 82 | `92bb9ba243f685864a23fde1652af48c8c449ae1efb127eb303b45bedca152da` |
-| `tables/umap_runtime_contract.json` | derived-table | 745 | `64d8628c48a85fdfe975f830d0501bd48c13a685959b57c5d54f77559958d67f` |
+| `manifest/r-pipeline-process-evidence.json` | provenance | 1826 | `4e0d6311290569624c233d9b34ac76b5ecdbee2e853316446f9cb1106811d52f` |
+| `manifest/run-manifest.json` | provenance | 3057 | `b231550dc6063ab06a8c3777e3c63d3eea3eca0121dcd82ddb16df4aa1a6c6e5` |
+| `manifest/source-run.json` | provenance | 595 | `9244185ee808deddc33bf736905bc7e23f94ef9a1c6006d4464e2b3feeeff493` |
+| `manifest/verification-summary.json` | provenance | 2769 | `f3eb01fbddc403dbb920ca5e3aba3722a8af7ac28a036678704ac9a52b7ef22d` |
+| `reports/FIGURE_NOTES.md` | report | 1512 | `668b98ce93ff809b8ca491fd87428eda64841db618f707bb157e6e1bfb37b49f` |
+| `reports/QA_REPORT.md` | report | 1062 | `808b4c491fcf8f6ab19d8452e492356f972e20ecfe71843525faab29f0cf2186` |
+| `reports/RESULTS.md` | report | 1834 | `27948644f5f1cf4a1d439558f746404a0e55bec3a3a0bfc012825eaa64d1b609` |
+| `tables/annotation_evidence.csv` | derived-table | 1893 | `9b9bb94cc80efc74fc147851086514eb01da4b01d0b5cc10159c750ebe6367ee` |
+| `tables/canonical_metrics.csv` | derived-table | 127 | `b9b36af7f3ccf2ce37c10f47360bd57260373a9ed6dda4fca438cb34ef07f777` |
+| `tables/cluster_markers.csv` | derived-table | 267839 | `9936bb7a62668b21ab174735a0dc58f33c52a2dd3007c23402c0b142486e8d26` |
+| `tables/cluster_sizes.csv` | derived-table | 88 | `078be04887f0c124c805aa5d58bd46d4de6863cce74120a5e8f40e92a399082a` |
+| `tables/feature_name_mapping.csv` | derived-table | 914073 | `d37374cfd3e84ef61eeccc0743388ed94a687951fa3aec293f53ebf2b0d1cd09` |
+| `tables/feature_name_mapping_summary.csv` | derived-table | 223 | `c6f371a4e8d74a8b5204930a9a30d389d7768495c17fd331d838ea025e3640ea` |
+| `tables/qc_summary.csv` | derived-table | 78 | `c0ce88b8236176f8843e1125624fbcea61e80fa16463dd4ac56966e2a3288ca1` |
+| `tables/umap_runtime_contract.json` | derived-table | 726 | `48c79ec0198d02b104c918b2803858749516988ada0d11189fe7e2513b8dd4c2` |
 
 The ledger additionally binds this index; the ledger cannot self-hash and therefore excludes only itself.
